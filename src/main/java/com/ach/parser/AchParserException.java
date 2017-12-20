@@ -1,6 +1,6 @@
-package com.ach.domain;
+package com.ach.parser;
 
-public class AchParserException extends RuntimeException {
+public class AchParserException extends Exception {
 
 	/**
 	 * 

@@ -1,9 +1,15 @@
 package com.ach.achViewer;
 
 import com.ach.domain.ACHFile;
-import com.ach.parser.ACHFileParser;
+import com.ach.parser.ACHViewerFileParser;
+import com.ach.parser.AchParserException;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Vector;
@@ -50,21 +56,37 @@ public class Main {
         }
     }
 
-    public static ACHFile loadACHFileFromFilename(String filename) throws Exception {
-        return ACHFileParser.fromFilename(filename);
+    public static ACHFile loadACHFileFromFilename(String filename) throws AchParserException {
+        try {
+			return fromIs(new FileInputStream(new File(filename)));
+		} catch (FileNotFoundException e) {
+			throw new AchParserException(e);
+		}
     }
 
-    public static ACHFile loadACHFileFromStdin() throws Exception {
-        InputStreamReader inputStreamReader = new InputStreamReader(System.in);
+    public static ACHFile loadACHFileFromStdin() throws AchParserException {
+		return fromIs(System.in);
+    }
+
+	private static ACHFile fromIs(final InputStream is) throws AchParserException {
+		try {
+			ArrayList<String> lines = getLines(is);
+			ACHViewerFileParser parser = new ACHViewerFileParser();
+			return parser.fromLines(lines);
+		} catch (IOException e) {
+			throw new AchParserException(e);
+		}
+	}
+
+	private static ArrayList<String> getLines(final InputStream is) throws IOException {
+		InputStreamReader inputStreamReader = new InputStreamReader(is);
         BufferedReader reader = new BufferedReader(inputStreamReader);
         String line;
-        ArrayList<String> lines = new ArrayList<String>();
-
+        ArrayList<String> lines = new ArrayList<>();
         while ((line = reader.readLine()) != null && line.length() != 0) {
             lines.add(line);
         }
-
-        return ACHFileParser.fromLines(lines);
-    }
+		return lines;
+	}
 
 }

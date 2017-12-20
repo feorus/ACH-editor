@@ -6,3 +6,4 @@ build
 *.iml
 
 !gradle/wrapper/gradle-wrapper.jar
+/bin/

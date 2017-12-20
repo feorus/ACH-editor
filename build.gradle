@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.11'
+    testCompile group: 'com.afrunt', name: 'jach', version: '0.2.2'
 }
 
 jar {
