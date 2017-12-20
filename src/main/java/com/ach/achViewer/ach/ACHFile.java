@@ -7,6 +7,7 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 public class ACHFile {
@@ -166,7 +167,7 @@ public class ACHFile {
         }
     }
 
-    public ACHFile(ArrayList<String> lines) throws Exception {
+    public ACHFile(List<String> lines) throws Exception {
         this();
         System.gc();
 
