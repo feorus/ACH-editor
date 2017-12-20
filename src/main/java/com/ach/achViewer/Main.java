@@ -51,7 +51,7 @@ public class Main {
     }
 
     public static ACHFile loadACHFileFromFilename(String filename) throws Exception {
-        return new ACHFile(filename);
+        return ACHFileParser.fromFilename(filename);
     }
 
     public static ACHFile loadACHFileFromStdin() throws Exception {

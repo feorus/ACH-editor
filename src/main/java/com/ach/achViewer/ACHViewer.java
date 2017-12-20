@@ -34,6 +34,7 @@ import com.ach.achViewer.ach.ACHRecordBatchControl;
 import com.ach.achViewer.ach.ACHRecordBatchHeader;
 import com.ach.achViewer.ach.ACHRecordEntryDetail;
 import com.ach.achViewer.ach.ACHSelection;
+import com.ach.parser.ACHFileParser;
 
 /**
  * 
@@ -131,7 +132,7 @@ public class ACHViewer extends javax.swing.JFrame {
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 		}
 		try {
-			setAchFile(new ACHFile(fileName));
+			setAchFile(ACHFileParser.fromFilename(fileName));
 			loadAchInformation();
 			clearJListAchDataAchRecords();
 			loadAchDataRecords();
