@@ -1,6 +1,8 @@
 package com.ach.achViewer;
 
 import com.ach.achViewer.ach.ACHFile;
+import com.ach.parser.ACHFileParser;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -62,7 +64,7 @@ public class Main {
             lines.add(line);
         }
 
-        return new ACHFile(lines);
+        return ACHFileParser.fromLines(lines);
     }
 
 }

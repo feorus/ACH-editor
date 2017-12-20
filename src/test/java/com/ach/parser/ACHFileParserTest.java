@@ -1,3 +1,5 @@
+package com.ach.parser;
+
 import com.ach.achViewer.ach.ACHFile;
 import org.junit.Test;
 
@@ -8,7 +10,7 @@ import java.util.Vector;
 
 import static org.junit.Assert.*;
 
-public class ACHFileTest {
+public class ACHFileParserTest {
 	
 	List<String> nachaLines(String...lines) {
 		return Arrays.asList(lines);
@@ -23,7 +25,7 @@ public class ACHFileTest {
             ,"9000001000001000000010012210527000000082100000000000000"
         );
 
-        ACHFile achFile = new ACHFile(nacha_data);
+        ACHFile achFile = ACHFileParser.fromLines(nacha_data);
         Vector<String> messages = achFile.validate();
 
         assertTrue(messages.isEmpty());
@@ -45,7 +47,7 @@ public class ACHFileTest {
             ,"9000002000002000000060093269589000000946207000000411820"
         );
 
-        ACHFile achFile = new ACHFile(nacha_data);
+        ACHFile achFile = ACHFileParser.fromLines(nacha_data);
         Vector<String> messages = achFile.validate();
 
         assertTrue(messages.isEmpty());
@@ -67,7 +69,7 @@ public class ACHFileTest {
             ,"9000002000001000000060093269589000000946206000000411820"
         );
 
-        ACHFile achFile = new ACHFile(nacha_data);
+        ACHFile achFile = ACHFileParser.fromLines(nacha_data);
         Vector<String> messages = achFile.validate();
 
         assertFalse(messages.isEmpty());
