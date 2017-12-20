@@ -2,7 +2,7 @@
  * Created on Apr 23, 2007
  *
  */
-package com.ach.achViewer.ach;
+package com.ach.domain;
 
 import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;

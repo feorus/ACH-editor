@@ -7,17 +7,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Vector;
 
-import com.ach.achViewer.ach.ACHBatch;
-import com.ach.achViewer.ach.ACHEntry;
-import com.ach.achViewer.ach.ACHFile;
-import com.ach.achViewer.ach.ACHRecord;
-import com.ach.achViewer.ach.ACHRecordAddenda;
-import com.ach.achViewer.ach.ACHRecordBatchControl;
-import com.ach.achViewer.ach.ACHRecordBatchHeader;
-import com.ach.achViewer.ach.ACHRecordEntryDetail;
-import com.ach.achViewer.ach.ACHRecordFileControl;
-import com.ach.achViewer.ach.ACHRecordFileHeader;
-import com.ach.achViewer.ach.AchParserException;
+import com.ach.domain.ACHBatch;
+import com.ach.domain.ACHEntry;
+import com.ach.domain.ACHFile;
+import com.ach.domain.ACHRecord;
+import com.ach.domain.ACHRecordAddenda;
+import com.ach.domain.ACHRecordBatchControl;
+import com.ach.domain.ACHRecordBatchHeader;
+import com.ach.domain.ACHRecordEntryDetail;
+import com.ach.domain.ACHRecordFileControl;
+import com.ach.domain.ACHRecordFileHeader;
+import com.ach.domain.AchParserException;
 
 public class ACHFileParser {
 	

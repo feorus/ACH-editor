@@ -1,7 +1,8 @@
 package com.ach.parser;
 
-import com.ach.achViewer.ach.ACHFile;
 import org.junit.Test;
+
+import com.ach.domain.ACHFile;
 
 import java.util.ArrayList;
 import java.util.Arrays;

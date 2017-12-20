@@ -2,7 +2,7 @@
  * Created on Apr 10, 2007
  *
  */
-package com.ach.achViewer.ach;
+package com.ach.domain;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -1,6 +1,6 @@
 package com.ach.achViewer;
 
-import com.ach.achViewer.ach.ACHFile;
+import com.ach.domain.ACHFile;
 import com.ach.parser.ACHFileParser;
 
 import java.io.BufferedReader;

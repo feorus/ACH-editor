@@ -6,9 +6,9 @@
 
 package com.ach.achViewer;
 
-import com.ach.achViewer.ach.ACHRecord;
-import com.ach.achViewer.ach.ACHRecordBatchHeader;
-import com.ach.achViewer.ach.ACHRecordFileHeader;
+import com.ach.domain.ACHRecord;
+import com.ach.domain.ACHRecordBatchHeader;
+import com.ach.domain.ACHRecordFileHeader;
 
 /**
  * 

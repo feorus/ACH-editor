@@ -2,7 +2,7 @@
  * Created on Apr 10, 2007
  *
  */
-package com.ach.achViewer.ach;
+package com.ach.domain;
 
 public class ACHRecordEntryDetail extends ACHRecord {
 

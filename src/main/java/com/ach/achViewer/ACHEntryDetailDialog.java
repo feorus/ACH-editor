@@ -6,8 +6,8 @@
 
 package com.ach.achViewer;
 
-import com.ach.achViewer.ach.ACHRecord;
-import com.ach.achViewer.ach.ACHRecordEntryDetail;
+import com.ach.domain.ACHRecord;
+import com.ach.domain.ACHRecordEntryDetail;
 
 /**
  * 

@@ -1,4 +1,4 @@
-package com.ach.achViewer.ach;
+package com.ach.domain;
 
 import java.util.Vector;
 

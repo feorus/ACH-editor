@@ -25,15 +25,15 @@ import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.ach.achViewer.ach.ACHBatch;
-import com.ach.achViewer.ach.ACHEntry;
-import com.ach.achViewer.ach.ACHFile;
-import com.ach.achViewer.ach.ACHRecord;
-import com.ach.achViewer.ach.ACHRecordAddenda;
-import com.ach.achViewer.ach.ACHRecordBatchControl;
-import com.ach.achViewer.ach.ACHRecordBatchHeader;
-import com.ach.achViewer.ach.ACHRecordEntryDetail;
-import com.ach.achViewer.ach.ACHSelection;
+import com.ach.domain.ACHBatch;
+import com.ach.domain.ACHEntry;
+import com.ach.domain.ACHFile;
+import com.ach.domain.ACHRecord;
+import com.ach.domain.ACHRecordAddenda;
+import com.ach.domain.ACHRecordBatchControl;
+import com.ach.domain.ACHRecordBatchHeader;
+import com.ach.domain.ACHRecordEntryDetail;
+import com.ach.domain.ACHSelection;
 import com.ach.parser.ACHFileParser;
 
 /**

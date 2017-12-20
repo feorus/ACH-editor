@@ -1,4 +1,4 @@
-package com.ach.achViewer.ach;
+package com.ach.domain;
 
 public class AchParserException extends RuntimeException {
 
