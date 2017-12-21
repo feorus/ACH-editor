@@ -102,6 +102,7 @@ public class ACHViewer extends javax.swing.JFrame {
 			}
 
 			public void windowClosed(WindowEvent evt) {
+			    exitProgram();
 			}
 		});
 
