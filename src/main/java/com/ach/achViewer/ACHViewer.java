@@ -1155,7 +1155,7 @@ public class ACHViewer extends javax.swing.JFrame {
 		jPopupMenuMultipleSelection.add(jMenuItemPopupPasteMultiple);
 
 		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setTitle("ACH Viewer");
+		setTitle("ACH Editor");
 		setName("ACHMainFrame");
 		jPanel1.setBorder(javax.swing.BorderFactory
 				.createTitledBorder("ACH Information"));

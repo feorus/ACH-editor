@@ -45,49 +45,6 @@ public class ACHRecord {
 		return achRecord;
 	}
 
-	public static void main(String[] args) {
-		if (args.length == 0) {
-			System.err.println("Format: ACHRecord <fileName>");
-			System.exit(-1);
-		}
-		File achFile = new File(args[0]);
-		if (!achFile.exists()) {
-			System.err.println("File " + achFile.getPath() + " does not exist");
-			System.exit(-1);
-		}
-		if (!achFile.isFile()) {
-			System.err.println("File " + achFile.getPath() + " is not a file");
-			System.exit(-1);
-		}
-		if (!achFile.canRead()) {
-			System.err.println("File " + achFile.getPath() + " cannot be read");
-			System.exit(-1);
-		}
-
-		BufferedReader achReader = null;
-		try {
-			achReader = new BufferedReader(new FileReader(achFile.getPath()));
-		} catch (FileNotFoundException ex) {
-			System.err.println("File " + achFile.getPath()
-					+ " could not be opened");
-			System.exit(-1);
-		}
-
-		int rowCount = 0;
-		try {
-			String record = achReader.readLine();
-			while (record != null && rowCount < 1000) {
-				rowCount++;
-				ACHRecord achRecord = ACHRecord.parseACHRecord(record);
-				String newRecord = achRecord.toString();
-				System.out.println(newRecord);
-				record = achReader.readLine();
-			}
-		} catch (IOException ex) {
-		}
-
-	}
-
 	public ACHRecord(char recordTypeCode) {
 		super();
 		setRecordTypeCode(recordTypeCode);
