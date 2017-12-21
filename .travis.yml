@@ -11,4 +11,4 @@ deploy:
   on:
     repo: java-ach/ACH-editor
     tags: true
-before_deploy: "(cd ./build/libs;mv acheditor-1.0.6.jar acheditor-$(git describe --tags --abbrev=0).jar)"
+before_deploy: "(cd ./build/libs;mv acheditor-0.0.0.jar acheditor-$(git describe --tags --abbrev=0).jar)"
