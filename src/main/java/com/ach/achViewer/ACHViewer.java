@@ -79,7 +79,7 @@ public class ACHViewer extends javax.swing.JFrame {
 
 		clearAchInfo();
 
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
 		addWindowListener(new WindowListener() {
 			public void windowActivated(WindowEvent evt) {
@@ -98,7 +98,6 @@ public class ACHViewer extends javax.swing.JFrame {
 			}
 
 			public void windowClosing(WindowEvent evt) {
-				exitProgram();
 			}
 
 			public void windowClosed(WindowEvent evt) {
