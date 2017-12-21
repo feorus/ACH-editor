@@ -6,7 +6,11 @@
 
 package com.ach.achViewer;
 
+import java.awt.Component;
 import java.awt.Cursor;
+import java.awt.Dimension;
+import java.awt.Graphics;
+import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
@@ -24,6 +28,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.border.Border;
 
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
@@ -1197,6 +1202,7 @@ public class ACHViewer extends javax.swing.JFrame {
 		jLabelAchInfoTotalCredit
 				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
 		jLabelAchInfoTotalCredit.setText("123,456,789.00");
+		jLabelAchInfoTotalCredit.setToolTipText(String.valueOf(jLabelAchInfoTotalCredit.getWidth()));
 
 		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(
 				jPanel1);
@@ -1293,12 +1299,12 @@ public class ACHViewer extends javax.swing.JFrame {
 																														.addComponent(
 																																jLabelAchInfoTotalDebit,
 																																javax.swing.GroupLayout.PREFERRED_SIZE,
-																																91,
+																																javax.swing.GroupLayout.PREFERRED_SIZE,
 																																javax.swing.GroupLayout.PREFERRED_SIZE)
 																														.addComponent(
 																																jLabelAchInfoEntryCount,
 																																javax.swing.GroupLayout.PREFERRED_SIZE,
-																																105,
+																																javax.swing.GroupLayout.PREFERRED_SIZE,
 																																javax.swing.GroupLayout.PREFERRED_SIZE))))
 																		.addContainerGap())
 														.addGroup(
@@ -1314,7 +1320,7 @@ public class ACHViewer extends javax.swing.JFrame {
 																		.addComponent(
 																				jLabelAchInfoTotalCredit,
 																				javax.swing.GroupLayout.PREFERRED_SIZE,
-																				95,
+																				javax.swing.GroupLayout.PREFERRED_SIZE,
 																				javax.swing.GroupLayout.PREFERRED_SIZE)
 																		.addGap(
 																				464,
