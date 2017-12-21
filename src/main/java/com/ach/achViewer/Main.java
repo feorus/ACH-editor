@@ -27,9 +27,10 @@ public class Main {
 
             try {
                 if (args.length > 1) {
-                    achFile = loadACHFileFromFilename(args[1]);
+                    final String filename = args[1];
+                    achFile = fromIs(new FileInputStream(new File(filename)));
                 } else {
-                    achFile = loadACHFileFromStdin();
+                    achFile = fromIs(System.in);
                 }
             } catch (Exception ex) {
                 System.err.println("Failed to read ACH File");
@@ -39,33 +40,33 @@ public class Main {
                 return;
             }
 
-            Vector<String> messages = achFile.validate();
-
-            if (messages.isEmpty()) {
-                System.out.println("ACH File Validated");
-                System.exit(0);
-            } else {
-                System.out.println("ACH File Validation Failed");
-                for (String message : messages) {
-                    System.err.println("Error: " + message);
-                }
-                System.exit(1);
-            }
+            validate(achFile);
         } else {
-            ACHViewer.main(args);
+            Main.runWithoutValidation(args);
         }
     }
 
-    public static ACHFile loadACHFileFromFilename(String filename) throws AchParserException {
+    private static void validate(ACHFile achFile) {
+        Vector<String> messages = achFile.validate();
+
+        if (messages.isEmpty()) {
+            System.out.println("ACH File Validated");
+            System.exit(0);
+        } else {
+            System.out.println("ACH File Validation Failed");
+            for (String message : messages) {
+                System.err.println("Error: " + message);
+            }
+            System.exit(1);
+        }
+    }
+
+    public static ACHFile parseFile(File file) throws AchParserException {
         try {
-			return fromIs(new FileInputStream(new File(filename)));
+            return fromIs(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
 			throw new AchParserException(e);
 		}
-    }
-
-    public static ACHFile loadACHFileFromStdin() throws AchParserException {
-		return fromIs(System.in);
     }
 
 	private static ACHFile fromIs(final InputStream is) throws AchParserException {
@@ -88,5 +89,25 @@ public class Main {
         }
 		return lines;
 	}
+
+    /**
+     * @param args
+     *            the command line arguments
+     */
+    public static void runWithoutValidation(String args[]) {
+    	ACHViewer ui = new ACHViewer();
+    	try {
+    		ui.setVisible(true);
+    		if(args.length>0) {
+    		    ui.loadFile(args[0]);
+    		}
+    	} catch (Exception ex) {
+    		System.err.println(ex.getMessage());
+    		ex.printStackTrace();
+    		if (ui != null) {
+    			ui.dispose();
+    		}
+    	}
+    }
 
 }

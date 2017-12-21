@@ -107,11 +107,13 @@ public class ACHViewer extends javax.swing.JFrame {
 
 	}
 
-	public ACHViewer(String fileName) {
-		this();
-		jLabelAchInfoFileName.setText(fileName);
-		loadAchData(fileName);
-	}
+    /**
+     * @param string
+     */
+    public void loadFile(String fileName) {
+        jLabelAchInfoFileName.setText(fileName);
+        loadAchData(fileName);
+    }
 
 	private void clearAchInfo() {
 		jLabelAchInfoFileName.setText("");
@@ -132,7 +134,7 @@ public class ACHViewer extends javax.swing.JFrame {
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 		}
 		try {
-			setAchFile(Main.loadACHFileFromFilename(fileName));
+			setAchFile(Main.parseFile(new File(fileName)));
 			loadAchInformation();
 			clearJListAchDataAchRecords();
 			loadAchDataRecords();
@@ -1980,29 +1982,6 @@ public class ACHViewer extends javax.swing.JFrame {
 	}// GEN-LAST:event_jMenuFileOpenActionPerformed
 
 	/**
-	 * @param args
-	 *            the command line arguments
-	 */
-	public static void main(String args[]) {
-		ACHViewer ui = null;
-		try {
-			if (args.length > 0) {
-				ui = new ACHViewer(args[0]);
-			} else {
-				ui = new ACHViewer();
-			}
-			ui.setVisible(true);
-		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
-			ex.printStackTrace();
-			if (ui != null) {
-				ui.dispose();
-			}
-		}
-
-	}
-
-	/**
 	 * @param achFileDirty
 	 *            The achFileDirty to set.
 	 */
@@ -2143,5 +2122,7 @@ public class ACHViewer extends javax.swing.JFrame {
 
 	private javax.swing.JSeparator jSeparatorMenuFile;
 	// End of variables declaration//GEN-END:variables
+
+
 
 }
