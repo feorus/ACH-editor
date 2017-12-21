@@ -6,7 +6,7 @@ deploy:
   skip_cleanup: true
   api_key:
     secure: Sqop2GiR0KtPjQBYSWyy3rWb9vSCFUqby98i+Tsao2Y/VwJSf7Y8NdiLlX7XV0Ui3eQpTjap13mHE4NGvq8cUYwkk9w4A/+5KJxqRDi9HAmivEqqEoazHmRn3AFigZJLaSfIMZJDBnKO7qcDXYai3JwPjXjPmKOvJaYN2i3S0yjXN9YSUCVrtunYY9yBmLF9oepEjpdC/YJsF1fCGSfmzcyWT1OEtRuIvrbf3dkl02cm+cVfctaqcnyRWiL0Llk0jGALxWlWW/toD5Jj7KA6Pnof8+trntnrQeT2EUA+rS/t5a9XGV3g2DPYay5a0JGOU/YmSZKcyX/zehIkoVhTujE3aSRWGQSsDxjghL2M+5YYBw2TtcWq5a5GzET6MaK3t0fvhFsgPz9DElpOsyhVktU9PMvsWNNThk5tL1NKrAo4a9CROMw6v2K4cn8SrwEJA22LSKavisimPyP0QUmo/ANU0/LaI38Xz9wughrZ3rCeQ4YdDxgSYl3zAKiuLuZbG3mmNNuEeTIwjCfaYtxHEFsBlOyPF6LDYxfgx7R3ar3/2ZnYoyyPkhA4abXU/Op8NishYTjKiwL4IL8J9UqcOaVWRBzX57Pe2vthUL2ED15VqypCRTZbW8flC7O7GK0bW3fuqfdDT6WHeY5Hb48LYJVfyuEVjfVQnpBN3aiKjCk=
-  file: "*/build/libs/*.jar"
+  file: "build/libs/*.jar"
   file_glob: true
   on:
     repo: java-ach/ACH-editor
