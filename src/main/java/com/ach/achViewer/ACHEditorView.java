@@ -6,11 +6,7 @@
 
 package com.ach.achViewer;
 
-import java.awt.Component;
 import java.awt.Cursor;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Insets;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
@@ -28,8 +24,9 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.border.Border;
 
+import com.ach.achViewer.model.ACHEditorModel;
+import com.ach.achViewer.model.ModelSubscriber;
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHFile;
@@ -39,19 +36,19 @@ import com.ach.domain.ACHRecordBatchControl;
 import com.ach.domain.ACHRecordBatchHeader;
 import com.ach.domain.ACHRecordEntryDetail;
 import com.ach.domain.ACHSelection;
-import com.ach.parser.ACHViewerFileParser;
 
 /**
  * 
  * @author John
  */
-public class ACHViewer extends javax.swing.JFrame {
+public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber {
 
 	private static final long serialVersionUID = 0;
 
 	private ACHFile achFile = null;
 
-	private boolean achFileDirty = false;
+	
+	private ACHEditorModel achappmodel;
 
 	// Retrieved after initializing components. Used to add an '*' to the title
 	// when an ACH file has been edited.
@@ -62,7 +59,7 @@ public class ACHViewer extends javax.swing.JFrame {
 	Point mouseClick = null;
 
 	/** Creates new form ACHViewer */
-	public ACHViewer() {
+	public ACHEditorView(ACHEditorModel achappmodel) {
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -109,15 +106,23 @@ public class ACHViewer extends javax.swing.JFrame {
 			    exitProgram();
 			}
 		});
-
+		this.achappmodel = achappmodel;
+		this.achappmodel.addSubscriber(this);
 	}
 
     /**
+     * @param view 
+     * @param model 
      * @param string
      */
-    public void loadFile(String fileName) {
-        jLabelAchInfoFileName.setText(fileName);
-        loadAchData(fileName);
+    public void loadFile(ACHEditorView view, ACHEditorModel model, String fileName) {
+        loadAchData(view, model, fileName);
+        model.setTitle(fileName);
+        view.onFileLoaded();
+    }
+
+    private void onFileLoaded() {
+        jLabelAchInfoFileName.setText(achappmodel.getTitle());
     }
 
 	private void clearAchInfo() {
@@ -132,11 +137,11 @@ public class ACHViewer extends javax.swing.JFrame {
 		jListAchDataAchRecords.setModel(new DefaultListModel());
 	}
 
-	private void loadAchData(String fileName) {
+	private void loadAchData(ACHEditorView view, ACHEditorModel model, String fileName) {
 
 		Cursor currentCursor = this.getCursor();
 		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
-			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+			view.setCursor(new Cursor(Cursor.WAIT_CURSOR));
 		}
 		try {
 			setAchFile(Main.parseFile(new File(fileName)));
@@ -150,20 +155,24 @@ public class ACHViewer extends javax.swing.JFrame {
 		}
 		Vector<String> errorMessages = getAchFile().getErrorMessages();
 		if (errorMessages.size() == 0) {
-			JOptionPane.showMessageDialog(this, "File loaded without error");
+            view.showMessage("File loaded without error");
 		} else {
 			StringBuffer errorMessage = new StringBuffer("");
 			for (int i = 0; i < errorMessages.size(); i++) {
 				errorMessage.append(errorMessages.get(i)
 						+ System.getProperty("line.separator", "\r\n"));
 			}
-			JOptionPane.showMessageDialog(this, errorMessage);
+			view.showMessage(errorMessage.toString());
 		}
-		setAchFileDirty(false);
+		setAchFileDirty(model, view, false);
 		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
 			this.setCursor(new Cursor(currentCursor.getType()));
 		}
 	}
+
+    private void showMessage(final String msg) {
+        JOptionPane.showMessageDialog(this, msg);
+    }
 
 	private void loadAchInformation() {
 		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
@@ -320,7 +329,7 @@ public class ACHViewer extends javax.swing.JFrame {
 			achFile.setFileHeader(dialog.getAchRecord());
 			((DefaultListModel) jListAchDataAchRecords.getModel())
 					.setElementAt(dialog.getAchRecord(), selectRow);
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 			loadAchInformation();
 		}
 	}
@@ -333,7 +342,7 @@ public class ACHViewer extends javax.swing.JFrame {
 			achFile.setFileControl(dialog.getAchRecord());
 			((DefaultListModel) jListAchDataAchRecords.getModel())
 					.setElementAt(dialog.getAchRecord(), selectRow);
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 			loadAchInformation();
 		}
 	}
@@ -348,7 +357,7 @@ public class ACHViewer extends javax.swing.JFrame {
 					dialog.getAchRecord());
 			((DefaultListModel) jListAchDataAchRecords.getModel())
 					.setElementAt(dialog.getAchRecord(), selectRow);
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 		}
 
 	}
@@ -384,7 +393,7 @@ public class ACHViewer extends javax.swing.JFrame {
 				achFile.getBatches().add(position[0] + 1, achBatch);
 			}
 			// make sure we have to save
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 
 			// update display
 			clearJListAchDataAchRecords();
@@ -410,7 +419,7 @@ public class ACHViewer extends javax.swing.JFrame {
 					dialog.getAchRecord());
 			((DefaultListModel) jListAchDataAchRecords.getModel())
 					.setElementAt(dialog.getAchRecord(), selectRow);
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 		}
 	}
 
@@ -420,7 +429,7 @@ public class ACHViewer extends javax.swing.JFrame {
 		achFile.recalculate();
 
 		// Update display with new data
-		setAchFileDirty(false); // Don't care if these records get lost
+		achappmodel.setAchFileDirty(false); // Don't care if these records get lost
 		clearJListAchDataAchRecords();
 		loadAchDataRecords();
 	}
@@ -475,7 +484,7 @@ public class ACHViewer extends javax.swing.JFrame {
 					position[1]).setAddendaRecs(achAddendas);
 
 			// Update display with new data
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 			clearJListAchDataAchRecords();
 			loadAchDataRecords();
 			jListAchDataAchRecords.setSelectedIndex(selected);
@@ -521,7 +530,7 @@ public class ACHViewer extends javax.swing.JFrame {
 				achFile.getBatches().get(position[0]).getEntryRecs().add(
 						position[1] + 1, achEntry);
 			}
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 			clearJListAchDataAchRecords();
 			loadAchDataRecords();
 			jListAchDataAchRecords.setSelectedIndex(selected[0]);
@@ -693,7 +702,7 @@ public class ACHViewer extends javax.swing.JFrame {
 					position[1]).setAddendaRecs(achAddendas);
 		}
 
-		setAchFileDirty(true);
+		achappmodel.setAchFileDirty(true);
 		clearJListAchDataAchRecords();
 		loadAchDataRecords();
 		jListAchDataAchRecords.setSelectedIndex(selected[0]);
@@ -739,7 +748,7 @@ public class ACHViewer extends javax.swing.JFrame {
 						position[1].intValue());
 			}
 		}
-		setAchFileDirty(true);
+		achappmodel.setAchFileDirty(true);
 		clearJListAchDataAchRecords();
 		loadAchDataRecords();
 		jListAchDataAchRecords.setSelectedIndex(selected[0]);
@@ -780,7 +789,7 @@ public class ACHViewer extends javax.swing.JFrame {
 				}
 			}
 		}
-		setAchFileDirty(true);
+		achappmodel.setAchFileDirty(true);
 		clearJListAchDataAchRecords();
 		loadAchDataRecords();
 		jListAchDataAchRecords.setSelectedIndex(selected[0]);
@@ -799,7 +808,7 @@ public class ACHViewer extends javax.swing.JFrame {
 					entryPosition).setEntryDetail(dialog.getAchRecord());
 			((DefaultListModel) jListAchDataAchRecords.getModel())
 					.setElementAt(dialog.getAchRecord(), selectRow);
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 		}
 	}
 
@@ -816,14 +825,14 @@ public class ACHViewer extends javax.swing.JFrame {
 					dialog.getAchRecord());
 			((DefaultListModel) jListAchDataAchRecords.getModel())
 					.setElementAt(dialog.getAchRecord(), selectRow);
-			setAchFileDirty(true);
+			achappmodel.setAchFileDirty(true);
 		}
 	}
 
 	/**
 	 * @return the achFile
 	 */
-	public synchronized ACHFile getAchFile() {
+	public ACHFile getAchFile() {
 		return achFile;
 	}
 
@@ -831,7 +840,7 @@ public class ACHViewer extends javax.swing.JFrame {
 	 * @param achFile
 	 *            the achFile to set
 	 */
-	public synchronized void setAchFile(ACHFile achFile) {
+	public void setAchFile(ACHFile achFile) {
 		this.achFile = achFile;
 	}
 
@@ -1661,7 +1670,7 @@ public class ACHViewer extends javax.swing.JFrame {
 		loadAchInformation();
 		clearJListAchDataAchRecords();
 		loadAchDataRecords();
-		setAchFileDirty(true);
+		achappmodel.setAchFileDirty(true);
 	}// GEN-LAST:event_jMenuItemToolsReverseActionPerformed
 
 	private void jMenuItemPopupPasteMultipleActionPerformed(
@@ -1822,7 +1831,7 @@ public class ACHViewer extends javax.swing.JFrame {
 		clearJListAchDataAchRecords();
 		loadAchInformation();
 		loadAchDataRecords();
-		setAchFileDirty(true);
+        achappmodel.setAchFileDirty(true);
 		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
 			this.setCursor(new Cursor(currentCursor.getType()));
 		}
@@ -1880,8 +1889,10 @@ public class ACHViewer extends javax.swing.JFrame {
 			try {
 				achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
 				if (achFile.save(fileName)) {
-					jLabelAchInfoFileName.setText(fileName);
-					setAchFileDirty(false);
+				    achappmodel.setTitle(fileName);
+					onFileLoaded();
+				    achappmodel.setAchFileDirty(false);
+
 				}
 			} catch (Exception ex) {
 				JOptionPane.showMessageDialog(this,
@@ -1898,8 +1909,9 @@ public class ACHViewer extends javax.swing.JFrame {
 		try {
 			achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
 			if (achFile.save(fileName)) {
-				jLabelAchInfoFileName.setText(fileName);
-				setAchFileDirty(false);
+			    achappmodel.setTitle(fileName);
+				onFileLoaded();
+				achappmodel.setAchFileDirty(false);
 			}
 		} catch (Exception ex) {
 			JOptionPane.showMessageDialog(this,
@@ -1983,28 +1995,25 @@ public class ACHViewer extends javax.swing.JFrame {
 			jLabelAchInfoFileName.setText(chooser.getSelectedFile()
 					.getAbsolutePath());
 
-			loadAchData(chooser.getSelectedFile().getAbsolutePath());
+			loadAchData(this, this.achappmodel, chooser.getSelectedFile().getAbsolutePath());
 		}
 	}// GEN-LAST:event_jMenuFileOpenActionPerformed
 
 	/**
+	 * @param view 
+	 * @param model 
 	 * @param achFileDirty
 	 *            The achFileDirty to set.
 	 */
-	private void setAchFileDirty(boolean achFileDirty) {
-		this.achFileDirty = achFileDirty;
-		if (isAchFileDirty()) {
-			this.setTitle('*' + title);
-		} else {
-			this.setTitle(title);
-		}
+	private static void setAchFileDirty(ACHEditorModel model, ACHEditorView view, boolean isDirty) {
+	    model.setAchFileDirty(isDirty);
 	}
 
 	/**
 	 * @return Returns the achFileDirty.
 	 */
 	private boolean isAchFileDirty() {
-		return achFileDirty;
+		return this.achappmodel.isAchFileDirty();
 	}
 
 	// Variables declaration - do not modify//GEN-BEGIN:variables
@@ -2128,6 +2137,18 @@ public class ACHViewer extends javax.swing.JFrame {
 
 	private javax.swing.JSeparator jSeparatorMenuFile;
 	// End of variables declaration//GEN-END:variables
+
+    /* (non-Javadoc)
+     * @see com.ach.achViewer.model.ModelSubscriber#onFileDirty()
+     */
+    @Override
+    public void onFileDirty() {
+        if (achappmodel.isAchFileDirty()) {
+            setTitle('*' + achappmodel.getTitle());
+        } else {
+            setTitle(achappmodel.getTitle());
+        }
+    }
 
 
 
