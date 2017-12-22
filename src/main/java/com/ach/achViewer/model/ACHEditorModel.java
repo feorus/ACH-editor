@@ -38,6 +38,9 @@ public class ACHEditorModel {
      */
     public void setTitle(String title) {
        this.title = title;
+       for (ModelSubscriber s: subscribers) {
+           s.onSetTitle();
+       }
     }
     
     public String getTitle() {

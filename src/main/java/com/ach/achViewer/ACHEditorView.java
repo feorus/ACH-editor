@@ -118,12 +118,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
     public void loadFile(ACHEditorView view, ACHEditorModel model, String fileName) {
         loadAchData(view, model, fileName);
         model.setTitle(fileName);
-        view.onFileLoaded();
     }
 
-    private void onFileLoaded() {
-        jLabelAchInfoFileName.setText(achappmodel.getTitle());
-    }
 
 	private void clearAchInfo() {
 		jLabelAchInfoFileName.setText("");
@@ -1890,7 +1886,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 				achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
 				if (achFile.save(fileName)) {
 				    achappmodel.setTitle(fileName);
-					onFileLoaded();
 				    achappmodel.setAchFileDirty(false);
 
 				}
@@ -1910,7 +1905,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 			achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
 			if (achFile.save(fileName)) {
 			    achappmodel.setTitle(fileName);
-				onFileLoaded();
 				achappmodel.setAchFileDirty(false);
 			}
 		} catch (Exception ex) {
@@ -2148,6 +2142,14 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
         } else {
             setTitle(achappmodel.getTitle());
         }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.achViewer.model.ModelSubscriber#onSetTitle()
+     */
+    @Override
+    public void onSetTitle() {
+        jLabelAchInfoFileName.setText(achappmodel.getTitle());
     }
 
 

@@ -11,4 +11,6 @@ public interface ModelSubscriber {
 
     void onFileDirty();
 
+    void onSetTitle();
+
 }
