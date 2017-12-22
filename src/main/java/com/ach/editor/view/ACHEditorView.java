@@ -11,6 +11,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -52,7 +53,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private static final long serialVersionUID = 0;
 
-	private ACHFile achFile = null;
+	//private ACHFile achFile = null;
 
 	
 	private ACHEditorModel model;
@@ -135,6 +136,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
     }
 
 	public void loadAchInformation() {
+	    final ACHFile achFile = model.getAchFile();
 		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
 				.getFileCreationDate()
 				+ " " + achFile.getFileHeader().getFileCreationTime());
@@ -169,10 +171,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	public void loadAchDataRecords() {
+	    final ACHFile achFile = model.getAchFile();
 		positions = new Vector<Integer[]>(10, 10);
-		addJListAchDataAchRecordsItem(getAchFile().getFileHeader());
+		addJListAchDataAchRecordsItem(achFile.getFileHeader());
 		positions.add(new Integer[0]);
-		Vector<ACHBatch> achBatches = getAchFile().getBatches();
+		Vector<ACHBatch> achBatches = achFile.getBatches();
 		for (int i = 0; i < achBatches.size(); i++) {
 			addJListAchDataAchRecordsItem(achBatches.get(i).getBatchHeader());
 			positions.add(new Integer[] { i });
@@ -191,7 +194,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 			addJListAchDataAchRecordsItem(achBatches.get(i).getBatchControl());
 			positions.add(new Integer[] { i });
 		}
-		addJListAchDataAchRecordsItem(getAchFile().getFileControl());
+		addJListAchDataAchRecordsItem(achFile.getFileControl());
 		positions.add(new Integer[0]);
 		jMenuItemToolsRecalculate.setEnabled(true);
 		jMenuItemToolsValidate.setEnabled(true);
@@ -282,6 +285,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void editAchFileHeader(int selectRow) {
+	       final ACHFile achFile = model.getAchFile();
+
 		ACHFileHeaderDialog dialog = new ACHFileHeaderDialog(
 				new javax.swing.JFrame(), true, achFile.getFileHeader());
 		dialog.setVisible(true);
@@ -295,6 +300,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void editAchFileControl(int selectRow) {
+	    final ACHFile achFile = model.getAchFile();
+
 		ACHFileControlDialog dialog = new ACHFileControlDialog(
 				new javax.swing.JFrame(), true, achFile.getFileControl());
 		dialog.setVisible(true);
@@ -308,6 +315,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void editAchBatchHeader(int position, int selectRow) {
+	       final ACHFile achFile = model.getAchFile();
+
 		ACHBatchHeaderDialog dialog = new ACHBatchHeaderDialog(
 				new javax.swing.JFrame(), true, achFile.getBatches().get(
 						position).getBatchHeader());
@@ -323,6 +332,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void addAchBatch() {
+	       final ACHFile achFile = model.getAchFile();
 		int[] selected = jListAchDataAchRecords.getSelectedIndices();
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(this,
@@ -370,6 +380,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void editAchBatchControl(int position, int selectRow) {
+	    final ACHFile achFile = model.getAchFile();
 		ACHBatchControlDialog dialog = new ACHBatchControlDialog(
 				new javax.swing.JFrame(), true, achFile.getBatches().get(
 						position).getBatchControl());
@@ -384,10 +395,10 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void newAchFile() {
-		achFile = new ACHFile();
+	    final ACHFile achFile = new ACHFile();
 		achFile.addBatch(new ACHBatch());
 		achFile.recalculate();
-
+		model.setAchFile(achFile);
 		// Update display with new data
 		model.setAchFileDirty(false); // Don't care if these records get lost
 		clearJListAchDataAchRecords();
@@ -395,6 +406,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void addAchAddenda() {
+	    final ACHFile achFile = model.getAchFile();
 		int selected = jListAchDataAchRecords.locationToIndex(mouseClick);
 		if (selected < 0) {
 			JOptionPane.showMessageDialog(this,
@@ -459,6 +471,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void addAchEntryDetail() {
+	    final ACHFile achFile = model.getAchFile();
 		int[] selected = jListAchDataAchRecords.getSelectedIndices();
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(this,
@@ -600,6 +613,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void deleteAchAddenda() {
+	    final ACHFile achFile = model.getAchFile();
 		int[] selected = jListAchDataAchRecords.getSelectedIndices();
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(this,
@@ -670,6 +684,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void deleteAchEntryDetail() {
+	    final ACHFile achFile = model.getAchFile();
 		int[] selected = jListAchDataAchRecords.getSelectedIndices();
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(this,
@@ -716,6 +731,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	private void deleteAchBatch() {
+	    final ACHFile achFile = model.getAchFile();
 		int[] selected = jListAchDataAchRecords.getSelectedIndices();
 		if (selected.length < 1) {
 			JOptionPane.showMessageDialog(this,
@@ -758,6 +774,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private void editAchEntryDetail(int batchPosition, int entryPosition,
 			int selectRow) {
+	    final ACHFile achFile = model.getAchFile();
 		ACHEntryDetailDialog dialog = new ACHEntryDetailDialog(
 				new javax.swing.JFrame(), true, achFile.getBatches().get(
 						batchPosition).getEntryRecs().get(entryPosition)
@@ -774,6 +791,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private void editAchAddenda(int batchPosition, int entryPosition,
 			int addendaPosition, int selectRow) {
+	    final ACHFile achFile = model.getAchFile();
 		ACHAddendaDialog dialog = new ACHAddendaDialog(
 				new javax.swing.JFrame(), true, achFile.getBatches().get(
 						batchPosition).getEntryRecs().get(entryPosition)
@@ -789,22 +807,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		}
 	}
 
-	/**
-	 * @return the achFile
-	 */
-	public ACHFile getAchFile() {
-		return achFile;
-	}
-
-	/**
-	 * @param achFile
-	 *            the achFile to set
-	 */
-	public void setAchFile(ACHFile achFile) {
-		this.achFile = achFile;
-	}
-
 	private boolean exitProgram() {
+	    final ACHFile achFile = model.getAchFile();
 		if (model.isAchFileDirty()) {
 			Object[] options = { "Save", "Exit", "Cancel" };
 			int selection = JOptionPane.showOptionDialog(this,
@@ -1512,10 +1516,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jMenuItemToolsRecalculate.setText("Recalculate");
 		jMenuItemToolsRecalculate
 				.setToolTipText("Recalculate the file and batch control totals");
+		ACHEditorView view = this;
 		jMenuItemToolsRecalculate
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemToolsRecalculateActionPerformed(evt);
+						jMenuItemToolsRecalculateActionPerformed(model, view, evt);
 					}
 				});
 
@@ -1527,7 +1532,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jMenuItemToolsReverse
 				.addActionListener(new java.awt.event.ActionListener() {
 					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemToolsReverseActionPerformed(evt);
+						jMenuItemToolsReverseActionPerformed(model, view, evt);
 					}
 				});
 
@@ -1619,7 +1624,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}// </editor-fold>//GEN-END:initComponents
 
 	private void jMenuItemToolsReverseActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsReverseActionPerformed
+			ACHEditorModel model, ACHEditorView view, java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsReverseActionPerformed
+	       final ACHFile achFile = model.getAchFile();
+
 		achFile.reverse();
 		loadAchInformation();
 		clearJListAchDataAchRecords();
@@ -1704,6 +1711,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}// GEN-LAST:event_jMenuItemPopupEntryAddendaAddActionPerformed
 
 	private void jMenuItemFileNewActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemFileNewActionPerformed
+	       final ACHFile achFile = model.getAchFile();
+
 		if (model.isAchFileDirty()) {
 			Object[] options = { "Save", "Continue", "Cancel" };
 			int selection = JOptionPane.showOptionDialog(this,
@@ -1773,7 +1782,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}// GEN-LAST:event_jMenuItemPopupEntryAddActionPerformed
 
 	private void jMenuItemToolsRecalculateActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsRecalculateActionPerformed
+			ACHEditorModel model, ACHEditorView view, java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsRecalculateActionPerformed
+	       final ACHFile achFile = model.getAchFile();
+
 		Cursor currentCursor = this.getCursor();
 		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
@@ -1794,6 +1805,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private void jMenuItemToolsValidateActionPerformed(
 			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsValidateActionPerformed
+	       final ACHFile achFile = model.getAchFile();
+
 		Cursor currentCursor = this.getCursor();
 		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
 			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
@@ -1818,6 +1831,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private void jMenuItemFileSaveAsActionPerformed(
 			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuSaveAsActionPerformed
+	       final ACHFile achFile = model.getAchFile();
+
 		JFileChooser chooser = new JFileChooser(new File(jLabelAchInfoFileName
 				.getText()).getParent());
 		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -1858,6 +1873,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}// GEN-LAST:event_jMenuSaveAsActionPerformed
 
 	private void jMenuItemFileSaveActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuSaveActionPerformed
+	       final ACHFile achFile = model.getAchFile();
+
 		String fileName = jLabelAchInfoFileName.getText();
 		try {
 			achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());

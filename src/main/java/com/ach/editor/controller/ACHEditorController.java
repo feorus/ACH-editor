@@ -59,7 +59,7 @@ public class ACHEditorController {
     		view.setCursor(new Cursor(Cursor.WAIT_CURSOR));
     	}
     	try {
-    		view.setAchFile(Main.parseFile(new File(fileName)));
+    		model.setAchFile(Main.parseFile(new File(fileName)));
     		view.loadAchInformation();
     		view.clearJListAchDataAchRecords();
     		view.loadAchDataRecords();
@@ -68,7 +68,7 @@ public class ACHEditorController {
     		ex.printStackTrace();
     		view.showMessage(ex.getMessage());
     	}
-    	Vector<String> errorMessages = view.getAchFile().getErrorMessages();
+    	Vector<String> errorMessages = model.getAchFile().getErrorMessages();
     	if (errorMessages.size() == 0) {
             view.showMessage("File loaded without error");
     	} else {
@@ -98,8 +98,8 @@ public class ACHEditorController {
                 return;
             } else if (selection == 0) {
                 try {
-                    view.getAchFile().setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                    if (!view.getAchFile().save(view.jLabelAchInfoFileName.getText())) {
+                    model.getAchFile().setFedFile(view.jCheckBoxMenuFedFile.isSelected());
+                    if (!model.getAchFile().save(view.jLabelAchInfoFileName.getText())) {
                         return;
                     }
                 } catch (Exception ex) {
