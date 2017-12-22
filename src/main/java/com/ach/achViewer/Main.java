@@ -2,6 +2,7 @@ package com.ach.achViewer;
 
 import com.ach.achViewer.model.ACHEditorModel;
 import com.ach.domain.ACHFile;
+import com.ach.editor.controller.ACHEditorController;
 import com.ach.parser.ACHViewerFileParser;
 import com.ach.parser.AchParserException;
 
@@ -98,12 +99,13 @@ public class Main {
     public static void runWithoutValidation(String args[]) {
     	final ACHEditorModel model = new ACHEditorModel();
         final ACHEditorView view = new ACHEditorView(model);
+
     	final ACHEditorController controller = new ACHEditorController(model, view);
     	try {
     		view.setVisible(true);
     		if(args.length>0) {
     		    final String filename = args[0];
-                view.loadFile(view, model, filename);
+    		    controller.loadFile(filename);
     		}
     	} catch (Exception ex) {
     		System.err.println(ex.getMessage());
