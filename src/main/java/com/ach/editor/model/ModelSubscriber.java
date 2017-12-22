@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ach.achViewer.model;
+package com.ach.editor.model;
 
 /**
  * @author ilyakharlamov
@@ -9,7 +9,7 @@ package com.ach.achViewer.model;
  */
 public interface ModelSubscriber {
 
-    void onFileDirty();
+    void onSetFileDirty();
 
     void onSetTitle();
 

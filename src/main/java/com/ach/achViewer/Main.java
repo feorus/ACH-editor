@@ -1,8 +1,9 @@
 package com.ach.achViewer;
 
-import com.ach.achViewer.model.ACHEditorModel;
 import com.ach.domain.ACHFile;
 import com.ach.editor.controller.ACHEditorController;
+import com.ach.editor.model.ACHEditorModel;
+import com.ach.editor.view.ACHEditorView;
 import com.ach.parser.ACHViewerFileParser;
 import com.ach.parser.AchParserException;
 

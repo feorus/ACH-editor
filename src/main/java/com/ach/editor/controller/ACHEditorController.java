@@ -10,9 +10,9 @@ import java.util.Vector;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
-import com.ach.achViewer.ACHEditorView;
 import com.ach.achViewer.Main;
-import com.ach.achViewer.model.ACHEditorModel;
+import com.ach.editor.model.ACHEditorModel;
+import com.ach.editor.view.ACHEditorView;
 
 /**
  * @author ilyakharlamov
@@ -79,7 +79,7 @@ public class ACHEditorController {
     		}
     		view.showMessage(errorMessage.toString());
     	}
-    	ACHEditorView.setAchFileDirty(model, view, false);
+    	model.setAchFileDirty(false);
     	if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
     		view.setCursor(new Cursor(currentCursor.getType()));
     	}
@@ -87,7 +87,7 @@ public class ACHEditorController {
     
     private void jMenuItemFileOpenActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuFileOpenActionPerformed
 
-        if (view.isAchFileDirty()) {
+        if (model.isAchFileDirty()) {
             Object[] options = { "Save", "Continue", "Cancel" };
             int selection = JOptionPane.showOptionDialog(view,
                     "ACH File has been changed. What would you like to do.",

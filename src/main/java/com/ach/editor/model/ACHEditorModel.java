@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ach.achViewer.model;
+package com.ach.editor.model;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class ACHEditorModel {
     public void setAchFileDirty(boolean achFileDirty) {
         this.achFileDirty = achFileDirty;
         for (ModelSubscriber subscriber: subscribers) {
-            subscriber.onFileDirty();
+            subscriber.onSetFileDirty();
         }
     }
 
