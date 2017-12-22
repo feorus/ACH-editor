@@ -4,6 +4,9 @@ ACHViewer.iml
 build
 .gradle
 *.iml
+.classpath
+.project
+.settings/
 
 !gradle/wrapper/gradle-wrapper.jar
 /bin/
