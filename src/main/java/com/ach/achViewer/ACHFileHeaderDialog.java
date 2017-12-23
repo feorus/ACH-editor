@@ -6,6 +6,8 @@
 
 package com.ach.achViewer;
 
+import javax.swing.JTextField;
+
 import com.ach.domain.ACHRecord;
 import com.ach.domain.ACHRecordFileHeader;
 
@@ -23,15 +25,15 @@ public class ACHFileHeaderDialog extends ACHDialog {
 
 	private int buttonSelected = CANCEL_BUTTON;
 
-	private ACHRecordFileHeader achRecord = null;
+	private final ACHRecordFileHeader achRecord;
 
 	/** Creates new form ACHFileControlDialog */
 	public ACHFileHeaderDialog(java.awt.Frame parent, boolean modal,
 			ACHRecordFileHeader achRecord) {
 		super(parent, modal);
+		this.achRecord = achRecord;
 		initComponents();
 
-		setAchRecord(achRecord);
 
 		getRootPane().setDefaultButton(jButtonSave); // Sets the Save
 		// button to default
@@ -40,21 +42,31 @@ public class ACHFileHeaderDialog extends ACHDialog {
 	}
 
 	private void loadDialogValues() {
-		jTextFieldRecordTypeCode.setText(String.valueOf(achRecord
-				.getRecordTypeCode()));
+	    {
+		    setDisabledText(jTextFieldRecordTypeCode, String.valueOf(achRecord
+	                .getRecordTypeCode()));
+	    }
 		jTextFieldPriorityCode.setText(achRecord.getPriorityCode());
 		jTextFieldImmDestination.setText(achRecord.getImmediateDestination());
 		jTextFieldImmOrigin.setText(achRecord.getImmediateOrigin());
 		jTextFieldFileCreationDate.setText(achRecord.getFileCreationDate());
 		jTextFieldFileCreationTime.setText(achRecord.getFileCreationTime());
 		jTextFieldFileIDModifier.setText(achRecord.getFileIdModifier());
-		jTextFieldRecordSize.setText(achRecord.getRecordSize());
+		{
+            setDisabledText(jTextFieldRecordSize, achRecord.getRecordSize());
+		}
 		jTextFieldBlockingFactor.setText(achRecord.getBlockingFactor());
 		jTextFieldFormatCode.setText(achRecord.getFormatCode());
 		jTextFieldImmDestName.setText(achRecord.getImmediateDestinationName());
 		jTextFieldImmOriginName.setText(achRecord.getImmediateOriginName());
 		jTextFieldReferenceCode.setText(achRecord.getReferenceCode());
 	}
+
+    private void setDisabledText(final JTextField jtextfield, final String text) {
+        jtextfield.setText(text);
+        jtextfield.setEditable(false);
+        jtextfield.setBackground(this.getBackground());
+    }
 	
 	private void retrieveDialogValues() {
 		achRecord.setRecordTypeCode(ACHRecord.FILE_HEADER_TYPE);
@@ -77,14 +89,6 @@ public class ACHFileHeaderDialog extends ACHDialog {
 	 */
 	public synchronized ACHRecordFileHeader getAchRecord() {
 		return achRecord;
-	}
-
-	/**
-	 * @param achRecord
-	 *            the achRecord to set
-	 */
-	private synchronized void setAchRecord(ACHRecordFileHeader achRecord) {
-		this.achRecord = achRecord;
 	}
 
 	/**

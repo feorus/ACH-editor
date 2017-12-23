@@ -11,6 +11,8 @@ import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import com.ach.achViewer.Main;
+import com.ach.domain.ACHBatch;
+import com.ach.domain.ACHFile;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
 
@@ -40,6 +42,11 @@ public class ACHEditorController {
         view.jMenuItemFileOpen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 jMenuItemFileOpenActionPerformed(evt);
+            }
+        });
+        view.jMenuItemFileNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItemFileNewActionPerformed(evt);
             }
         });
     }
@@ -124,5 +131,45 @@ public class ACHEditorController {
             loadAchData(chooser.getSelectedFile().getAbsolutePath());
         }
     }// GEN-LAST:event_jMenuFileOpenActionPerformed
+    
+    public void jMenuItemFileNewActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemFileNewActionPerformed
+        final ACHFile achFile = model.getAchFile();
+
+     if (model.isAchFileDirty()) {
+         Object[] options = { "Save", "Continue", "Cancel" };
+         int selection = JOptionPane.showOptionDialog(view,
+                 "ACH File has been changed. What would you like to do.",
+                 "ACH File has changed", JOptionPane.YES_NO_OPTION,
+                 JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+         if (selection == 2) {
+             // Selected cancel
+             return;
+         } else if (selection == 0) {
+             try {
+                 achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
+                 if (!achFile.save(view.jLabelAchInfoFileName.getText())) {
+                     return;
+                 }
+             } catch (Exception ex) {
+                 JOptionPane.showMessageDialog(view,
+                         "Failure saving file -- \n" + ex.getMessage(),
+                         "Error saving file", JOptionPane.ERROR_MESSAGE);
+                 return;
+             }
+         }
+     }
+     newAchFile();
+ }
+    
+    private void newAchFile() {
+        final ACHFile achFile = new ACHFile();
+        achFile.addBatch(new ACHBatch());
+        achFile.recalculate();
+        model.setAchFile(achFile);
+        // Update display with new data
+        model.setAchFileDirty(false); // Don't care if these records get lost
+        view.clearJListAchDataAchRecords();
+        view.loadAchDataRecords();
+    }
 
 }

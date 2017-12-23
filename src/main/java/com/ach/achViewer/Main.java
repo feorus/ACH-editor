@@ -100,7 +100,6 @@ public class Main {
     public static void runWithoutValidation(String args[]) {
     	final ACHEditorModel model = new ACHEditorModel();
         final ACHEditorView view = new ACHEditorView(model);
-
     	final ACHEditorController controller = new ACHEditorController(model, view);
     	try {
     		view.setVisible(true);
