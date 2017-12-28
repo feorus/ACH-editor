@@ -42,6 +42,7 @@ import com.ach.domain.ACHRecordBatchControl;
 import com.ach.domain.ACHRecordBatchHeader;
 import com.ach.domain.ACHRecordEntryDetail;
 import com.ach.domain.ACHSelection;
+import com.ach.editor.controller.ACHEditorController;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.model.ModelListener;
 
@@ -1424,6 +1425,92 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
                 viewListener.onExitProgram();
             }
         });
+    }
+
+    public void onDeleteAchBatch(ACHEditorController achEditorController) {
+        final ACHFile achFile = model.getAchFile();
+        int[] selected = jListAchDataAchRecords.getSelectedIndices();
+        if (selected.length < 1) {
+            JOptionPane.showMessageDialog(this,
+                    "No items selected ... cannot delete",
+                    "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        for (int i = 0; i < selected.length; i++) {
+            ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
+                    .getElementAt(selected[i]);
+            if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
+                final String message = "Cannot delete file header/control rows "
+                        + "in selection list";
+                final String title = "Cannot perform requested function";
+                showError(message, title);
+                return;
+            }
+        }
+        // Remove them backwards to positions don't shift on us
+        for (int i = selected.length - 1; i >= 0; i--) {
+            Integer[] position = positions.get(selected[i]);
+            if (position.length != 1) {
+                // find batch headers -- skipp entry and addenda
+            } else {
+                ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords
+                        .getModel().getElementAt(selected[i]);
+                // only delete items that match the headers
+                if (achRecord.isBatchHeaderType()) {
+                    achFile.getBatches().remove(position[0].intValue());
+                }
+            }
+        }
+        model.setAchFileDirty(true);
+        clearJListAchDataAchRecords();
+        loadAchDataRecords();
+        jListAchDataAchRecords.setSelectedIndex(selected[0]);
+        jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+    }
+
+    /**
+     * @param title2
+     * @param message
+     */
+    public void showError(String title2, String message) {
+        JOptionPane.showMessageDialog(this,
+                message,
+                title2,
+                JOptionPane.ERROR_MESSAGE);
+
+    }
+
+    public int askSaveContinueCancel(final String title, final String message) {
+        Object[] options = { "Save", "Continue", "Cancel" };
+        int selection = JOptionPane.showOptionDialog(this, message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[0]);
+        return selection;
+    }
+
+    public int askDeleteCancel(final String title, final String message) {
+        Object[] options = { "Delete", "Cancel" };
+        int selection = JOptionPane.showOptionDialog(this,
+                message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                null, options, options[0]);
+        return selection;
+    }
+
+    public int askYesNo(final String message, final String title) {
+        Object[] options = { "Yes", "No" };
+        int answer = JOptionPane.showOptionDialog(this, message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[1]);
+        return answer;
+    }
+
+    public int askSaveExitCancel(final String title, final String message) {
+        Object[] options = { "Save", "Exit", "Cancel" };
+        int selection = JOptionPane.showOptionDialog(this, message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[0]);
+        return selection;
     }
 
 }
