@@ -29,7 +29,7 @@ public class ACHEditorModel {
 
     private ACHFile achFile;
 
-    private List<ModelSubscriber> subscribers;
+    private List<ModelListener> subscribers;
 
     public ACHEditorModel() {
         super();
@@ -42,7 +42,7 @@ public class ACHEditorModel {
 
     public void setAchFileDirty(boolean achFileDirty) {
         this.achFileDirty = achFileDirty;
-        for (ModelSubscriber subscriber: subscribers) {
+        for (ModelListener subscriber: subscribers) {
             subscriber.onSetFileDirty();
         }
     }
@@ -52,7 +52,7 @@ public class ACHEditorModel {
      */
     public void setTitle(String title) {
        this.title = title;
-       for (ModelSubscriber s: subscribers) {
+       for (ModelListener s: subscribers) {
            s.onSetTitle();
        }
     }
@@ -64,7 +64,7 @@ public class ACHEditorModel {
     /**
      * 
      */
-    public void addSubscriber(ModelSubscriber subscriber) {
+    public void addSubscriber(ModelListener subscriber) {
         this.subscribers.add(subscriber);
     }
 

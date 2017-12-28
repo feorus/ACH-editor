@@ -7,7 +7,7 @@ package com.ach.editor.model;
  * @author ilyakharlamov
  *
  */
-public interface ModelSubscriber {
+public interface ModelListener {
 
     void onSetFileDirty();
 

@@ -43,13 +43,13 @@ import com.ach.domain.ACHRecordBatchHeader;
 import com.ach.domain.ACHRecordEntryDetail;
 import com.ach.domain.ACHSelection;
 import com.ach.editor.model.ACHEditorModel;
-import com.ach.editor.model.ModelSubscriber;
+import com.ach.editor.model.ModelListener;
 
 /**
  * 
  * @author John
  */
-public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber {
+public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private static final long serialVersionUID = 0;
 
@@ -62,9 +62,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	// when an ACH file has been edited.
 	String title = "";
 
-	Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
+	public Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
 
-	Point mouseClick = null;
+	public Point mouseClick = null;
 
 	/** Creates new form ACHViewer */
 	public ACHEditorView(ACHEditorModel achappmodel) {
@@ -92,29 +92,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-		addWindowListener(new WindowListener() {
-			public void windowActivated(WindowEvent evt) {
-			}
-
-			public void windowDeactivated(WindowEvent evt) {
-			}
-
-			public void windowIconified(WindowEvent evt) {
-			}
-
-			public void windowDeiconified(WindowEvent evt) {
-			}
-
-			public void windowOpened(WindowEvent evt) {
-			}
-
-			public void windowClosing(WindowEvent evt) {
-			}
-
-			public void windowClosed(WindowEvent evt) {
-			    exitProgram();
-			}
-		});
+		
 		this.model = achappmodel;
 		this.model.addSubscriber(this);
 	}
@@ -236,7 +214,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	// it;
 	// otherwise it returns null.
 	@SuppressWarnings("unchecked")
-	private Vector<ACHRecord> getClipboard() {
+    public Vector<ACHRecord> getClipboard() {
 		Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard()
 				.getContents(null);
 
@@ -254,7 +232,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 	}
 
 	// This method writes the current selection to the system clipboard
-	private void copy(int[] selected) {
+	public void copy(int[] selected) {
 		Vector<ACHRecord> achRecords = new Vector<ACHRecord>(selected.length,
 				10);
 		for (int i = 0; i < selected.length; i++) {
@@ -266,8 +244,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 				clipboardSelection, null);
 	}
 
-	private void editAchRecord(int selectRow) {
-
+	public void editAchRecord(int selectRow) {
 		char recordType = ((ACHRecord) jListAchDataAchRecords.getModel()
 				.getElementAt(selectRow)).getRecordTypeCode();
 		Integer[] position = positions.get(selectRow);
@@ -335,54 +312,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	}
 
-	private void addAchBatch() {
-	       final ACHFile achFile = model.getAchFile();
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		if (selected.length < 1) {
-			JOptionPane.showMessageDialog(this,
-					"No items selected ... cannot add entry detail",
-					"Cannot perform request", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
-				.getElementAt(selected[0]);
-		if (achRecord.isFileHeaderType() || achRecord.isBatchHeaderType()
-				|| achRecord.isBatchControlType()) {
-
-			// Build the ACHBatch type
-			ACHBatch achBatch = new ACHBatch();
-			achBatch.setBatchHeader(new ACHRecordBatchHeader());
-			achBatch.setBatchControl(new ACHRecordBatchControl());
-			// add one entry rec
-			achBatch.addEntryRecs(new ACHEntry());
-			achBatch.getEntryRecs().get(0).setEntryDetail(
-					new ACHRecordEntryDetail());
-
-			// Add to achFile
-			Integer[] position = positions.get(selected[0]);
-			if (position.length == 0) {
-				// Adding after File Header
-				achFile.getBatches().add(0, achBatch);
-			} else {
-				achFile.getBatches().add(position[0] + 1, achBatch);
-			}
-			// make sure we have to save
-			model.setAchFileDirty(true);
-
-			// update display
-			clearJListAchDataAchRecords();
-			loadAchDataRecords();
-			jListAchDataAchRecords.setSelectedIndex(selected[0]);
-			jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"Cannot add entry detail after this row",
-					"Cannot perform requested function",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-	}
-
 	private void editAchBatchControl(int position, int selectRow) {
 	    final ACHFile achFile = model.getAchFile();
 		ACHBatchControlDialog dialog = new ACHBatchControlDialog(
@@ -398,216 +327,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		}
 	}
 
-
-
-	private void addAchAddenda() {
-	    final ACHFile achFile = model.getAchFile();
-		int selected = jListAchDataAchRecords.locationToIndex(mouseClick);
-		if (selected < 0) {
-			JOptionPane.showMessageDialog(this,
-					"No items selected ... cannot add addenda",
-					"Cannot perform request", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
-				.getElementAt(selected);
-		if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
-			Integer[] position = positions.get(selected);
-			if (position.length < 2) {
-				JOptionPane.showMessageDialog(this,
-						"Cannot add entry detail after this item",
-						"Cannot perform request", JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-			// build empty addenda ... don't worry about sequence here, it's
-			// fixed
-			// later
-			ACHRecordAddenda addendaRecord = new ACHRecordAddenda();
-			addendaRecord.setEntryDetailSeqNbr(achFile.getBatches().get(
-					position[0]).getEntryRecs().get(position[1])
-					.getEntryDetail().getTraceNumber());
-
-			if (position.length == 2) {
-				// Entry record selected ... add as the first addenda
-				achFile.getBatches().get(position[0]).getEntryRecs().get(
-						position[1]).getAddendaRecs().add(0, addendaRecord);
-			} else {
-				// Addenda record selected .. add after it
-				achFile.getBatches().get(position[0]).getEntryRecs().get(
-						position[1]).getAddendaRecs().add(position[2] + 1,
-						addendaRecord);
-			}
-			// Make sure entry record has the addenda indicator set
-			achFile.getBatches().get(position[0]).getEntryRecs().get(
-					position[1]).getEntryDetail().setAddendaRecordInd("1");
-			// Resequence all addenda records
-			Vector<ACHRecordAddenda> achAddendas = achFile.getBatches().get(
-					position[0]).getEntryRecs().get(position[1])
-					.getAddendaRecs();
-			for (int i = 0; i < achAddendas.size(); i++) {
-				achAddendas.get(i).setAddendaSeqNbr(String.valueOf(i + 1));
-			}
-			achFile.getBatches().get(position[0]).getEntryRecs().get(
-					position[1]).setAddendaRecs(achAddendas);
-
-			// Update display with new data
-			model.setAchFileDirty(true);
-			clearJListAchDataAchRecords();
-			loadAchDataRecords();
-			jListAchDataAchRecords.setSelectedIndex(selected);
-			jListAchDataAchRecords.ensureIndexIsVisible(selected);
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"Cannot add addenda after this row",
-					"Cannot perform requested function",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-	}
-
-	private void addAchEntryDetail() {
-	    final ACHFile achFile = model.getAchFile();
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		if (selected.length < 1) {
-			JOptionPane.showMessageDialog(this,
-					"No items selected ... cannot add entry detail",
-					"Cannot perform request", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
-				.getElementAt(selected[0]);
-		if (achRecord.isEntryDetailType() || achRecord.isAddendaType()
-				|| achRecord.isBatchHeaderType()) {
-			Integer[] position = positions.get(selected[0]);
-			ACHRecordEntryDetail entryRecord = new ACHRecordEntryDetail();
-			ACHEntry achEntry = new ACHEntry();
-			achEntry.setEntryDetail(entryRecord);
-			if (position.length == 0) {
-				// problem -- this can only occur on file headers and file
-				// details
-				JOptionPane.showMessageDialog(this,
-						"Cannot add entry detail after this row",
-						"Cannot perform requested function",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			} else if (position.length == 1) {
-				// Adding after Batch Header
-				achFile.getBatches().get(position[0]).getEntryRecs().add(0,
-						achEntry);
-			} else {
-				achFile.getBatches().get(position[0]).getEntryRecs().add(
-						position[1] + 1, achEntry);
-			}
-			model.setAchFileDirty(true);
-			clearJListAchDataAchRecords();
-			loadAchDataRecords();
-			jListAchDataAchRecords.setSelectedIndex(selected[0]);
-			jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
-		} else {
-			JOptionPane.showMessageDialog(this,
-					"Cannot add entry detail after this row",
-					"Cannot perform requested function",
-					JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-	}
-
-	private void deleteAchRecord(int selectRow) {
-
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		if (selected.length > 1) {
-			int addendaCount = 0;
-			int entryCount = 0;
-			int batchHeaderCount = 0;
-			int batchControlCount = 0;
-			int fileHeaderCount = 0;
-			int fileControlCount = 0;
-			for (int i = 0; i < selected.length; i++) {
-				ACHRecord achRecord = ((ACHRecord) jListAchDataAchRecords
-						.getModel().getElementAt(selected[i]));
-				if (achRecord.isAddendaType()) {
-					addendaCount++;
-				} else if (achRecord.isEntryDetailType()) {
-					entryCount++;
-				} else if (achRecord.isBatchHeaderType()) {
-					batchHeaderCount++;
-				} else if (achRecord.isBatchControlType()) {
-					batchControlCount++;
-				} else if (achRecord.isFileHeaderType()) {
-					fileHeaderCount++;
-				} else if (achRecord.isFileControlType()) {
-					fileControlCount++;
-				}
-			}
-			// Determine the type of delete from the outside in
-			if (fileHeaderCount > 0 || fileControlCount > 0) {
-				JOptionPane
-						.showMessageDialog(
-								this,
-								"Cannot delete file header or control records. Use 'New' menu item instead",
-								"Cannot perform request",
-								JOptionPane.ERROR_MESSAGE);
-				return;
-			} else if (batchHeaderCount > 0 || batchControlCount > 0) {
-				Object[] options = { "Delete", "Cancel" };
-				int selection = JOptionPane
-						.showOptionDialog(
-								this,
-								"This will delete multiple batches. Continue with delete??",
-								"Deleting multiple batches",
-								JOptionPane.YES_NO_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, options,
-								options[0]);
-				if (selection == 0) {
-					deleteAchBatch();
-				} else {
-					return;
-				}
-			} else if (entryCount > 0) {
-				Object[] options = { "Delete", "Cancel" };
-				int selection = JOptionPane
-						.showOptionDialog(
-								this,
-								"This will delete multiple entry details. Continue with delete??",
-								"Deleting multiple entry details",
-								JOptionPane.YES_NO_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, options,
-								options[0]);
-				if (selection == 0) {
-					deleteAchEntryDetail();
-				} else {
-					return;
-				}
-			} else if (addendaCount > 0) {
-				Object[] options = { "Delete", "Cancel" };
-				int selection = JOptionPane
-						.showOptionDialog(
-								this,
-								"This will delete multiple Addenda records. Continue with delete??",
-								"Deleting multiple Addenda records",
-								JOptionPane.YES_NO_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, options,
-								options[0]);
-				if (selection == 0) {
-					deleteAchAddenda();
-				} else {
-					return;
-				}
-			}
-		} else {
-			ACHRecord achRecord = ((ACHRecord) jListAchDataAchRecords
-					.getModel().getElementAt(selectRow));
-			if (achRecord.isBatchHeaderType() || achRecord.isBatchControlType()) {
-				deleteAchBatch();
-			} else if (achRecord.isEntryDetailType()) {
-				deleteAchEntryDetail();
-			} else if (achRecord.isAddendaType()) {
-				deleteAchAddenda();
-			}
-		}
-	}
-
-	private void deleteAchAddenda() {
+	public void deleteAchAddenda() {
 	    final ACHFile achFile = model.getAchFile();
 		int[] selected = jListAchDataAchRecords.getSelectedIndices();
 		if (selected.length < 1) {
@@ -678,94 +398,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
 	}
 
-	private void deleteAchEntryDetail() {
-	    final ACHFile achFile = model.getAchFile();
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		if (selected.length < 1) {
-			JOptionPane.showMessageDialog(this,
-					"No items selected ... cannot delete entry detail",
-					"Cannot perform request", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		for (int i = 0; i < selected.length; i++) {
-			ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
-					.getElementAt(selected[i]);
-			if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
-			} else {
-				JOptionPane.showMessageDialog(this,
-						"Cannot delete entry detail -- non-entry/addenda rows "
-								+ "in selection list",
-						"Cannot perform requested function",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		}
-		// Remove them backwards to positions don't shift on us
-		for (int i = selected.length - 1; i >= 0; i--) {
-			Integer[] position = positions.get(selected[i]);
-			if (position.length != 2) {
-				// problem -- this can only occur if there is a mismatch
-				// between positions and jListAchDataAchRecords
-				JOptionPane
-						.showMessageDialog(
-								this,
-								"Cannot delete entry detail -- row is not an entry row",
-								"Cannot perform requested function",
-								JOptionPane.ERROR_MESSAGE);
-				return;
-			} else {
-				achFile.getBatches().get(position[0]).getEntryRecs().remove(
-						position[1].intValue());
-			}
-		}
-		model.setAchFileDirty(true);
-		clearJListAchDataAchRecords();
-		loadAchDataRecords();
-		jListAchDataAchRecords.setSelectedIndex(selected[0]);
-		jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
-	}
-
-	private void deleteAchBatch() {
-	    final ACHFile achFile = model.getAchFile();
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		if (selected.length < 1) {
-			JOptionPane.showMessageDialog(this,
-					"No items selected ... cannot delete",
-					"Cannot perform request", JOptionPane.ERROR_MESSAGE);
-			return;
-		}
-		for (int i = 0; i < selected.length; i++) {
-			ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
-					.getElementAt(selected[i]);
-			if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
-				JOptionPane.showMessageDialog(this,
-						"Cannot delete file header/control rows "
-								+ "in selection list",
-						"Cannot perform requested function",
-						JOptionPane.ERROR_MESSAGE);
-				return;
-			}
-		}
-		// Remove them backwards to positions don't shift on us
-		for (int i = selected.length - 1; i >= 0; i--) {
-			Integer[] position = positions.get(selected[i]);
-			if (position.length != 1) {
-				// find batch headers -- skipp entry and addenda
-			} else {
-				ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords
-						.getModel().getElementAt(selected[i]);
-				// only delete items that match the headers
-				if (achRecord.isBatchHeaderType()) {
-					achFile.getBatches().remove(position[0].intValue());
-				}
-			}
-		}
-		model.setAchFileDirty(true);
-		clearJListAchDataAchRecords();
-		loadAchDataRecords();
-		jListAchDataAchRecords.setSelectedIndex(selected[0]);
-		jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
-	}
+	
 
 	private void editAchEntryDetail(int batchPosition, int entryPosition,
 			int selectRow) {
@@ -802,34 +435,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		}
 	}
 
-	private boolean exitProgram() {
-	    final ACHFile achFile = model.getAchFile();
-		if (model.isAchFileDirty()) {
-			Object[] options = { "Save", "Exit", "Cancel" };
-			int selection = JOptionPane.showOptionDialog(this,
-					"ACH File has been changed? What would you like to do.",
-					"ACH File has changed", JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-			if (selection == 2) {
-				// Selected cancel
-				return false;
-			} else if (selection == 0) {
-				try {
-					achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
-					if (!achFile.save(jLabelAchInfoFileName.getText())) {
-						return false;
-					}
-				} catch (Exception ex) {
-					JOptionPane.showMessageDialog(this,
-							"Failure saving file -- \n" + ex.getMessage(),
-							"Error saving file", JOptionPane.ERROR_MESSAGE);
-					return false;
-				}
-			}
-		}
-		dispose();
-		return true;
-	}
+	
 
 	/**
 	 * This method is called from within the constructor to initialize the form.
@@ -913,212 +519,97 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jMenuItemToolsReverse = new javax.swing.JMenuItem();
 
 		jMenuItemPopupEntryAdd.setText("Add Entry Record");
-		jMenuItemPopupEntryAdd
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryAddActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuEntry.add(jMenuItemPopupEntryAdd);
 
 		jMenuItemPopupEntryAddAddenda.setText("Add Addenda");
-		jMenuItemPopupEntryAddAddenda
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryAddAddendaActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuEntry.add(jMenuItemPopupEntryAddAddenda);
 
 		jMenuItemPopupEntryDelete.setText("Delete Entry");
-		jMenuItemPopupEntryDelete
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryDeleteActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuEntry.add(jMenuItemPopupEntryDelete);
 
 		jMenuItemPopupEntryEditEntry.setText("Edit Entry");
-		jMenuItemPopupEntryEditEntry
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryEditEntryActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuEntry.add(jMenuItemPopupEntryEditEntry);
 
 		jMenuItemPopupEntryCopy.setText("Copy");
-		jMenuItemPopupEntryCopy
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryCopyActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuEntry.add(jMenuItemPopupEntryCopy);
 
 		jMenuItemPopupEntryPaste.setText("Paste");
-		jMenuItemPopupEntryPaste
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryPasteActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuEntry.add(jMenuItemPopupEntryPaste);
 
 		jMenuItemPopupBatchAdd.setText("Add new batch");
-		jMenuItemPopupBatchAdd
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupBatchAddActionPerformed(evt);
-					}
-				});
+		
 
 		jPopupMenuBatch.add(jMenuItemPopupBatchAdd);
 
 		jMenuItemPopupBatchAddEntry.setText("Add new entry");
-		jMenuItemPopupBatchAddEntry
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupBatchAddEntryActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuBatch.add(jMenuItemPopupBatchAddEntry);
 
 		jMenuItemPopupBatchDeleteBatch.setText("Delete Batch");
-		jMenuItemPopupBatchDeleteBatch
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupBatchDeleteBatchActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuBatch.add(jMenuItemPopupBatchDeleteBatch);
 
 		jMenuItemPopupBatchEditBatch.setText("Edit Batch");
-		jMenuItemPopupBatchEditBatch
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupBatchEditBatchActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuBatch.add(jMenuItemPopupBatchEditBatch);
 
 		jMenuItemPopupBatchCopy.setText("Copy");
-		jMenuItemPopupBatchCopy
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupBatchCopyActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuBatch.add(jMenuItemPopupBatchCopy);
 
 		jMenuItemPopupBatchPaste.setText("Paste");
-		jMenuItemPopupBatchPaste
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupBatchPasteActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuBatch.add(jMenuItemPopupBatchPaste);
 
 		jMenuItemPopupEntryAddendaAdd.setText("Add Addenda");
-		jMenuItemPopupEntryAddendaAdd
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupEntryAddendaAddActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuAddenda.add(jMenuItemPopupEntryAddendaAdd);
 
 		jMenuItemPopupAddendaDelete.setText("Delete Addenda");
-		jMenuItemPopupAddendaDelete
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupAddendaDeleteActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuAddenda.add(jMenuItemPopupAddendaDelete);
 
 		jMenuItemPopupAddendaCopy.setText("Copy");
-		jMenuItemPopupAddendaCopy
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupAddendaCopyActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuAddenda.add(jMenuItemPopupAddendaCopy);
 
 		jMenuItemPopupAddendaPaste.setText("Paste");
-		jMenuItemPopupAddendaPaste
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupAddendaPasteActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuAddenda.add(jMenuItemPopupAddendaPaste);
 
 		jMenuItemPopupFileAddBatch.setText("Add new batch");
-		jMenuItemPopupFileAddBatch
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupFileAddBatchActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuFile.add(jMenuItemPopupFileAddBatch);
 
 		jMenuItemPopupFileEdit.setText("Edit File");
-		jMenuItemPopupFileEdit
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupFileEditActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuFile.add(jMenuItemPopupFileEdit);
 
 		jMenuItemMulitpleDelete.setText("Delete");
-		jMenuItemMulitpleDelete
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemMulitpleDeleteActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuMultipleSelection.add(jMenuItemMulitpleDelete);
 
 		jMenuItemPopupMultipleCopy.setText("Copy");
-		jMenuItemPopupMultipleCopy
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupMultipleCopyActionPerformed(evt);
-					}
-				});
 
 		jPopupMenuMultipleSelection.add(jMenuItemPopupMultipleCopy);
 
 		jMenuItemPopupPasteMultiple.setText("Paste");
-		jMenuItemPopupPasteMultiple
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemPopupPasteMultipleActionPerformed(evt);
-					}
-				});
+
 
 		jPopupMenuMultipleSelection.add(jMenuItemPopupPasteMultiple);
 
@@ -1455,23 +946,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jMenuItemFileSave.setText("Save");
 		jMenuItemFileSave
 				.setToolTipText("Saves existing data overwriting current file");
-		jMenuItemFileSave
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemFileSaveActionPerformed(evt);
-					}
-				});
 
 		jMenuFile.add(jMenuItemFileSave);
 
 		jMenuItemFileSaveAs.setText("Save As...");
 		jMenuItemFileSaveAs.setToolTipText("Save into new file");
-		jMenuItemFileSaveAs
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemFileSaveAsActionPerformed(evt);
-					}
-				});
 
 		jMenuFile.add(jMenuItemFileSaveAs);
 
@@ -1479,12 +958,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 		jMenuItemFileExit.setText("Exit");
 		jMenuItemFileExit.setToolTipText("Exit program");
-		jMenuItemFileExit
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemFileExitActionPerformed(evt);
-					}
-				});
+		
 
 		jMenuFile.add(jMenuItemFileExit);
 
@@ -1495,12 +969,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jMenuItemToolsValidate.setText("Validate");
 		jMenuItemToolsValidate
 				.setToolTipText("Check the validity of the ACH file");
-		jMenuItemToolsValidate
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemToolsValidateActionPerformed(evt);
-					}
-				});
 
 		jMenuTools.add(jMenuItemToolsValidate);
 
@@ -1508,24 +976,13 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		jMenuItemToolsRecalculate
 				.setToolTipText("Recalculate the file and batch control totals");
 		ACHEditorView view = this;
-		jMenuItemToolsRecalculate
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemToolsRecalculateActionPerformed(model, view, evt);
-					}
-				});
+
 
 		jMenuTools.add(jMenuItemToolsRecalculate);
 
 		jMenuItemToolsReverse.setText("Reverse");
 		jMenuItemToolsReverse
 				.setToolTipText("Reverse this ACH file and recalculate totals");
-		jMenuItemToolsReverse
-				.addActionListener(new java.awt.event.ActionListener() {
-					public void actionPerformed(java.awt.event.ActionEvent evt) {
-						jMenuItemToolsReverseActionPerformed(model, view, evt);
-					}
-				});
 
 		jMenuTools.add(jMenuItemToolsReverse);
 
@@ -1614,246 +1071,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
-	private void jMenuItemToolsReverseActionPerformed(
-			ACHEditorModel model, ACHEditorView view, java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsReverseActionPerformed
-	       final ACHFile achFile = model.getAchFile();
-
-		achFile.reverse();
-		loadAchInformation();
-		clearJListAchDataAchRecords();
-		loadAchDataRecords();
-		model.setAchFileDirty(true);
-	}// GEN-LAST:event_jMenuItemToolsReverseActionPerformed
-
-	private void jMenuItemPopupPasteMultipleActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupPasteMultipleActionPerformed
-		Vector<ACHRecord> copySet = getClipboard();
-		for (int i = 0; i < copySet.size(); i++) {
-			System.err.println(copySet.get(i).toString());
-		}
-
-	}// GEN-LAST:event_jMenuItemPopupPasteMultipleActionPerformed
-
-	private void jMenuItemPopupMultipleCopyActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupMultipleCopyActionPerformed
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		copy(selected);
-	}// GEN-LAST:event_jMenuItemPopupMultipleCopyActionPerformed
-
-	private void jMenuItemPopupAddendaPasteActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupAddendaPasteActionPerformed
-		// TODO add your handling code here:
-	}// GEN-LAST:event_jMenuItemPopupAddendaPasteActionPerformed
-
-	private void jMenuItemPopupAddendaCopyActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupAddendaCopyActionPerformed
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		copy(selected);
-	}// GEN-LAST:event_jMenuItemPopupAddendaCopyActionPerformed
-
-	private void jMenuItemPopupBatchPasteActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupBatchPasteActionPerformed
-		// TODO add your handling code here:
-	}// GEN-LAST:event_jMenuItemPopupBatchPasteActionPerformed
-
-	private void jMenuItemPopupBatchCopyActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupBatchCopyActionPerformed
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		copy(selected);
-	}// GEN-LAST:event_jMenuItemPopupBatchCopyActionPerformed
-
-	private void jMenuItemPopupEntryPasteActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryPasteActionPerformed
-		// TODO add your handling code here:
-	}// GEN-LAST:event_jMenuItemPopupEntryPasteActionPerformed
-
-	private void jMenuItemPopupEntryCopyActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryCopyActionPerformed
-		int[] selected = jListAchDataAchRecords.getSelectedIndices();
-		copy(selected);
-	}// GEN-LAST:event_jMenuItemPopupEntryCopyActionPerformed
-
-	private void jMenuItemMulitpleDeleteActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemMulitpleDeleteActionPerformed
-		int itemAtMouse = jListAchDataAchRecords.locationToIndex(mouseClick);
-		deleteAchRecord(itemAtMouse);
-	}// GEN-LAST:event_jMenuItemMulitpleDeleteActionPerformed
-
-	private void jMenuItemPopupFileEditActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupFileEditActionPerformed
-		int itemAtMouse = jListAchDataAchRecords.locationToIndex(mouseClick);
-		editAchRecord(itemAtMouse);
-	}// GEN-LAST:event_jMenuItemPopupFileEditActionPerformed
-
-	private void jMenuItemPopupFileAddBatchActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupFileAddBatchActionPerformed
-		addAchBatch();
-	}// GEN-LAST:event_jMenuItemPopupFileAddBatchActionPerformed
-
-	private void jMenuItemPopupAddendaDeleteActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupAddendaDeleteActionPerformed
-		int itemAtMouse = jListAchDataAchRecords.locationToIndex(mouseClick);
-		deleteAchRecord(itemAtMouse);
-	}// GEN-LAST:event_jMenuItemPopupAddendaDeleteActionPerformed
-
-	private void jMenuItemPopupEntryAddendaAddActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryAddendaAddActionPerformed
-		addAchAddenda();
-	}// GEN-LAST:event_jMenuItemPopupEntryAddendaAddActionPerformed
-
-	// GEN-LAST:event_jMenuItemFileNewActionPerformed
-
-	private void jMenuItemPopupBatchEditBatchActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryEditBatchActionPerformed
-		int itemAtMouse = jListAchDataAchRecords.locationToIndex(mouseClick);
-		editAchRecord(itemAtMouse);
-	}// GEN-LAST:event_jMenuItemPopupEntryEditBatchActionPerformed
-
-	private void jMenuItemPopupBatchDeleteBatchActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryDeleteBatchActionPerformed
-		deleteAchBatch();
-	}// GEN-LAST:event_jMenuItemPopupEntryDeleteBatchActionPerformed
-
-	private void jMenuItemPopupEntryEditEntryActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryEditEntryActionPerformed
-		int itemAtMouse = jListAchDataAchRecords.locationToIndex(mouseClick);
-		editAchRecord(itemAtMouse);
-	}// GEN-LAST:event_jMenuItemPopupEntryEditEntryActionPerformed
-
-	private void jMenuItemPopupEntryDeleteActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryDeleteActionPerformed
-		deleteAchEntryDetail();
-	}// GEN-LAST:event_jMenuItemPopupEntryDeleteActionPerformed
-
-	private void jMenuItemPopupEntryAddAddendaActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryAddAddendaActionPerformed
-		addAchAddenda();
-	}// GEN-LAST:event_jMenuItemPopupEntryAddAddendaActionPerformed
-
-	private void jMenuItemPopupBatchAddEntryActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupBatchAddEntryActionPerformed
-		addAchEntryDetail();
-	}// GEN-LAST:event_jMenuItemPopupBatchAddEntryActionPerformed
-
-	private void jMenuItemPopupBatchAddActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupBatchAddActionPerformed
-		addAchBatch();
-	}// GEN-LAST:event_jMenuItemPopupBatchAddActionPerformed
-
-	private void jMenuItemPopupEntryAddActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemPopupEntryAddActionPerformed
-		addAchEntryDetail();
-	}// GEN-LAST:event_jMenuItemPopupEntryAddActionPerformed
-
-	private void jMenuItemToolsRecalculateActionPerformed(
-			ACHEditorModel model, ACHEditorView view, java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsRecalculateActionPerformed
-	       final ACHFile achFile = model.getAchFile();
-
-		Cursor currentCursor = this.getCursor();
-		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
-			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-		}
-		if (!achFile.recalculate()) {
-			JOptionPane.showMessageDialog(this,
-					"Unable to fully recalculate ... run Validate tool");
-		}
-		clearJListAchDataAchRecords();
-		loadAchInformation();
-		loadAchDataRecords();
-        model.setAchFileDirty(true);
-		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
-			this.setCursor(new Cursor(currentCursor.getType()));
-		}
-
-	}// GEN-LAST:event_jMenuItemToolsRecalculateActionPerformed
-
-	private void jMenuItemToolsValidateActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemToolsValidateActionPerformed
-	       final ACHFile achFile = model.getAchFile();
-
-		Cursor currentCursor = this.getCursor();
-		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
-			this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
-		}
-		Vector<String> messages = achFile.validate();
-		if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
-			this.setCursor(new Cursor(currentCursor.getType()));
-		}
-
-		if (messages.size() > 0) {
-			StringBuffer messageOutput = new StringBuffer("");
-			for (int i = 0; i < messages.size(); i++) {
-				if (i > 0) {
-					messageOutput.append("\n");
-				}
-				messageOutput.append(messages.get(i));
-			}
-			JOptionPane.showMessageDialog(this, messageOutput);
-		}
-
-	}// GEN-LAST:event_jMenuItemToolsValidateActionPerformed
-
-	private void jMenuItemFileSaveAsActionPerformed(
-			java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuSaveAsActionPerformed
-	       final ACHFile achFile = model.getAchFile();
-
-		JFileChooser chooser = new JFileChooser(new File(jLabelAchInfoFileName
-				.getText()).getParent());
-		chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
-		chooser.setApproveButtonText("Save As");
-
-		int returnVal = chooser.showOpenDialog(getContentPane());
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String fileName = chooser.getSelectedFile().getAbsolutePath();
-			if (new File(fileName).exists()) {
-				Object[] options = { "Yes", "No" };
-				int answer = JOptionPane
-						.showOptionDialog(this, "File " + fileName
-								+ " already exists. Overwrite??",
-								"File already exists",
-								JOptionPane.YES_NO_OPTION,
-								JOptionPane.QUESTION_MESSAGE, null, options,
-								options[1]);
-				if (answer == 1) {
-					return;
-				}
-			}
-
-			try {
-				achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
-				if (achFile.save(fileName)) {
-				    model.setTitle(fileName);
-				    model.setAchFileDirty(false);
-
-				}
-			} catch (Exception ex) {
-				JOptionPane.showMessageDialog(this,
-						"Unable to save ACH data to fileName. Reason: "
-								+ ex.getMessage(), "Error writing file",
-						JOptionPane.ERROR_MESSAGE);
-			}
-		}
-
-	}// GEN-LAST:event_jMenuSaveAsActionPerformed
-
-	private void jMenuItemFileSaveActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuSaveActionPerformed
-	       final ACHFile achFile = model.getAchFile();
-
-		String fileName = jLabelAchInfoFileName.getText();
-		try {
-			achFile.setFedFile(jCheckBoxMenuFedFile.isSelected());
-			if (achFile.save(fileName)) {
-			    model.setTitle(fileName);
-				model.setAchFileDirty(false);
-			}
-		} catch (Exception ex) {
-			JOptionPane.showMessageDialog(this,
-					"Unable to save ACH data to fileName. Reason: "
-							+ ex.getMessage(), "Error writing file",
-					JOptionPane.ERROR_MESSAGE);
-		}
-	}// GEN-LAST:event_jMenuSaveActionPerformed
-
 	private void jListAchDataAchRecordsMouseClicked(
 			java.awt.event.MouseEvent evt) {// GEN-FIRST:event_jListAchDataAchRecordsMouseClicked
 		int clickCount = evt.getClickCount();
@@ -1888,9 +1105,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	}// GEN-LAST:event_jListAchDataAchRecordsMouseClicked
 
-	private void jMenuItemFileExitActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuFileExitActionPerformed
-		exitProgram();
-	}// GEN-LAST:event_jMenuFileExitActionPerformed
 
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	public javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
@@ -1931,7 +1145,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private javax.swing.JLabel jLabelAchInfoTotalDebitText;
 
-	private javax.swing.JList jListAchDataAchRecords;
+	public javax.swing.JList jListAchDataAchRecords;
 
 	private javax.swing.JMenuBar jMenuBar;
 
@@ -1939,9 +1153,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
 
 	private javax.swing.JMenuItem jMenuItemFileExit;
 
-	public javax.swing.JMenuItem jMenuItemFileNew;
+	private javax.swing.JMenuItem jMenuItemFileNew;
 
-	public javax.swing.JMenuItem jMenuItemFileOpen;
+	private javax.swing.JMenuItem jMenuItemFileOpen;
 
 	private javax.swing.JMenuItem jMenuItemFileSave;
 
@@ -2033,7 +1247,183 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelSubscriber
     public void onSetTitle() {
         jLabelAchInfoFileName.setText(model.getTitle());
     }
+    
+    public void registerListener(ACHEditorViewListener viewListener) {
+        jMenuItemFileOpen.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onFileOpen();
+            }
+        });
+        jMenuItemFileNew.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onFileNew();
+            }
+        });
+        jMenuItemPopupEntryAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.addAchEntryDetail();
+            }
+        });
+        jMenuItemPopupEntryAddAddenda.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.addAchAddenda();
+            }
+        });
+        jMenuItemPopupEntryEditEntry.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupEntryEditEntry();
+            }
+        });
+        jMenuItemPopupEntryDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onDeleteAchEntryDetail();
+            }
+        });
+        jMenuItemPopupEntryPaste.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupEntryPaste();
+            }
+        });
+        jMenuItemPopupEntryCopy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupEntryCopy();
+            }
+        });
+        jMenuItemPopupBatchAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.addAchBatch();
+            }
+        });
+        jMenuItemPopupBatchAddEntry.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.addAchEntryDetail();
+            }
+        });
+        jMenuItemPopupBatchDeleteBatch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onDeleteAchBatch();
+            }
+        });
+        jMenuItemPopupBatchEditBatch.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupBatchEditBatch();
+            }
+        });
+        jMenuItemPopupPasteMultiple.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupPasteMultiple();
+            }
+        });
+        jMenuItemPopupBatchCopy.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupBatchCopy();
+            }
+        });
+        jMenuItemPopupBatchPaste
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupBatchPaste();
+            }
+        });
+        jMenuItemPopupEntryAddendaAdd.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.addAchAddenda();
+            }
+        });
+        jMenuItemPopupAddendaDelete.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupAddendaDelete();
+            }
+        });
+        jMenuItemPopupAddendaCopy
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupAddendaCopy();
+            }
+        });
+        jMenuItemPopupAddendaPaste.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupAddendaPaste();
+            }
+        });
+        jMenuItemPopupFileAddBatch
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.addAchBatch();
+            }
+        });
+        jMenuItemPopupFileEdit
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupFileEdit();
+            }
+        });
+        jMenuItemMulitpleDelete
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemMultipleDelete();
+            }
+        });
+        jMenuItemPopupMultipleCopy
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemPopupMultipleCopy();
+            }
+        });
+        jMenuItemFileSave.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onFileSave();
+            }
+        });
+        jMenuItemFileSaveAs
+        .addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onFileSaveAs();
+            }
+        });
+        jMenuItemFileExit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onExitProgram();
+            }
+        });
+        jMenuItemToolsValidate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemToolsValidate();
+            }
+        });
+        jMenuItemToolsRecalculate.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemToolsRecalculate();
+            }
+        });
+        jMenuItemToolsReverse.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onItemToolsReverse();
+            }
+        });
+        addWindowListener(new WindowListener() {
+            public void windowActivated(WindowEvent evt) {
+            }
 
+            public void windowDeactivated(WindowEvent evt) {
+            }
 
+            public void windowIconified(WindowEvent evt) {
+            }
+
+            public void windowDeiconified(WindowEvent evt) {
+            }
+
+            public void windowOpened(WindowEvent evt) {
+            }
+
+            public void windowClosing(WindowEvent evt) {
+            }
+
+            public void windowClosed(WindowEvent evt) {
+                viewListener.onExitProgram();
+            }
+        });
+    }
 
 }

@@ -4,6 +4,7 @@
 package com.ach.editor.controller;
 
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.util.Vector;
 
@@ -12,15 +13,22 @@ import javax.swing.JOptionPane;
 
 import com.ach.achViewer.Main;
 import com.ach.domain.ACHBatch;
+import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHFile;
+import com.ach.domain.ACHRecord;
+import com.ach.domain.ACHRecordAddenda;
+import com.ach.domain.ACHRecordBatchControl;
+import com.ach.domain.ACHRecordBatchHeader;
+import com.ach.domain.ACHRecordEntryDetail;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
+import com.ach.editor.view.ACHEditorViewListener;
 
 /**
  * @author ilyakharlamov
  *
  */
-public class ACHEditorController {
+public class ACHEditorController implements ACHEditorViewListener {
 
     private final ACHEditorModel model;
     private final ACHEditorView view;
@@ -32,23 +40,7 @@ public class ACHEditorController {
     public ACHEditorController(ACHEditorModel model, ACHEditorView view) {
         this.model = model;
         this.view = view;
-        registerView();
-    }
-
-    /**
-     * 
-     */
-    private void registerView() {
-        view.jMenuItemFileOpen.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItemFileOpenActionPerformed(evt);
-            }
-        });
-        view.jMenuItemFileNew.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jMenuItemFileNewActionPerformed(evt);
-            }
-        });
+        this.view.registerListener(this);
     }
 
     /**
@@ -91,9 +83,12 @@ public class ACHEditorController {
     		view.setCursor(new Cursor(currentCursor.getType()));
     	}
     }
-    
-    private void jMenuItemFileOpenActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuFileOpenActionPerformed
 
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onFileOpen()
+     */
+    @Override
+    public void onFileOpen() {
         if (model.isAchFileDirty()) {
             Object[] options = { "Save", "Continue", "Cancel" };
             int selection = JOptionPane.showOptionDialog(view,
@@ -130,46 +125,692 @@ public class ACHEditorController {
 
             loadAchData(chooser.getSelectedFile().getAbsolutePath());
         }
-    }// GEN-LAST:event_jMenuFileOpenActionPerformed
-    
-    public void jMenuItemFileNewActionPerformed(java.awt.event.ActionEvent evt) {// GEN-FIRST:event_jMenuItemFileNewActionPerformed
-        final ACHFile achFile = model.getAchFile();
-
-     if (model.isAchFileDirty()) {
-         Object[] options = { "Save", "Continue", "Cancel" };
-         int selection = JOptionPane.showOptionDialog(view,
-                 "ACH File has been changed. What would you like to do.",
-                 "ACH File has changed", JOptionPane.YES_NO_OPTION,
-                 JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-         if (selection == 2) {
-             // Selected cancel
-             return;
-         } else if (selection == 0) {
-             try {
-                 achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                 if (!achFile.save(view.jLabelAchInfoFileName.getText())) {
-                     return;
-                 }
-             } catch (Exception ex) {
-                 JOptionPane.showMessageDialog(view,
-                         "Failure saving file -- \n" + ex.getMessage(),
-                         "Error saving file", JOptionPane.ERROR_MESSAGE);
-                 return;
-             }
-         }
-     }
-     newAchFile();
- }
-    
-    private void newAchFile() {
-        final ACHFile achFile = new ACHFile();
-        achFile.addBatch(new ACHBatch());
-        achFile.recalculate();
-        model.setAchFile(achFile);
-        // Update display with new data
-        model.setAchFileDirty(false); // Don't care if these records get lost
-        view.clearJListAchDataAchRecords();
-        view.loadAchDataRecords();
     }
 
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onFileNew()
+     */
+    @Override
+    public void onFileNew() {
+        final ACHFile achFile = model.getAchFile();
+
+        if (model.isAchFileDirty()) {
+             Object[] options = { "Save", "Continue", "Cancel" };
+             int selection = JOptionPane.showOptionDialog(view,
+                     "ACH File has been changed. What would you like to do.",
+                     "ACH File has changed", JOptionPane.YES_NO_OPTION,
+                     JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+             if (selection == 2) {
+                 // Selected cancel
+                 return;
+             } else if (selection == 0) {
+                 try {
+                     achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
+                     if (!achFile.save(view.jLabelAchInfoFileName.getText())) {
+                         return;
+                     }
+                 } catch (Exception ex) {
+                     JOptionPane.showMessageDialog(view,
+                             "Failure saving file -- \n" + ex.getMessage(),
+                             "Error saving file", JOptionPane.ERROR_MESSAGE);
+                     return;
+                 }
+             }
+         }
+         {
+             final ACHFile brandNewAchFile = new ACHFile();
+             brandNewAchFile.addBatch(new ACHBatch());
+             brandNewAchFile.recalculate();
+             model.setAchFile(brandNewAchFile);
+             // Update display with new data
+             model.setAchFileDirty(false); // Don't care if these records get lost
+             view.clearJListAchDataAchRecords();
+             view.loadAchDataRecords();
+         }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#addAchEntryDetail()
+     */
+    @Override
+    public void addAchEntryDetail() {
+        final ACHFile achFile = model.getAchFile();
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        if (selected.length < 1) {
+            JOptionPane.showMessageDialog(view,
+                    "No items selected ... cannot add entry detail",
+                    "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel()
+                .getElementAt(selected[0]);
+        if (achRecord.isEntryDetailType() || achRecord.isAddendaType()
+                || achRecord.isBatchHeaderType()) {
+            Integer[] position = view.positions.get(selected[0]);
+            ACHRecordEntryDetail entryRecord = new ACHRecordEntryDetail();
+            ACHEntry achEntry = new ACHEntry();
+            achEntry.setEntryDetail(entryRecord);
+            if (position.length == 0) {
+                // problem -- this can only occur on file headers and file
+                // details
+                JOptionPane.showMessageDialog(view,
+                        "Cannot add entry detail after this row",
+                        "Cannot perform requested function",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            } else if (position.length == 1) {
+                // Adding after Batch Header
+                achFile.getBatches().get(position[0]).getEntryRecs().add(0,
+                        achEntry);
+            } else {
+                achFile.getBatches().get(position[0]).getEntryRecs().add(
+                        position[1] + 1, achEntry);
+            }
+            model.setAchFileDirty(true);
+            view.clearJListAchDataAchRecords();
+            view.loadAchDataRecords();
+            view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
+            view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+        } else {
+            JOptionPane.showMessageDialog(view,
+                    "Cannot add entry detail after this row",
+                    "Cannot perform requested function",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#exitProgram()
+     */
+    @Override
+    public void onExitProgram() {
+        final ACHFile achFile = model.getAchFile();
+        if (model.isAchFileDirty()) {
+            Object[] options = { "Save", "Exit", "Cancel" };
+            int selection = JOptionPane.showOptionDialog(view,
+                    "ACH File has been changed? What would you like to do.",
+                    "ACH File has changed", JOptionPane.YES_NO_OPTION,
+                    JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+            if (selection == 2) {
+                // Selected cancel
+                return;
+            } else if (selection == 0) {
+                try {
+                    achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
+                    if (!achFile.save(view.jLabelAchInfoFileName.getText())) {
+                        return;
+                    }
+                } catch (Exception ex) {
+                    JOptionPane.showMessageDialog(view,
+                            "Failure saving file -- \n" + ex.getMessage(),
+                            "Error saving file", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        }
+        view.dispose();
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#addAchBatch()
+     */
+    @Override
+    public void addAchBatch() {
+        final ACHFile achFile = model.getAchFile();
+     int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+     if (selected.length < 1) {
+         JOptionPane.showMessageDialog(view,
+                 "No items selected ... cannot add entry detail",
+                 "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+         return;
+     }
+     ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel()
+             .getElementAt(selected[0]);
+     if (achRecord.isFileHeaderType() || achRecord.isBatchHeaderType()
+             || achRecord.isBatchControlType()) {
+
+         // Build the ACHBatch type
+         ACHBatch achBatch = new ACHBatch();
+         achBatch.setBatchHeader(new ACHRecordBatchHeader());
+         achBatch.setBatchControl(new ACHRecordBatchControl());
+         // add one entry rec
+         achBatch.addEntryRecs(new ACHEntry());
+         achBatch.getEntryRecs().get(0).setEntryDetail(
+                 new ACHRecordEntryDetail());
+
+         // Add to achFile
+         Integer[] position = view.positions.get(selected[0]);
+         if (position.length == 0) {
+             // Adding after File Header
+             achFile.getBatches().add(0, achBatch);
+         } else {
+             achFile.getBatches().add(position[0] + 1, achBatch);
+         }
+         // make sure we have to save
+         model.setAchFileDirty(true);
+
+         // update display
+         view.clearJListAchDataAchRecords();
+         view.loadAchDataRecords();
+         view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
+         view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+     } else {
+         JOptionPane.showMessageDialog(view,
+                 "Cannot add entry detail after this row",
+                 "Cannot perform requested function",
+                 JOptionPane.ERROR_MESSAGE);
+         return;
+     }
+ }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#addAchAddenda()
+     */
+    @Override
+    public void addAchAddenda() {
+        final ACHFile achFile = model.getAchFile();
+        int selected = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        if (selected < 0) {
+            JOptionPane.showMessageDialog(view,
+                    "No items selected ... cannot add addenda",
+                    "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel()
+                .getElementAt(selected);
+        if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
+            Integer[] position = view.positions.get(selected);
+            if (position.length < 2) {
+                JOptionPane.showMessageDialog(view,
+                        "Cannot add entry detail after this item",
+                        "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            // build empty addenda ... don't worry about sequence here, it's
+            // fixed
+            // later
+            ACHRecordAddenda addendaRecord = new ACHRecordAddenda();
+            addendaRecord.setEntryDetailSeqNbr(achFile.getBatches().get(
+                    position[0]).getEntryRecs().get(position[1])
+                    .getEntryDetail().getTraceNumber());
+
+            if (position.length == 2) {
+                // Entry record selected ... add as the first addenda
+                achFile.getBatches().get(position[0]).getEntryRecs().get(
+                        position[1]).getAddendaRecs().add(0, addendaRecord);
+            } else {
+                // Addenda record selected .. add after it
+                achFile.getBatches().get(position[0]).getEntryRecs().get(
+                        position[1]).getAddendaRecs().add(position[2] + 1,
+                        addendaRecord);
+            }
+            // Make sure entry record has the addenda indicator set
+            achFile.getBatches().get(position[0]).getEntryRecs().get(
+                    position[1]).getEntryDetail().setAddendaRecordInd("1");
+            // Resequence all addenda records
+            Vector<ACHRecordAddenda> achAddendas = achFile.getBatches().get(
+                    position[0]).getEntryRecs().get(position[1])
+                    .getAddendaRecs();
+            for (int i = 0; i < achAddendas.size(); i++) {
+                achAddendas.get(i).setAddendaSeqNbr(String.valueOf(i + 1));
+            }
+            achFile.getBatches().get(position[0]).getEntryRecs().get(
+                    position[1]).setAddendaRecs(achAddendas);
+
+            // Update display with new data
+            model.setAchFileDirty(true);
+            view.clearJListAchDataAchRecords();
+            view.loadAchDataRecords();
+            view.jListAchDataAchRecords.setSelectedIndex(selected);
+            view.jListAchDataAchRecords.ensureIndexIsVisible(selected);
+        } else {
+            JOptionPane.showMessageDialog(view,
+                    "Cannot add addenda after this row",
+                    "Cannot perform requested function",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onFileSaveAs()
+     */
+    @Override
+    public void onFileSaveAs() {
+        final ACHFile achFile = model.getAchFile();
+
+        JFileChooser chooser = new JFileChooser(new File(view.jLabelAchInfoFileName
+                .getText()).getParent());
+        chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+        chooser.setApproveButtonText("Save As");
+
+        int returnVal = chooser.showOpenDialog(view.getContentPane());
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            String fileName = chooser.getSelectedFile().getAbsolutePath();
+            if (new File(fileName).exists()) {
+                Object[] options = { "Yes", "No" };
+                int answer = JOptionPane
+                        .showOptionDialog(view, "File " + fileName
+                                + " already exists. Overwrite??",
+                                "File already exists",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[1]);
+                if (answer == 1) {
+                    return;
+                }
+            }
+
+            try {
+                achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
+                if (achFile.save(fileName)) {
+                    model.setTitle(fileName);
+                    model.setAchFileDirty(false);
+
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(view,
+                        "Unable to save ACH data to fileName. Reason: "
+                                + ex.getMessage(), "Error writing file",
+                        JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupAddendaPaste()
+     */
+    @Override
+    public void onItemPopupAddendaPaste() {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("not implemented");
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupBatchPaste()
+     */
+    @Override
+    public void onItemPopupBatchPaste() {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("not implemented");
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onFileSave()
+     */
+    @Override
+    public void onFileSave() {
+        final ACHFile achFile = model.getAchFile();
+        String fileName = view.jLabelAchInfoFileName.getText();
+        try {
+            achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
+            if (achFile.save(fileName)) {
+                model.setTitle(fileName);
+                model.setAchFileDirty(false);
+            }
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(view, "Unable to save ACH data to fileName. Reason: " + ex.getMessage(),
+                    "Error writing file", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupAddendaDelete()
+     */
+    @Override
+    public void onItemPopupAddendaDelete() {
+        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        deleteAchRecord(itemAtMouse);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupMultipleCopy()
+     */
+    @Override
+    public void onItemPopupMultipleCopy() {
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        view.copy(selected);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupAddendaCopy()
+     */
+    @Override
+    public void onItemPopupAddendaCopy() {
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        view.copy(selected);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupEntryEditEntry()
+     */
+    @Override
+    public void onItemPopupEntryEditEntry() {
+        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        view.editAchRecord(itemAtMouse);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemMultipleDelete()
+     */
+    @Override
+    public void onItemMultipleDelete() {
+        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        deleteAchRecord(itemAtMouse);
+    }
+
+    /**
+     * @param itemAtMouse
+     */
+    private void deleteAchRecord(int selectRow) {
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        if (selected.length > 1) {
+            int addendaCount = 0;
+            int entryCount = 0;
+            int batchHeaderCount = 0;
+            int batchControlCount = 0;
+            int fileHeaderCount = 0;
+            int fileControlCount = 0;
+            for (int i = 0; i < selected.length; i++) {
+                ACHRecord achRecord = ((ACHRecord) view.jListAchDataAchRecords
+                        .getModel().getElementAt(selected[i]));
+                if (achRecord.isAddendaType()) {
+                    addendaCount++;
+                } else if (achRecord.isEntryDetailType()) {
+                    entryCount++;
+                } else if (achRecord.isBatchHeaderType()) {
+                    batchHeaderCount++;
+                } else if (achRecord.isBatchControlType()) {
+                    batchControlCount++;
+                } else if (achRecord.isFileHeaderType()) {
+                    fileHeaderCount++;
+                } else if (achRecord.isFileControlType()) {
+                    fileControlCount++;
+                }
+            }
+            // Determine the type of delete from the outside in
+            if (fileHeaderCount > 0 || fileControlCount > 0) {
+                JOptionPane
+                        .showMessageDialog(
+                                view,
+                                "Cannot delete file header or control records. Use 'New' menu item instead",
+                                "Cannot perform request",
+                                JOptionPane.ERROR_MESSAGE);
+                return;
+            } else if (batchHeaderCount > 0 || batchControlCount > 0) {
+                Object[] options = { "Delete", "Cancel" };
+                int selection = JOptionPane
+                        .showOptionDialog(
+                                view,
+                                "This will delete multiple batches. Continue with delete??",
+                                "Deleting multiple batches",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                if (selection == 0) {
+                    onDeleteAchBatch();
+                } else {
+                    return;
+                }
+            } else if (entryCount > 0) {
+                Object[] options = { "Delete", "Cancel" };
+                int selection = JOptionPane
+                        .showOptionDialog(
+                                view,
+                                "This will delete multiple entry details. Continue with delete??",
+                                "Deleting multiple entry details",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                if (selection == 0) {
+                    onDeleteAchEntryDetail();
+                } else {
+                    return;
+                }
+            } else if (addendaCount > 0) {
+                Object[] options = { "Delete", "Cancel" };
+                int selection = JOptionPane
+                        .showOptionDialog(
+                                view,
+                                "This will delete multiple Addenda records. Continue with delete??",
+                                "Deleting multiple Addenda records",
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE, null, options,
+                                options[0]);
+                if (selection == 0) {
+                    view.deleteAchAddenda();
+                } else {
+                    return;
+                }
+            }
+        } else {
+            ACHRecord achRecord = ((ACHRecord) view.jListAchDataAchRecords
+                    .getModel().getElementAt(selectRow));
+            if (achRecord.isBatchHeaderType() || achRecord.isBatchControlType()) {
+                onDeleteAchBatch();
+            } else if (achRecord.isEntryDetailType()) {
+                onDeleteAchEntryDetail();
+            } else if (achRecord.isAddendaType()) {
+                view.deleteAchAddenda();
+            }
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupFileEdit()
+     */
+    @Override
+    public void onItemPopupFileEdit() {
+        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        view.editAchRecord(itemAtMouse);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemToolsValidate()
+     */
+    @Override
+    public void onItemToolsValidate() {
+        final ACHFile achFile = model.getAchFile();
+
+        Cursor currentCursor = view.getCursor();
+        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
+            view.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        }
+        Vector<String> messages = achFile.validate();
+        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
+            view.setCursor(new Cursor(currentCursor.getType()));
+        }
+
+        if (messages.size() > 0) {
+            StringBuffer messageOutput = new StringBuffer("");
+            for (int i = 0; i < messages.size(); i++) {
+                if (i > 0) {
+                    messageOutput.append("\n");
+                }
+                messageOutput.append(messages.get(i));
+            }
+            JOptionPane.showMessageDialog(view, messageOutput);
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemToolsRecalculate()
+     */
+    @Override
+    public void onItemToolsRecalculate() {
+        final ACHFile achFile = model.getAchFile();
+
+        Cursor currentCursor = view.getCursor();
+        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
+            view.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        }
+        if (!achFile.recalculate()) {
+            JOptionPane.showMessageDialog(view,
+                    "Unable to fully recalculate ... run Validate tool");
+        }
+        view.clearJListAchDataAchRecords();
+        view.loadAchInformation();
+        view.loadAchDataRecords();
+        model.setAchFileDirty(true);
+        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
+            view.setCursor(new Cursor(currentCursor.getType()));
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onDeleteAchEntryDetail()
+     */
+    @Override
+    public void onDeleteAchEntryDetail() {
+        final ACHFile achFile = model.getAchFile();
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        if (selected.length < 1) {
+            JOptionPane.showMessageDialog(view,
+                    "No items selected ... cannot delete entry detail",
+                    "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        for (int i = 0; i < selected.length; i++) {
+            ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel()
+                    .getElementAt(selected[i]);
+            if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
+            } else {
+                JOptionPane.showMessageDialog(view,
+                        "Cannot delete entry detail -- non-entry/addenda rows "
+                                + "in selection list",
+                        "Cannot perform requested function",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        // Remove them backwards to positions don't shift on us
+        for (int i = selected.length - 1; i >= 0; i--) {
+            Integer[] position = view.positions.get(selected[i]);
+            if (position.length != 2) {
+                // problem -- this can only occur if there is a mismatch
+                // between positions and jListAchDataAchRecords
+                JOptionPane
+                        .showMessageDialog(
+                                view,
+                                "Cannot delete entry detail -- row is not an entry row",
+                                "Cannot perform requested function",
+                                JOptionPane.ERROR_MESSAGE);
+                return;
+            } else {
+                achFile.getBatches().get(position[0]).getEntryRecs().remove(
+                        position[1].intValue());
+            }
+        }
+        model.setAchFileDirty(true);
+        view.clearJListAchDataAchRecords();
+        view.loadAchDataRecords();
+        view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
+        view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupEntryPaste()
+     */
+    @Override
+    public void onItemPopupEntryPaste() {
+        // TODO Auto-generated method stub
+        throw new RuntimeException("not implemented");
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemToolsReverse()
+     */
+    @Override
+    public void onItemToolsReverse() {
+        final ACHFile achFile = model.getAchFile();
+        achFile.reverse();
+        view.loadAchInformation();
+        view.clearJListAchDataAchRecords();
+        view.loadAchDataRecords();
+        model.setAchFileDirty(true);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupBatchCopy()
+     */
+    @Override
+    public void onItemPopupBatchCopy() {
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        view.copy(selected);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupEntryCopy()
+     */
+    @Override
+    public void onItemPopupEntryCopy() {
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        view.copy(selected);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupPasteMultiple()
+     */
+    @Override
+    public void onItemPopupPasteMultiple() {
+        Vector<ACHRecord> copySet = view.getClipboard();
+        for (int i = 0; i < copySet.size(); i++) {
+            System.err.println(copySet.get(i).toString());
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onItemPopupBatchEditBatch()
+     */
+    @Override
+    public void onItemPopupBatchEditBatch() {
+        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        view.editAchRecord(itemAtMouse);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onDeleteAchBatch()
+     */
+    @Override
+    public void onDeleteAchBatch() {
+        final ACHFile achFile = model.getAchFile();
+        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        if (selected.length < 1) {
+            JOptionPane.showMessageDialog(view,
+                    "No items selected ... cannot delete",
+                    "Cannot perform request", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        for (int i = 0; i < selected.length; i++) {
+            ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel()
+                    .getElementAt(selected[i]);
+            if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
+                JOptionPane.showMessageDialog(view,
+                        "Cannot delete file header/control rows "
+                                + "in selection list",
+                        "Cannot perform requested function",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+        // Remove them backwards to positions don't shift on us
+        for (int i = selected.length - 1; i >= 0; i--) {
+            Integer[] position = view.positions.get(selected[i]);
+            if (position.length != 1) {
+                // find batch headers -- skipp entry and addenda
+            } else {
+                ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords
+                        .getModel().getElementAt(selected[i]);
+                // only delete items that match the headers
+                if (achRecord.isBatchHeaderType()) {
+                    achFile.getBatches().remove(position[0].intValue());
+                }
+            }
+        }
+        model.setAchFileDirty(true);
+        view.clearJListAchDataAchRecords();
+        view.loadAchDataRecords();
+        view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
+        view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+    }
 }
