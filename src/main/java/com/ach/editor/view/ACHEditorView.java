@@ -43,11 +43,137 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private static final long serialVersionUID = 0;
 	
+	// Variables declaration - do not modify//GEN-BEGIN:variables
+	private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
+
+	private javax.swing.JLabel jLabel1;
+
+	private javax.swing.JLabel jLabel2;
+
+	private javax.swing.JLabel jLabelAchInfoBatchCount;
+
+    private javax.swing.JLabel jLabelAchInfoBatchCountText;
+
+	private javax.swing.JLabel jLabelAchInfoEntryCount;
+
+	private javax.swing.JLabel jLabelAchInfoEntryCountText;
+
+	private javax.swing.JLabel jLabelAchInfoFileCreation;
+
+	private javax.swing.JLabel jLabelAchInfoFileCreationText;
+
+	public javax.swing.JLabel jLabelAchInfoFileName;
+
+	
+
+	private javax.swing.JLabel jLabelAchInfoFileNameText;
+
+	private javax.swing.JLabel jLabelAchInfoImmDest;
+
+    private javax.swing.JLabel jLabelAchInfoImmDestText;
+
+    private javax.swing.JLabel jLabelAchInfoImmOrigin;
+
+	private javax.swing.JLabel jLabelAchInfoImmOriginText;
+
+	
+
+
+	private javax.swing.JLabel jLabelAchInfoTotalCredit;
+
+	private javax.swing.JLabel jLabelAchInfoTotalCreditText;
+
+	private javax.swing.JLabel jLabelAchInfoTotalDebit;
+
+	private javax.swing.JLabel jLabelAchInfoTotalDebitText;
+
+	private javax.swing.JList jListAchDataAchRecords;
+
+	private javax.swing.JMenuBar jMenuBar;
+
+	private javax.swing.JMenu jMenuFile;
+
+	private javax.swing.JMenuItem jMenuItemFileExit;
+
+	private javax.swing.JMenuItem jMenuItemFileNew;
+
+	private javax.swing.JMenuItem jMenuItemFileOpen;
+
+	private javax.swing.JMenuItem jMenuItemFileSave;
+
+	private javax.swing.JMenuItem jMenuItemFileSaveAs;
+
+	private javax.swing.JMenuItem jMenuItemMulitpleDelete;
+
+	private javax.swing.JMenuItem jMenuItemPopupAddendaCopy;
+
+	private javax.swing.JMenuItem jMenuItemPopupAddendaDelete;
+
+	private javax.swing.JMenuItem jMenuItemPopupAddendaPaste;
+
+	private javax.swing.JMenuItem jMenuItemPopupBatchAdd;
+
+	private javax.swing.JMenuItem jMenuItemPopupBatchAddEntry;
+
+	private javax.swing.JMenuItem jMenuItemPopupBatchCopy;
+
+	private javax.swing.JMenuItem jMenuItemPopupBatchDeleteBatch;
+
+	private javax.swing.JMenuItem jMenuItemPopupBatchEditBatch;
+
+	private javax.swing.JMenuItem jMenuItemPopupBatchPaste;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryAdd;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryAddAddenda;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryAddendaAdd;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryCopy;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryDelete;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryEditEntry;
+
+	private javax.swing.JMenuItem jMenuItemPopupEntryPaste;
+
+	private javax.swing.JMenuItem jMenuItemPopupFileAddBatch;
+
+	private javax.swing.JMenuItem jMenuItemPopupFileEdit;
+
+	private javax.swing.JMenuItem jMenuItemPopupMultipleCopy;
+
+	private javax.swing.JMenuItem jMenuItemPopupPasteMultiple;
+
+	private javax.swing.JMenuItem jMenuItemToolsRecalculate;
+
+	private javax.swing.JMenuItem jMenuItemToolsReverse;
+
+	private javax.swing.JMenuItem jMenuItemToolsValidate;
+
+	private javax.swing.JMenu jMenuTools;
+
+	private javax.swing.JPanel jPanel1;
+
+	public javax.swing.JPopupMenu jPopupMenuAddenda;
+
+	public javax.swing.JPopupMenu jPopupMenuBatch;
+
+	public javax.swing.JPopupMenu jPopupMenuEntry;
+
+	public javax.swing.JPopupMenu jPopupMenuFile;
+
+	public javax.swing.JPopupMenu jPopupMenuMultipleSelection;
+
+	private javax.swing.JScrollPane jScrollPane1;
+
+	private javax.swing.JSeparator jSeparatorMenuFile;
+
 	private ACHEditorModel model;
 
-	private Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
+	private Point mouseClick = null;
 
-	public Point mouseClick = null;
+	private Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
 
 	/** Creates new form ACHViewer */
 	public ACHEditorView(ACHEditorModel achappmodel) {
@@ -78,7 +204,45 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		this.model.addSubscriber(this);
 	}
 
-    private void clearAchInfo() {
+	private synchronized void addJListAchDataAchRecordsItem(ACHRecord achRecord) {
+		((DefaultListModel) jListAchDataAchRecords.getModel())
+				.addElement(achRecord);
+	}
+
+	public int askDeleteCancel(final String title, final String message) {
+        Object[] options = { "Delete", "Cancel" };
+        int selection = JOptionPane.showOptionDialog(this,
+                message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
+                null, options, options[0]);
+        return selection;
+    }
+
+	public int askSaveContinueCancel(final String title, final String message) {
+        Object[] options = { "Save", "Continue", "Cancel" };
+        int selection = JOptionPane.showOptionDialog(this, message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[0]);
+        return selection;
+    }
+
+	public int askSaveExitCancel(final String title, final String message) {
+        Object[] options = { "Save", "Exit", "Cancel" };
+        int selection = JOptionPane.showOptionDialog(this, message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[0]);
+        return selection;
+    }
+
+	public int askYesNo(final String message, final String title) {
+        Object[] options = { "Yes", "No" };
+        int answer = JOptionPane.showOptionDialog(this, message,
+                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[1]);
+        return answer;
+    }
+
+	private void clearAchInfo() {
 		jLabelAchInfoFileName.setText("");
 		jLabelAchInfoFileCreation.setText("");
 		jLabelAchInfoImmDest.setText("");
@@ -90,33 +254,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		jListAchDataAchRecords.setModel(new DefaultListModel());
 	}
 
-	public void showMessage(final String msg) {
-        JOptionPane.showMessageDialog(this, msg);
-    }
-
-	public void loadAchInformation() {
-	    final ACHDocument achFile = model.getAchFile();
-		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
-				.getFileCreationDate()
-				+ " " + achFile.getFileHeader().getFileCreationTime());
-		jLabelAchInfoBatchCount.setText(achFile.getFileControl()
-				.getBatchCount());
-		jLabelAchInfoEntryCount.setText(achFile.getFileControl()
-				.getEntryAddendaCount());
-		jLabelAchInfoTotalDebit.setText(achFile.getFileControl()
-				.getTotDebitDollarAmt());
-		jLabelAchInfoTotalCredit.setText(achFile.getFileControl()
-				.getTotCreditDollarAmt());
-		jLabelAchInfoImmDest.setText(achFile.getFileHeader()
-				.getImmediateDestination()
-				+ " " + achFile.getFileHeader().getImmediateDestinationName());
-		jLabelAchInfoImmOrigin.setText(achFile.getFileHeader()
-				.getImmediateOrigin()
-				+ " " + achFile.getFileHeader().getImmediateOriginName());
-		jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
-
-	}
-
 	public synchronized void clearJListAchDataAchRecords() {
 		((DefaultListModel) jListAchDataAchRecords.getModel())
 				.removeAllElements();
@@ -124,46 +261,24 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		jMenuItemToolsValidate.setEnabled(false);
 	}
 
-	private synchronized void addJListAchDataAchRecordsItem(ACHRecord achRecord) {
-		((DefaultListModel) jListAchDataAchRecords.getModel())
-				.addElement(achRecord);
-	}
+	/**
+     * @return
+     */
+    public int clickedIndex() {
+        return jListAchDataAchRecords.locationToIndex(mouseClick);
+    }
 
-	public void loadAchDataRecords() {
-	    final ACHDocument achFile = model.getAchFile();
-	    List<ACHRecord> records = new ArrayList<>();
-		positions = new Vector<Integer[]>(10, 10);
-		records.add(achFile.getFileHeader());
-		positions.add(new Integer[0]);
-		Vector<ACHBatch> achBatches = achFile.getBatches();
-		for (int i = 0; i < achBatches.size(); i++) {
-			records.add(achBatches.get(i).getBatchHeader());
-			positions.add(new Integer[] { i });
-			Vector<ACHEntry> achEntries = achBatches.get(i).getEntryRecs();
-			for (int j = 0; j < achEntries.size(); j++) {
-				records.add(achEntries.get(j)
-                        .getEntryDetail());
-				positions.add(new Integer[] { i, j });
-				Vector<ACHRecordAddenda> achAddendas = achEntries.get(j)
-						.getAddendaRecs();
-				for (int k = 0; k < achAddendas.size(); k++) {
-					records.add(achAddendas.get(k));
-					positions.add(new Integer[] { i, j, k });
-				}
-			}
-			records.add(achBatches.get(i).getBatchControl());
-			positions.add(new Integer[] { i });
+	// This method writes the current selection to the system clipboard
+	public void copy(int[] selected) {
+		Vector<ACHRecord> achRecords = new Vector<ACHRecord>(selected.length,
+				10);
+		for (int i = 0; i < selected.length; i++) {
+			achRecords.add(getRow(i));
 		}
-		records.add(achFile.getFileControl());
-		for (ACHRecord rec: records) {
-		    addJListAchDataAchRecordsItem(rec);
-		}
-		positions.add(new Integer[0]);
-		jMenuItemToolsRecalculate.setEnabled(true);
-		jMenuItemToolsValidate.setEnabled(true);
+		ACHSelection clipboardSelection = new ACHSelection(achRecords);
+		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+				clipboardSelection, null);
 	}
-
-	
 
 	// If a ACHSelection type is on the system clipboard, this method returns
 	// it;
@@ -186,28 +301,20 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		return null;
 	}
 
-	// This method writes the current selection to the system clipboard
-	public void copy(int[] selected) {
-		Vector<ACHRecord> achRecords = new Vector<ACHRecord>(selected.length,
-				10);
-		for (int i = 0; i < selected.length; i++) {
-			achRecords.add(getRow(i));
-		}
-		ACHSelection clipboardSelection = new ACHSelection(achRecords);
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
-				clipboardSelection, null);
-	}
+	public Integer[] getPositions(final int index) {
+        return positions.get(index);
+    }
 
     public ACHRecord getRow(int i) {
         return (ACHRecord) jListAchDataAchRecords.getModel()
         		.getElementAt(i);
     }
 
-    public void putRow(int selectRow, final ACHRecord achRecord) {
-	    ((DefaultListModel) jListAchDataAchRecords.getModel()).setElementAt(achRecord, selectRow);
-	}
-
-	/**
+    public int[] getSelectedRows() {
+        return jListAchDataAchRecords.getSelectedIndices();
+    }
+    
+    /**
 	 * This method is called from within the constructor to initialize the form.
 	 * WARNING: Do NOT modify this code. The content of this method is always
 	 * regenerated by the Form Editor.
@@ -836,134 +943,77 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
-	
+    
 
+    
+    public void loadAchDataRecords() {
+	    final ACHDocument achFile = model.getAchFile();
+	    List<ACHRecord> records = new ArrayList<>();
+		positions = new Vector<Integer[]>(10, 10);
+		records.add(achFile.getFileHeader());
+		positions.add(new Integer[0]);
+		Vector<ACHBatch> achBatches = achFile.getBatches();
+		for (int i = 0; i < achBatches.size(); i++) {
+			records.add(achBatches.get(i).getBatchHeader());
+			positions.add(new Integer[] { i });
+			Vector<ACHEntry> achEntries = achBatches.get(i).getEntryRecs();
+			for (int j = 0; j < achEntries.size(); j++) {
+				records.add(achEntries.get(j)
+                        .getEntryDetail());
+				positions.add(new Integer[] { i, j });
+				Vector<ACHRecordAddenda> achAddendas = achEntries.get(j)
+						.getAddendaRecs();
+				for (int k = 0; k < achAddendas.size(); k++) {
+					records.add(achAddendas.get(k));
+					positions.add(new Integer[] { i, j, k });
+				}
+			}
+			records.add(achBatches.get(i).getBatchControl());
+			positions.add(new Integer[] { i });
+		}
+		records.add(achFile.getFileControl());
+		for (ACHRecord rec: records) {
+		    addJListAchDataAchRecordsItem(rec);
+		}
+		positions.add(new Integer[0]);
+		jMenuItemToolsRecalculate.setEnabled(true);
+		jMenuItemToolsValidate.setEnabled(true);
+	}
+    private void loadAchInformation() {
+	    final ACHDocument achFile = model.getAchFile();
+		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
+				.getFileCreationDate()
+				+ " " + achFile.getFileHeader().getFileCreationTime());
+		jLabelAchInfoBatchCount.setText(achFile.getFileControl()
+				.getBatchCount());
+		jLabelAchInfoEntryCount.setText(achFile.getFileControl()
+				.getEntryAddendaCount());
+		jLabelAchInfoTotalDebit.setText(achFile.getFileControl()
+				.getTotDebitDollarAmt());
+		jLabelAchInfoTotalCredit.setText(achFile.getFileControl()
+				.getTotCreditDollarAmt());
+		jLabelAchInfoImmDest.setText(achFile.getFileHeader()
+				.getImmediateDestination()
+				+ " " + achFile.getFileHeader().getImmediateDestinationName());
+		jLabelAchInfoImmOrigin.setText(achFile.getFileHeader()
+				.getImmediateOrigin()
+				+ " " + achFile.getFileHeader().getImmediateOriginName());
+		jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
 
-	// Variables declaration - do not modify//GEN-BEGIN:variables
-	private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
-
-	private javax.swing.JLabel jLabel1;
-
-	private javax.swing.JLabel jLabel2;
-
-	private javax.swing.JLabel jLabelAchInfoBatchCount;
-
-	private javax.swing.JLabel jLabelAchInfoBatchCountText;
-
-	private javax.swing.JLabel jLabelAchInfoEntryCount;
-
-	private javax.swing.JLabel jLabelAchInfoEntryCountText;
-
-	private javax.swing.JLabel jLabelAchInfoFileCreation;
-
-	private javax.swing.JLabel jLabelAchInfoFileCreationText;
-
-	public javax.swing.JLabel jLabelAchInfoFileName;
-
-	private javax.swing.JLabel jLabelAchInfoFileNameText;
-
-	private javax.swing.JLabel jLabelAchInfoImmDest;
-
-	private javax.swing.JLabel jLabelAchInfoImmDestText;
-
-	private javax.swing.JLabel jLabelAchInfoImmOrigin;
-
-	private javax.swing.JLabel jLabelAchInfoImmOriginText;
-
-	private javax.swing.JLabel jLabelAchInfoTotalCredit;
-
-	private javax.swing.JLabel jLabelAchInfoTotalCreditText;
-
-	private javax.swing.JLabel jLabelAchInfoTotalDebit;
-
-	private javax.swing.JLabel jLabelAchInfoTotalDebitText;
-
-	private javax.swing.JList jListAchDataAchRecords;
-
-	private javax.swing.JMenuBar jMenuBar;
-
-	private javax.swing.JMenu jMenuFile;
-
-	private javax.swing.JMenuItem jMenuItemFileExit;
-
-	private javax.swing.JMenuItem jMenuItemFileNew;
-
-	private javax.swing.JMenuItem jMenuItemFileOpen;
-
-	private javax.swing.JMenuItem jMenuItemFileSave;
-
-	private javax.swing.JMenuItem jMenuItemFileSaveAs;
-
-	private javax.swing.JMenuItem jMenuItemMulitpleDelete;
-
-	private javax.swing.JMenuItem jMenuItemPopupAddendaCopy;
-
-	private javax.swing.JMenuItem jMenuItemPopupAddendaDelete;
-
-	private javax.swing.JMenuItem jMenuItemPopupAddendaPaste;
-
-	private javax.swing.JMenuItem jMenuItemPopupBatchAdd;
-
-	private javax.swing.JMenuItem jMenuItemPopupBatchAddEntry;
-
-	private javax.swing.JMenuItem jMenuItemPopupBatchCopy;
-
-	private javax.swing.JMenuItem jMenuItemPopupBatchDeleteBatch;
-
-	private javax.swing.JMenuItem jMenuItemPopupBatchEditBatch;
-
-	private javax.swing.JMenuItem jMenuItemPopupBatchPaste;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryAdd;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryAddAddenda;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryAddendaAdd;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryCopy;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryDelete;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryEditEntry;
-
-	private javax.swing.JMenuItem jMenuItemPopupEntryPaste;
-
-	private javax.swing.JMenuItem jMenuItemPopupFileAddBatch;
-
-	private javax.swing.JMenuItem jMenuItemPopupFileEdit;
-
-	private javax.swing.JMenuItem jMenuItemPopupMultipleCopy;
-
-	private javax.swing.JMenuItem jMenuItemPopupPasteMultiple;
-
-	private javax.swing.JMenuItem jMenuItemToolsRecalculate;
-
-	private javax.swing.JMenuItem jMenuItemToolsReverse;
-
-	private javax.swing.JMenuItem jMenuItemToolsValidate;
-
-	private javax.swing.JMenu jMenuTools;
-
-	private javax.swing.JPanel jPanel1;
-
-	public javax.swing.JPopupMenu jPopupMenuAddenda;
-
-	public javax.swing.JPopupMenu jPopupMenuBatch;
-
-	public javax.swing.JPopupMenu jPopupMenuEntry;
-
-	public javax.swing.JPopupMenu jPopupMenuFile;
-
-	public javax.swing.JPopupMenu jPopupMenuMultipleSelection;
-
-	private javax.swing.JScrollPane jScrollPane1;
-
-	private javax.swing.JSeparator jSeparatorMenuFile;
-	// End of variables declaration//GEN-END:variables
+	}
 
     /* (non-Javadoc)
-     * @see com.ach.achViewer.model.ModelSubscriber#onFileDirty()
+     * @see com.ach.editor.model.ModelListener#onSetAchFile()
      */
+    @Override
+    public void onSetAchFile() {
+        ACHDocument achFile = model.getAchFile();
+        jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
+        loadAchInformation();
+        clearJListAchDataAchRecords();
+        loadAchDataRecords();
+    }
+
     @Override
     public void onSetFileDirty() {
         File outputFile = model.getOutputFile();
@@ -973,11 +1023,23 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     }
 
     @Override
+    public void onSetOutputFile() {
+        final File outputFile = model.getOutputFile();
+        final String title = outputFile.getAbsolutePath();
+        jLabelAchInfoFileName.setText(title);
+        setTitle(title);
+    }
+
+    @Override
     public void onSetSelectedRow() {
         int index = model.getSelectedRow();
         jListAchDataAchRecords.setSelectedIndex(index);
         jListAchDataAchRecords.ensureIndexIsVisible(index);
     }
+
+    public void putRow(int selectRow, final ACHRecord achRecord) {
+	    ((DefaultListModel) jListAchDataAchRecords.getModel()).setElementAt(achRecord, selectRow);
+	}
     
     public void registerListener(ACHEditorViewListener viewListener) {
         jMenuItemFileOpen.addActionListener(new java.awt.event.ActionListener() {
@@ -1132,10 +1194,13 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
                 viewListener.onItemToolsReverse();
             }
         });
-        jListAchDataAchRecords
-        .addMouseListener(new java.awt.event.MouseAdapter() {
+        ACHEditorView that = this;
+        jListAchDataAchRecords.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                viewListener.onListClick(evt);
+                int clickCount = evt.getClickCount();
+                int button = evt.getButton();
+                mouseClick = evt.getPoint();
+                viewListener.onListClick(that.clickedIndex(), clickCount, button);
             }
         });
         jCheckBoxMenuFedFile.addActionListener(new java.awt.event.ActionListener() {
@@ -1147,32 +1212,47 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             public void windowActivated(WindowEvent evt) {
             }
 
-            public void windowDeactivated(WindowEvent evt) {
-            }
-
-            public void windowIconified(WindowEvent evt) {
-            }
-
-            public void windowDeiconified(WindowEvent evt) {
-            }
-
-            public void windowOpened(WindowEvent evt) {
+            public void windowClosed(WindowEvent evt) {
+                viewListener.onExitProgram();
             }
 
             public void windowClosing(WindowEvent evt) {
             }
 
-            public void windowClosed(WindowEvent evt) {
-                viewListener.onExitProgram();
+            public void windowDeactivated(WindowEvent evt) {
+            }
+
+            public void windowDeiconified(WindowEvent evt) {
+            }
+
+            public void windowIconified(WindowEvent evt) {
+            }
+
+            public void windowOpened(WindowEvent evt) {
             }
         });
     }
 
-    
+    public void setCursorDefault() {
+        Cursor currentCursor = getCursor();
+        final int cursorType = currentCursor.getType();
+        if (cursorType == Cursor.DEFAULT_CURSOR) {
+            setCursor(new Cursor(cursorType));
+        }
+    }
 
-    
-    public int[] getSelectedRows() {
-        return jListAchDataAchRecords.getSelectedIndices();
+    public void setCursorWait() {
+        Cursor currentCursor = getCursor();
+        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
+            setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        }
+    }
+
+    /**
+     * @param dialog
+     */
+    public void showDialog(JPopupMenu dialog) {
+        dialog.show(jListAchDataAchRecords, mouseClick.x, mouseClick.y);
     }
     /**
      * @param title
@@ -1186,89 +1266,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     }
 
-    public int askSaveContinueCancel(final String title, final String message) {
-        Object[] options = { "Save", "Continue", "Cancel" };
-        int selection = JOptionPane.showOptionDialog(this, message,
-                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                options[0]);
-        return selection;
-    }
-
-    public int askDeleteCancel(final String title, final String message) {
-        Object[] options = { "Delete", "Cancel" };
-        int selection = JOptionPane.showOptionDialog(this,
-                message,
-                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
-                null, options, options[0]);
-        return selection;
-    }
-
-    public int askYesNo(final String message, final String title) {
-        Object[] options = { "Yes", "No" };
-        int answer = JOptionPane.showOptionDialog(this, message,
-                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                options[1]);
-        return answer;
-    }
-
-    public int askSaveExitCancel(final String title, final String message) {
-        Object[] options = { "Save", "Exit", "Cancel" };
-        int selection = JOptionPane.showOptionDialog(this, message,
-                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                options[0]);
-        return selection;
-    }
-
-    /**
-     * @return
-     */
-    public int clickedIndex() {
-        return jListAchDataAchRecords.locationToIndex(mouseClick);
-    }
-    
-    public Integer[] getPositions(final int index) {
-        return positions.get(index);
-    }
-
-    /**
-     * @param dialog
-     */
-    public void showDialog(JPopupMenu dialog) {
-        dialog.show(jListAchDataAchRecords, mouseClick.x, mouseClick.y);
-    }
-
-    /* (non-Javadoc)
-     * @see com.ach.editor.model.ModelListener#onSetAchFile()
-     */
-    @Override
-    public void onSetAchFile() {
-        ACHDocument achFile = model.getAchFile();
-        jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
-        loadAchInformation();
-        clearJListAchDataAchRecords();
-        loadAchDataRecords();
-    }
-
-    public void setCursorDefault() {
-        Cursor currentCursor = getCursor();
-        final int cursorType = currentCursor.getType();
-        if (cursorType == Cursor.DEFAULT_CURSOR) {
-            setCursor(new Cursor(cursorType));
-        }
-    }
-    public void setCursorWait() {
-        Cursor currentCursor = getCursor();
-        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
-            setCursor(new Cursor(Cursor.WAIT_CURSOR));
-        }
-    }
-
-    @Override
-    public void onSetOutputFile() {
-        final File outputFile = model.getOutputFile();
-        final String title = outputFile.getAbsolutePath();
-        jLabelAchInfoFileName.setText(title);
-        setTitle(title);
+    public void showMessage(final String msg) {
+        JOptionPane.showMessageDialog(this, msg);
     }
 
 }

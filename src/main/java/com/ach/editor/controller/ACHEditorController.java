@@ -384,7 +384,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             achFile.setFileControl(achRecord);
             view.putRow(idx, achRecord);
             model.setAchFileDirty(true);
-            view.loadAchInformation();
+            model.setAchFile(achFile);
         }
     }
 
@@ -396,8 +396,8 @@ public class ACHEditorController implements ACHEditorViewListener {
             achFile.setFileHeader(dialog.getAchRecord());
             view.putRow(selectRow, dialog.getAchRecord());
             model.setAchFileDirty(true);
-            view.loadAchInformation();
         }
+        model.setAchFile(achFile);
     }
 
     public void editAchRecord(int selectRow) {
@@ -782,8 +782,8 @@ public class ACHEditorController implements ACHEditorViewListener {
             view.showMessage("Unable to fully recalculate ... run Validate tool");
         }
         view.clearJListAchDataAchRecords();
-        view.loadAchInformation();
         view.loadAchDataRecords();
+        model.setAchFile(achFile);
         model.setAchFileDirty(true);
         view.setCursorDefault();
     }
@@ -792,8 +792,8 @@ public class ACHEditorController implements ACHEditorViewListener {
     public void onItemToolsReverse() {
         final ACHDocument achFile = model.getAchFile();
         achFile.reverse();
-        view.loadAchInformation();
         view.clearJListAchDataAchRecords();
+        model.setAchFile(achFile);
         view.loadAchDataRecords();
         model.setAchFileDirty(true);
     }
@@ -812,12 +812,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     @Override
-    public void onListClick(MouseEvent evt) {// GEN-FIRST:event_jListAchDataAchRecordsMouseClicked
-        int clickCount = evt.getClickCount();
-        int button = evt.getButton();
-        view.mouseClick = evt.getPoint();
-        int itemAtMouse = view.clickedIndex();
-
+    public void onListClick(int itemAtMouse, int clickCount, int button) {// GEN-FIRST:event_jListAchDataAchRecordsMouseClicked
         int[] selected = view.getSelectedRows();
         boolean found = false;
         for (int i = 0; i < selected.length && (!found); i++) {
@@ -839,13 +834,13 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
 
         if (clickCount == 1 && button == MouseEvent.BUTTON3) {
-            processRightClick(evt, selected);
+            processRightClick(selected);
             return;
         }
 
     }
 
-    public void processRightClick(MouseEvent evt, int[] selected) {
+    public void processRightClick(int[] selected) {
         ACHRecord achRecord = clickedRecord();
         JPopupMenu dialog;
         if (selected.length == 1) {
