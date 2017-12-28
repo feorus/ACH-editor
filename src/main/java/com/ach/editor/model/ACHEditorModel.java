@@ -3,6 +3,7 @@
  */
 package com.ach.editor.model;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,17 +22,17 @@ public class ACHEditorModel {
 
     private boolean achFileDirty;
 
+    private File outputFile;
+
     private int selectedRow;
 
     private List<ModelListener> subscribers;
-
-    private String title;
 
     public ACHEditorModel() {
         super();
         this.subscribers = new ArrayList<>();
     }
-
+    
     public void addSubscriber(ModelListener subscriber) {
         this.subscribers.add(subscriber);
     }
@@ -40,12 +41,12 @@ public class ACHEditorModel {
         return achFile;
     }
 
-    public int getSelectedRow() {
-        return selectedRow;
+    public File getOutputFile() {
+        return outputFile;
     }
 
-    public String getTitle() {
-        return title;
+    public int getSelectedRow() {
+        return selectedRow;
     }
 
     public boolean isAchFileDirty() {
@@ -68,20 +69,19 @@ public class ACHEditorModel {
         }
     }
 
-    public void setSelectedRow(int selectedRow) {
-        LOG.debug("setSelectedRow({})", selectedRow);
-        this.selectedRow = selectedRow;
-        for (ModelListener subscriber : subscribers) {
-            subscriber.onSetSelectedRow();
+    public void setOutputFile(File outputFile) {
+        LOG.debug("setOutputFile({})", outputFile);
+        this.outputFile = outputFile;
+        for (ModelListener s : subscribers) {
+            s.onSetOutputFile();
         }
     }
 
-    public void setTitle(String title) {
-        LOG.debug("setTitle({})", title);
-
-        this.title = title;
+    public void setSelectedRow(int selectedRow) {
+        LOG.debug("setSelectedRow({})", selectedRow);
+        this.selectedRow = selectedRow;
         for (ModelListener s : subscribers) {
-            s.onSetTitle();
+            s.onSetSelectedRow();
         }
     }
 

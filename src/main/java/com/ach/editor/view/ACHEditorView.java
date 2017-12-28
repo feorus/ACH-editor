@@ -13,6 +13,7 @@ import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -965,22 +966,12 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
      */
     @Override
     public void onSetFileDirty() {
-        if (model.isAchFileDirty()) {
-            setTitle('*' + model.getTitle());
-        } else {
-            setTitle(model.getTitle());
-        }
+        File outputFile = model.getOutputFile();
+        final String prefix = model.isAchFileDirty() ? "*" : "";
+        final String name = outputFile != null ? outputFile.getAbsolutePath() : "--no file--";
+        setTitle(prefix + name);
     }
 
-
-    /* (non-Javadoc)
-     * @see com.ach.achViewer.model.ModelSubscriber#onSetTitle()
-     */
-    @Override
-    public void onSetTitle() {
-        jLabelAchInfoFileName.setText(model.getTitle());
-    }
-    
     @Override
     public void onSetSelectedRow() {
         int index = model.getSelectedRow();
@@ -1253,7 +1244,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     public void onSetAchFile() {
         ACHDocument achFile = model.getAchFile();
         jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
-        setTitle(model.getTitle());
         loadAchInformation();
         clearJListAchDataAchRecords();
         loadAchDataRecords();
@@ -1271,6 +1261,14 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
             setCursor(new Cursor(Cursor.WAIT_CURSOR));
         }
+    }
+
+    @Override
+    public void onSetOutputFile() {
+        final File outputFile = model.getOutputFile();
+        final String title = outputFile.getAbsolutePath();
+        jLabelAchInfoFileName.setText(title);
+        setTitle(title);
     }
 
 }

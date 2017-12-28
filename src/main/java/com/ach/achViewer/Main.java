@@ -105,7 +105,9 @@ public class Main {
     		view.setVisible(true);
     		if(args.length>0) {
     		    final String filename = args[0];
-    		    controller.loadFile(filename);
+    		    final File file = new File(filename);
+                controller.loadAchData(file);
+                model.setOutputFile(file);
     		}
     	} catch (Exception ex) {
     		System.err.println(ex.getMessage());

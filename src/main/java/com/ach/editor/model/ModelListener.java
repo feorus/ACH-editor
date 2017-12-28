@@ -11,10 +11,10 @@ public interface ModelListener {
 
     void onSetFileDirty();
 
-    void onSetTitle();
-
     void onSetSelectedRow();
 
     void onSetAchFile();
+
+    void onSetOutputFile();
 
 }
