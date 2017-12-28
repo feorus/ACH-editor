@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.Vector;
 
-public class ACHFile {
+public class ACHDocument {
 
     private ACHRecordFileHeader fileHeader = null;
 
@@ -33,7 +33,7 @@ public class ACHFile {
 
     }
 
-    public ACHFile() {
+    public ACHDocument() {
         setFileHeader(new ACHRecordFileHeader());
         setFileControl(new ACHRecordFileControl());
         batches = new Vector<ACHBatch>(10, 10);

@@ -4,7 +4,7 @@ import java.util.Vector;
 
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
-import com.ach.domain.ACHFile;
+import com.ach.domain.ACHDocument;
 import com.ach.domain.ACHRecord;
 import com.ach.domain.ACHRecordAddenda;
 import com.ach.domain.ACHRecordBatchControl;
@@ -16,10 +16,10 @@ import com.ach.domain.ACHRecordFileHeader;
 public class ACHViewerFileParser implements AchFileParser {
 
 	@Override
-	public ACHFile fromLines(List<String> lines) throws AchParserException {
+	public ACHDocument fromLines(List<String> lines) throws AchParserException {
 	    final Vector<String> errorMessages = new Vector<String>(10, 10);
 
-		final ACHFile achFile = new ACHFile();
+		final ACHDocument achFile = new ACHDocument();
 		boolean foundFileControl = false;
         int rowCount = 0;
 

@@ -63,4 +63,6 @@ public interface ACHEditorViewListener {
     void onDeleteAchBatch();
 
     void onListClick(MouseEvent evt);
+
+    void onIsFedFile();
 }

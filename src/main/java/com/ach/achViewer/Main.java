@@ -1,6 +1,6 @@
 package com.ach.achViewer;
 
-import com.ach.domain.ACHFile;
+import com.ach.domain.ACHDocument;
 import com.ach.editor.controller.ACHEditorController;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
@@ -26,7 +26,7 @@ public class Main {
     public static void main(String args[]) {
 
         if (args.length > 0 && args[0].equals("--validate")) {
-            ACHFile achFile;
+            ACHDocument achFile;
 
             try {
                 if (args.length > 1) {
@@ -49,7 +49,7 @@ public class Main {
         }
     }
 
-    private static void validate(ACHFile achFile) {
+    private static void validate(ACHDocument achFile) {
         Vector<String> messages = achFile.validate();
 
         if (messages.isEmpty()) {
@@ -64,7 +64,7 @@ public class Main {
         }
     }
 
-    public static ACHFile parseFile(File file) throws AchParserException {
+    public static ACHDocument parseFile(File file) throws AchParserException {
         try {
             return fromIs(new FileInputStream(file));
 		} catch (FileNotFoundException e) {
@@ -72,7 +72,7 @@ public class Main {
 		}
     }
 
-	private static ACHFile fromIs(final InputStream is) throws AchParserException {
+	private static ACHDocument fromIs(final InputStream is) throws AchParserException {
 		try {
 			ArrayList<String> lines = getLines(is);
 			ACHViewerFileParser parser = new ACHViewerFileParser();

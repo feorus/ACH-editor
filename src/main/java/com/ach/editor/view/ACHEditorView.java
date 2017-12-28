@@ -6,6 +6,7 @@
 
 package com.ach.editor.view;
 
+import java.awt.Cursor;
 import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
@@ -26,7 +27,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
-import com.ach.domain.ACHFile;
+import com.ach.domain.ACHDocument;
 import com.ach.domain.ACHRecord;
 import com.ach.domain.ACHRecordAddenda;
 import com.ach.domain.ACHSelection;
@@ -42,10 +43,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 	private static final long serialVersionUID = 0;
 	
 	private ACHEditorModel model;
-
-	// Retrieved after initializing components. Used to add an '*' to the title
-	// when an ACH file has been edited.
-	private String title = "";
 
 	private Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
 
@@ -68,8 +65,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 		jMenuItemToolsRecalculate.setEnabled(false);
 		jMenuItemToolsValidate.setEnabled(false);
-
-		title = this.getTitle();
 
 		setLocationRelativeTo(null); // Centers the window on the screen
 
@@ -99,7 +94,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     }
 
 	public void loadAchInformation() {
-	    final ACHFile achFile = model.getAchFile();
+	    final ACHDocument achFile = model.getAchFile();
 		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
 				.getFileCreationDate()
 				+ " " + achFile.getFileHeader().getFileCreationTime());
@@ -134,7 +129,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 	}
 
 	public void loadAchDataRecords() {
-	    final ACHFile achFile = model.getAchFile();
+	    final ACHDocument achFile = model.getAchFile();
 	    List<ACHRecord> records = new ArrayList<>();
 		positions = new Vector<Integer[]>(10, 10);
 		records.add(achFile.getFileHeader());
@@ -844,7 +839,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 
 	// Variables declaration - do not modify//GEN-BEGIN:variables
-	public javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
+	private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
 
 	private javax.swing.JLabel jLabel1;
 
@@ -976,6 +971,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             setTitle(model.getTitle());
         }
     }
+
 
     /* (non-Javadoc)
      * @see com.ach.achViewer.model.ModelSubscriber#onSetTitle()
@@ -1151,6 +1147,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
                 viewListener.onListClick(evt);
             }
         });
+        jCheckBoxMenuFedFile.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                viewListener.onIsFedFile();
+            }
+        });
         addWindowListener(new WindowListener() {
             public void windowActivated(WindowEvent evt) {
             }
@@ -1183,13 +1184,13 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         return jListAchDataAchRecords.getSelectedIndices();
     }
     /**
-     * @param title2
+     * @param title
      * @param message
      */
-    public void showError(String title2, String message) {
+    public void showError(String title, String message) {
         JOptionPane.showMessageDialog(this,
                 message,
-                title2,
+                title,
                 JOptionPane.ERROR_MESSAGE);
 
     }
@@ -1243,6 +1244,33 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
      */
     public void showDialog(JPopupMenu dialog) {
         dialog.show(jListAchDataAchRecords, mouseClick.x, mouseClick.y);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.model.ModelListener#onSetAchFile()
+     */
+    @Override
+    public void onSetAchFile() {
+        ACHDocument achFile = model.getAchFile();
+        jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
+        setTitle(model.getTitle());
+        loadAchInformation();
+        clearJListAchDataAchRecords();
+        loadAchDataRecords();
+    }
+
+    public void setCursorDefault() {
+        Cursor currentCursor = getCursor();
+        final int cursorType = currentCursor.getType();
+        if (cursorType == Cursor.DEFAULT_CURSOR) {
+            setCursor(new Cursor(cursorType));
+        }
+    }
+    public void setCursorWait() {
+        Cursor currentCursor = getCursor();
+        if (currentCursor.getType() == Cursor.DEFAULT_CURSOR) {
+            setCursor(new Cursor(Cursor.WAIT_CURSOR));
+        }
     }
 
 }
