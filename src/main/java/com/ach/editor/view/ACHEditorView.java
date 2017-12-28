@@ -62,9 +62,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private javax.swing.JLabel jLabelAchInfoFileCreationText;
 
-	public javax.swing.JLabel jLabelAchInfoFileName;
-
-	
+	private javax.swing.JLabel jLabelAchInfoFileName;
 
 	private javax.swing.JLabel jLabelAchInfoFileNameText;
 
@@ -75,9 +73,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     private javax.swing.JLabel jLabelAchInfoImmOrigin;
 
 	private javax.swing.JLabel jLabelAchInfoImmOriginText;
-
-	
-
 
 	private javax.swing.JLabel jLabelAchInfoTotalCredit;
 
@@ -218,16 +213,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         return selection;
     }
 
-	public int askSaveContinueCancel(final String title, final String message) {
+	public int askDoYouWantSaveChanges(final String title, final String message) {
         Object[] options = { "Save", "Continue", "Cancel" };
-        int selection = JOptionPane.showOptionDialog(this, message,
-                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                options[0]);
-        return selection;
-    }
-
-	public int askSaveExitCancel(final String title, final String message) {
-        Object[] options = { "Save", "Exit", "Cancel" };
         int selection = JOptionPane.showOptionDialog(this, message,
                 title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
                 options[0]);

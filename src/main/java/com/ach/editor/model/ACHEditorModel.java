@@ -53,7 +53,7 @@ public class ACHEditorModel {
         return achFileDirty;
     }
 
-    public void setAchFile(ACHDocument achFile) {
+    public void setAchDocument(ACHDocument achFile) {
         LOG.debug("setAchFile({})", achFile);
         this.achFile = achFile;
         for (ModelListener s : subscribers) {

@@ -17,11 +17,13 @@ import com.ach.domain.ACHRecordAddenda;
  *
  */
 public class IOUtils {
+    
+    private IOUtils(){}
 
-    public static boolean save(String filename, ACHDocument achDocument) throws Exception {
+    public static boolean save(File file, ACHDocument achDocument) throws Exception {
     
         // Create file for writing
-        FileWriter fileWriter = new FileWriter(new File(filename));
+        FileWriter fileWriter = new FileWriter(file);
         String record = "";
         int rowCount = 0;
     

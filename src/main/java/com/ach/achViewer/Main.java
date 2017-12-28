@@ -2,15 +2,13 @@ package com.ach.achViewer;
 
 import com.ach.domain.ACHDocument;
 import com.ach.editor.controller.ACHEditorController;
+import com.ach.editor.controller.IOWorld;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
-import com.ach.parser.ACHViewerFileParser;
-import com.ach.parser.AchParserException;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -31,9 +29,9 @@ public class Main {
             try {
                 if (args.length > 1) {
                     final String filename = args[1];
-                    achFile = fromIs(new FileInputStream(new File(filename)));
+                    achFile = FileSystemIOWorld.fromIs(new FileInputStream(new File(filename)));
                 } else {
-                    achFile = fromIs(System.in);
+                    achFile = FileSystemIOWorld.fromIs(System.in);
                 }
             } catch (Exception ex) {
                 System.err.println("Failed to read ACH File");
@@ -64,25 +62,7 @@ public class Main {
         }
     }
 
-    public static ACHDocument parseFile(File file) throws AchParserException {
-        try {
-            return fromIs(new FileInputStream(file));
-		} catch (FileNotFoundException e) {
-			throw new AchParserException(e);
-		}
-    }
-
-	private static ACHDocument fromIs(final InputStream is) throws AchParserException {
-		try {
-			ArrayList<String> lines = getLines(is);
-			ACHViewerFileParser parser = new ACHViewerFileParser();
-			return parser.fromLines(lines);
-		} catch (IOException e) {
-			throw new AchParserException(e);
-		}
-	}
-
-	private static ArrayList<String> getLines(final InputStream is) throws IOException {
+    static ArrayList<String> getLines(final InputStream is) throws IOException {
 		InputStreamReader inputStreamReader = new InputStreamReader(is);
         BufferedReader reader = new BufferedReader(inputStreamReader);
         String line;
@@ -100,13 +80,13 @@ public class Main {
     public static void runWithoutValidation(String args[]) {
     	final ACHEditorModel model = new ACHEditorModel();
         final ACHEditorView view = new ACHEditorView(model);
-    	final ACHEditorController controller = new ACHEditorController(model, view);
+    	final ACHEditorController controller = new ACHEditorController(model, view, new FileSystemIOWorld());
     	try {
     		view.setVisible(true);
     		if(args.length>0) {
     		    final String filename = args[0];
     		    final File file = new File(filename);
-                controller.loadAchData(file);
+                controller.loadDocumentFromFile(file);
                 model.setOutputFile(file);
     		}
     	} catch (Exception ex) {

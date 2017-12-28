@@ -11,6 +11,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
 
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
 
 import com.ach.achViewer.ACHAddendaDialog;
 import com.ach.achViewer.ACHBatchControlDialog;
@@ -31,25 +32,27 @@ import com.ach.domain.ACHRecordFileControl;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
 import com.ach.editor.view.ACHEditorViewListener;
-import com.ach.parser.IOUtils;
 
 /**
  * @author ilyakharlamov
  *
  */
 public class ACHEditorController implements ACHEditorViewListener {
-
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ACHEditorController.class);
     private final ACHEditorModel model;
     private final ACHEditorView view;
+    private final IOWorld ioWorld;
 
     /**
      * @param model
+     * @param ioWorld 
      * @param viewer
      */
-    public ACHEditorController(ACHEditorModel model, ACHEditorView view) {
+    public ACHEditorController(ACHEditorModel model, ACHEditorView view, IOWorld ioWorld) {
         this.model = model;
         this.view = view;
         this.view.registerListener(this);
+        this.ioWorld = ioWorld;
     }
 
     @Override
@@ -384,7 +387,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             achFile.setFileControl(achRecord);
             view.putRow(idx, achRecord);
             model.setAchFileDirty(true);
-            model.setAchFile(achFile);
+            model.setAchDocument(achFile);
         }
     }
 
@@ -397,7 +400,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             view.putRow(selectRow, dialog.getAchRecord());
             model.setAchFileDirty(true);
         }
-        model.setAchFile(achFile);
+        model.setAchDocument(achFile);
     }
 
     public void editAchRecord(int selectRow) {
@@ -420,10 +423,11 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
     }
 
-    public void loadAchData(File file) {
+    public void loadDocumentFromFile(File file) {
+        LOG.debug("loadAchData({})", file);
         view.setCursorWait();
         try {
-            model.setAchFile(Main.parseFile(file));
+            model.setAchDocument(ioWorld.load(file));
         } catch (Exception ex) {
             System.err.println(ex.getMessage());
             ex.printStackTrace();
@@ -443,7 +447,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onDeleteAchBatch() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achDoc = model.getAchFile();
         int[] selected = view.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete");
@@ -466,13 +470,12 @@ public class ACHEditorController implements ACHEditorViewListener {
                 ACHRecord achRecord = view.getRow(selected[i]);
                 // only delete items that match the headers
                 if (achRecord.isBatchHeaderType()) {
-                    achFile.getBatches().remove(position[0].intValue());
+                    achDoc.getBatches().remove(position[0].intValue());
                 }
             }
         }
+        model.setAchDocument(achDoc);
         model.setAchFileDirty(true);
-        view.clearJListAchDataAchRecords();
-        view.loadAchDataRecords();
         model.setSelectedRow(selected[0]);
     }
 
@@ -506,8 +509,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             }
         }
         model.setAchFileDirty(true);
-        view.clearJListAchDataAchRecords();
-        view.loadAchDataRecords();
+        model.setAchDocument(achFile);
         model.setSelectedRow(selected[0]);
     }
 
@@ -542,8 +544,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             }
         }
         model.setAchFileDirty(true);
-        view.clearJListAchDataAchRecords();
-        view.loadAchDataRecords();
+        model.setAchDocument(achFile);
         model.setSelectedRow(selected[0]);
     }
 
@@ -554,11 +555,9 @@ public class ACHEditorController implements ACHEditorViewListener {
      */
     @Override
     public void onExitProgram() {
-        final ACHDocument achFile = model.getAchFile();
         if (model.isAchFileDirty()) {
-            final String title = "ACH File has changed";
-            final String message = "ACH File has been changed? What would you like to do.";
-            int selection = view.askSaveExitCancel(title, message);
+            int selection = view.askDoYouWantSaveChanges("ACH File has changed",
+                    "ACH File has been changed. What would you like to do.");
             if (selection == 2) {
                 // Selected cancel
                 return;
@@ -579,7 +578,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void onFileNew() {
         if (model.isAchFileDirty()) {
-            int selection = view.askSaveContinueCancel("ACH File has changed",
+            int selection = view.askDoYouWantSaveChanges("ACH File has changed",
                     "ACH File has been changed. What would you like to do.");
             if (selection == 2) {
                 // Selected cancel
@@ -600,7 +599,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             final ACHDocument brandNewAchFile = new ACHDocument();
             brandNewAchFile.addBatch(new ACHBatch());
             brandNewAchFile.recalculate();
-            model.setAchFile(brandNewAchFile);
+            model.setAchDocument(brandNewAchFile);
             // Update display with new data
             model.setAchFileDirty(false); // Don't care if these records get
                                           // lost
@@ -609,9 +608,8 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onFileOpen() {
-        final String filePath = view.jLabelAchInfoFileName.getText();
         if (model.isAchFileDirty()) {
-            int selection = view.askSaveContinueCancel("ACH File has changed",
+            int selection = view.askDoYouWantSaveChanges("ACH File has changed",
                     "ACH File has been changed. What would you like to do.");
             if (selection == 2) {
                 // Selected cancel
@@ -620,8 +618,8 @@ public class ACHEditorController implements ACHEditorViewListener {
                 try {
                     ACHDocument achFile = model.getAchFile();
                     // achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                    model.setAchFile(achFile);
-                    if (!IOUtils.save(filePath, achFile)) {
+                    model.setAchDocument(achFile);
+                    if (!ioWorld.save(model.getOutputFile(), achFile)) {
                         return;
                     }
                 } catch (Exception ex) {
@@ -631,15 +629,13 @@ public class ACHEditorController implements ACHEditorViewListener {
             }
         }
 
-        JFileChooser chooser = new JFileChooser(new File(filePath).getParent());
+        JFileChooser chooser = new JFileChooser(getStartFromFile());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setApproveButtonText("Open");
 
         int returnVal = chooser.showOpenDialog(view.getContentPane());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
-            view.jLabelAchInfoFileName.setText(chooser.getSelectedFile().getAbsolutePath());
-
-            loadAchData(chooser.getSelectedFile());
+            loadDocumentFromFile(chooser.getSelectedFile());
         }
     }
 
@@ -657,13 +653,11 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onFileSaveAs() {
-        final ACHDocument achFile = model.getAchFile();
-
-        JFileChooser chooser = new JFileChooser(new File(view.jLabelAchInfoFileName.getText()).getParent());
+        JFileChooser chooser = new JFileChooser(getStartFromFile());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setApproveButtonText("Save As");
 
-        int returnVal = chooser.showOpenDialog(view.getContentPane());
+        int returnVal = chooser.showSaveDialog(view.getContentPane());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             String fileName = chooser.getSelectedFile().getAbsolutePath();
             if (new File(fileName).exists()) {
@@ -686,11 +680,17 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
     }
 
+    private File getStartFromFile() {
+        final File startFrom = model.getOutputFile() !=null ? model.getOutputFile().getParentFile() : new File(".");
+        return startFrom;
+    }
+
     @Override
     public void onIsFedFile() {
         ACHDocument achFile = model.getAchFile();
         achFile.setFedFile(!achFile.isFedFile());
-        model.setAchFile(achFile);
+        model.setAchFileDirty(true);
+        model.setAchDocument(achFile);
     }
 
     @Override
@@ -783,7 +783,7 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
         view.clearJListAchDataAchRecords();
         view.loadAchDataRecords();
-        model.setAchFile(achFile);
+        model.setAchDocument(achFile);
         model.setAchFileDirty(true);
         view.setCursorDefault();
     }
@@ -793,7 +793,7 @@ public class ACHEditorController implements ACHEditorViewListener {
         final ACHDocument achFile = model.getAchFile();
         achFile.reverse();
         view.clearJListAchDataAchRecords();
-        model.setAchFile(achFile);
+        model.setAchDocument(achFile);
         view.loadAchDataRecords();
         model.setAchFileDirty(true);
     }
@@ -803,12 +803,11 @@ public class ACHEditorController implements ACHEditorViewListener {
         final ACHDocument achFile = model.getAchFile();
         view.setCursorWait();
         Vector<String> messages = achFile.validate();
-        view.setCursorDefault();
-
         if (messages.size() > 0) {
             final String msg = StringUtils.join(messages, "\n");
             view.showMessage(msg);
         }
+        view.setCursorDefault();
     }
 
     @Override
@@ -867,7 +866,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     private boolean saveFile() {
         final ACHDocument achFile = model.getAchFile();
         try {
-            return IOUtils.save(view.jLabelAchInfoFileName.getText(), achFile);
+            return ioWorld.save(model.getOutputFile(), achFile);
         } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
