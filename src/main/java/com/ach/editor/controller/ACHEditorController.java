@@ -19,7 +19,6 @@ import com.ach.achViewer.ACHBatchHeaderDialog;
 import com.ach.achViewer.ACHEntryDetailDialog;
 import com.ach.achViewer.ACHFileControlDialog;
 import com.ach.achViewer.ACHFileHeaderDialog;
-import com.ach.achViewer.Main;
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHDocument;
@@ -32,6 +31,7 @@ import com.ach.domain.ACHRecordFileControl;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
 import com.ach.editor.view.ACHEditorViewListener;
+import com.ach.editor.view.DoYouWantToSaveTheChangesDialogOptions;
 
 /**
  * @author ilyakharlamov
@@ -442,6 +442,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             final String msg = StringUtils.join(errorMessages, System.getProperty("line.separator", "\r\n"));
             view.showMessage(msg);
         }
+        model.setOutputFile(file);
         model.setAchFileDirty(false);
     }
 
@@ -548,85 +549,48 @@ public class ACHEditorController implements ACHEditorViewListener {
         model.setSelectedRow(selected[0]);
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see com.ach.editor.view.ACHEditorViewListener#exitProgram()
-     */
     @Override
     public void onExitProgram() {
-        if (model.isAchFileDirty()) {
-            int selection = view.askDoYouWantSaveChanges("ACH File has changed",
-                    "ACH File has been changed. What would you like to do.");
-            if (selection == 2) {
-                // Selected cancel
-                return;
-            } else if (selection == 0) {
-                try {
-                    // achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                    if (!saveFile()) {
-                        return;
-                    }
-                } catch (Exception ex) {
-                    view.showError("Error saving file", "Failure saving file -- \n" + ex.getMessage());
-                }
-            }
+        LOG.debug("onExitProgram");
+        if (!askToSaveChanges()) {
+            return;
         }
         view.dispose();
     }
 
     @Override
     public void onFileNew() {
+        if (!askToSaveChanges()) {
+            return;
+        }
+        final ACHDocument brandNewAchFile = new ACHDocument();
+        brandNewAchFile.addBatch(new ACHBatch());
+        brandNewAchFile.recalculate();
+        model.setAchDocument(brandNewAchFile);
+        // Update display with new data
+        model.setAchFileDirty(false); // Don't care if these records get lost
+    }
+
+    private boolean askToSaveChanges() {
+        boolean result = false;
         if (model.isAchFileDirty()) {
-            int selection = view.askDoYouWantSaveChanges("ACH File has changed",
-                    "ACH File has been changed. What would you like to do.");
-            if (selection == 2) {
-                // Selected cancel
-                return;
-            } else if (selection == 0) {
-                try {
-                    // achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                    if (!saveFile()) {
-                        return;
-                    }
-                } catch (Exception ex) {
-                    view.showError("Error saving file", "Failure saving file -- \n" + ex.getMessage());
-                    return;
-                }
+            DoYouWantToSaveTheChangesDialogOptions selection = view.askDoYouWantSaveChanges();
+            if (selection == DoYouWantToSaveTheChangesDialogOptions.CANCEL) {
+                result = false;
+            } else if (selection == DoYouWantToSaveTheChangesDialogOptions.SAVE) {
+                tryFileSave();
+                result = true;
+            } else {
+                result = true;
             }
         }
-        {
-            final ACHDocument brandNewAchFile = new ACHDocument();
-            brandNewAchFile.addBatch(new ACHBatch());
-            brandNewAchFile.recalculate();
-            model.setAchDocument(brandNewAchFile);
-            // Update display with new data
-            model.setAchFileDirty(false); // Don't care if these records get
-                                          // lost
-        }
+        return result;
     }
 
     @Override
     public void onFileOpen() {
-        if (model.isAchFileDirty()) {
-            int selection = view.askDoYouWantSaveChanges("ACH File has changed",
-                    "ACH File has been changed. What would you like to do.");
-            if (selection == 2) {
-                // Selected cancel
-                return;
-            } else if (selection == 0) {
-                try {
-                    ACHDocument achFile = model.getAchFile();
-                    // achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                    model.setAchDocument(achFile);
-                    if (!ioWorld.save(model.getOutputFile(), achFile)) {
-                        return;
-                    }
-                } catch (Exception ex) {
-                    view.showError("Error saving file", "Failure saving file -- \n" + ex.getMessage());
-                    return;
-                }
-            }
+        if (!askToSaveChanges()) {
+            return;
         }
 
         JFileChooser chooser = new JFileChooser(getStartFromFile());
@@ -641,14 +605,16 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onFileSave() {
+        tryFileSave();
+    }
+
+    private void tryFileSave() {
         try {
-            // achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-            if (saveFile()) {
-                model.setAchFileDirty(false);
-            }
+            fileSave();
         } catch (Exception ex) {
             view.showError("Error writing file", "Unable to save ACH data to fileName. Reason: " + ex.getMessage());
         }
+        model.setAchFileDirty(false);
     }
 
     @Override
@@ -668,15 +634,7 @@ public class ACHEditorController implements ACHEditorViewListener {
                     return;
                 }
             }
-
-            try {
-                // achFile.setFedFile(view.jCheckBoxMenuFedFile.isSelected());
-                if (saveFile()) {
-                    model.setAchFileDirty(false);
-                }
-            } catch (Exception ex) {
-                view.showError("Error writing file", "Unable to save ACH data to fileName. Reason: " + ex.getMessage());
-            }
+            onFileSave();
         }
     }
 
@@ -687,10 +645,10 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onIsFedFile() {
-        ACHDocument achFile = model.getAchFile();
-        achFile.setFedFile(!achFile.isFedFile());
+        ACHDocument achDocument = model.getAchFile();
+        achDocument.setFedFile(!achDocument.isFedFile());
         model.setAchFileDirty(true);
-        model.setAchDocument(achFile);
+        model.setAchDocument(achDocument);
     }
 
     @Override
@@ -863,14 +821,8 @@ public class ACHEditorController implements ACHEditorViewListener {
     /**
      * @return
      */
-    private boolean saveFile() {
+    private void fileSave() {
         final ACHDocument achFile = model.getAchFile();
-        try {
-            return ioWorld.save(model.getOutputFile(), achFile);
-        } catch (Exception e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-        return false;
+        ioWorld.save(model.getOutputFile(), achFile);
     }
 }

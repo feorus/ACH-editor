@@ -41,7 +41,7 @@ import com.ach.editor.model.ModelListener;
  */
 public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
-	private static final long serialVersionUID = 0;
+    private static final long serialVersionUID = 0;
 	
 	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
@@ -205,7 +205,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 	}
 
 	public int askDeleteCancel(final String title, final String message) {
-        Object[] options = { "Delete", "Cancel" };
+        Object[] options = { "Delete", DoYouWantToSaveTheChangesDialogOptions.CANCEL };
         int selection = JOptionPane.showOptionDialog(this,
                 message,
                 title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE,
@@ -213,12 +213,12 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         return selection;
     }
 
-	public int askDoYouWantSaveChanges(final String title, final String message) {
-        Object[] options = { "Save", "Continue", "Cancel" };
-        int selection = JOptionPane.showOptionDialog(this, message,
-                title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
-                options[0]);
-        return selection;
+	public DoYouWantToSaveTheChangesDialogOptions askDoYouWantSaveChanges() {
+	    DoYouWantToSaveTheChangesDialogOptions[] options = { DoYouWantToSaveTheChangesDialogOptions.DONT_SAVE, DoYouWantToSaveTheChangesDialogOptions.CANCEL, DoYouWantToSaveTheChangesDialogOptions.SAVE };
+        int selection = JOptionPane.showOptionDialog(this, "ACH File has been changed. What would you like to do.",
+                "ACH File has changed", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
+                options[2]);
+        return options[selection];
     }
 
 	public int askYesNo(final String message, final String title) {
@@ -1200,10 +1200,10 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             }
 
             public void windowClosed(WindowEvent evt) {
-                viewListener.onExitProgram();
             }
 
             public void windowClosing(WindowEvent evt) {
+                viewListener.onExitProgram();
             }
 
             public void windowDeactivated(WindowEvent evt) {

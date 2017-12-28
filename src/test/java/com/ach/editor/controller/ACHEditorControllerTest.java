@@ -14,6 +14,7 @@ import org.mockito.Mockito;
 import com.ach.domain.ACHDocument;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
+import com.ach.editor.view.DoYouWantToSaveTheChangesDialogOptions;
 
 /**
  * @author ilyakharlamov
@@ -41,7 +42,7 @@ public class ACHEditorControllerTest {
         controller.loadDocumentFromFile(file);
         controller.onIsFedFile();
         controller.onFileNew();
-        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges();
     }
     
     @Test
@@ -51,7 +52,52 @@ public class ACHEditorControllerTest {
         controller.loadDocumentFromFile(file);
         controller.onIsFedFile();
         controller.onExitProgram();
-        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges(Mockito.anyString(), Mockito.anyString());
+        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges();
+    }
+    
+    @Test
+    public void when_modified_and_answered_save_then_io_saved_and_new_document() {
+        final File file = Mockito.mock(File.class);
+        final ACHDocument achDocument = new ACHDocument();
+        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
+        Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.SAVE);
+        controller.loadDocumentFromFile(file);
+        assertEquals(achDocument, model.getAchFile());
+        controller.onIsFedFile();
+        controller.onFileNew();
+        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges();
+        Mockito.verify(ioWorld, Mockito.times(1)).save(file, achDocument);
+        assertNotEquals(achDocument, model.getAchFile());
+    }
+    
+    @Test
+    public void when_modified_and_answered_dontsave_then() {
+        final File file = Mockito.mock(File.class);
+        final ACHDocument achDocument = new ACHDocument();
+        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
+        Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.DONT_SAVE);
+        controller.loadDocumentFromFile(file);
+        assertEquals(achDocument, model.getAchFile());
+        controller.onIsFedFile();
+        controller.onFileNew();
+        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges();
+        Mockito.verify(ioWorld, Mockito.never()).save(file, achDocument);
+        assertNotEquals(achDocument, model.getAchFile());
+    }
+    
+    @Test
+    public void when_modified_and_answered_cancel_then_no_io_called_and_document_is_the_same() {
+        final File file = Mockito.mock(File.class);
+        final ACHDocument achDocument = new ACHDocument();
+        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
+        Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.CANCEL);
+        controller.loadDocumentFromFile(file);
+        assertEquals(achDocument, model.getAchFile());
+        controller.onIsFedFile();
+        controller.onFileNew();
+        Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges();
+        Mockito.verify(ioWorld, Mockito.never()).save(file, achDocument);
+        assertEquals(achDocument, model.getAchFile());
     }
 
 }
