@@ -379,8 +379,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     public void editAchFileControl(int idx) {
         final ACHDocument achFile = model.getAchFile();
 
-        ACHFileControlDialog dialog = new ACHFileControlDialog(new javax.swing.JFrame(), true,
-                achFile.getFileControl());
+        ACHFileControlDialog dialog = new ACHFileControlDialog(view, achFile.getFileControl());
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHFileControlDialog.SAVE_BUTTON) {
             final ACHRecordFileControl achRecord = dialog.getAchRecord();
@@ -424,7 +423,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     public void loadDocumentFromFile(File file) {
-        LOG.debug("loadAchData({})", file);
+        LOG.debug("loadDocumentFromFile({})", file);
         view.setCursorWait();
         try {
             model.setAchDocument(ioWorld.load(file));
@@ -555,11 +554,12 @@ public class ACHEditorController implements ACHEditorViewListener {
         if (!askToSaveChanges()) {
             return;
         }
-        view.dispose();
+        view.exit();
     }
 
     @Override
     public void onFileNew() {
+        LOG.debug("onFileNew");
         if (!askToSaveChanges()) {
             return;
         }
@@ -572,6 +572,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     private boolean askToSaveChanges() {
+        LOG.debug("askToSaveChanges");
         boolean result = false;
         if (model.isAchFileDirty()) {
             DoYouWantToSaveTheChangesDialogOptions selection = view.askDoYouWantSaveChanges();
@@ -583,6 +584,8 @@ public class ACHEditorController implements ACHEditorViewListener {
             } else {
                 result = true;
             }
+        } else {
+            return true;
         }
         return result;
     }

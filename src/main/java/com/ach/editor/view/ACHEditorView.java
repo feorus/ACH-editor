@@ -192,7 +192,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 		clearAchInfo();
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
 		
 		this.model = achappmodel;
@@ -1223,8 +1223,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     public void setCursorDefault() {
         Cursor currentCursor = getCursor();
         final int cursorType = currentCursor.getType();
-        if (cursorType == Cursor.DEFAULT_CURSOR) {
-            setCursor(new Cursor(cursorType));
+        if (cursorType != Cursor.DEFAULT_CURSOR) {
+            setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
         }
     }
 
@@ -1255,6 +1255,14 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     public void showMessage(final String msg) {
         JOptionPane.showMessageDialog(this, msg);
+    }
+
+    /**
+     * 
+     */
+    public void exit() {
+        dispose();
+        System.exit(0);
     }
 
 }

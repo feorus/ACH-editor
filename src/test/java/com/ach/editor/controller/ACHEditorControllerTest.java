@@ -26,19 +26,22 @@ public class ACHEditorControllerTest {
     ACHEditorView view;
     IOWorld ioWorld;
     
+    File file;
+    ACHDocument achDocument;
+    
     @Before
     public void setUp() {
         view = Mockito.mock(ACHEditorView.class);
         ioWorld = Mockito.mock(IOWorld.class);
         model = new ACHEditorModel();
         controller = new ACHEditorController(model, view, ioWorld);
-
+        file = Mockito.mock(File.class);
+        achDocument = new ACHDocument();
+        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
     }
 
     @Test
     public void when_file_modified_then_ask_confirmation_dialog() {
-        final File file = Mockito.mock(File.class);
-        Mockito.when(ioWorld.load(file)).thenReturn(new ACHDocument());
         controller.loadDocumentFromFile(file);
         controller.onIsFedFile();
         controller.onFileNew();
@@ -47,8 +50,9 @@ public class ACHEditorControllerTest {
     
     @Test
     public void when_batch_modified_then_ask_confirmatino_dialog() {
-        final File file = Mockito.mock(File.class);
-        Mockito.when(ioWorld.load(file)).thenReturn(new ACHDocument());
+        file = Mockito.mock(File.class);
+        achDocument = new ACHDocument();
+        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
         controller.loadDocumentFromFile(file);
         controller.onIsFedFile();
         controller.onExitProgram();
@@ -57,9 +61,6 @@ public class ACHEditorControllerTest {
     
     @Test
     public void when_modified_and_answered_save_then_io_saved_and_new_document() {
-        final File file = Mockito.mock(File.class);
-        final ACHDocument achDocument = new ACHDocument();
-        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
         Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.SAVE);
         controller.loadDocumentFromFile(file);
         assertEquals(achDocument, model.getAchFile());
@@ -72,9 +73,6 @@ public class ACHEditorControllerTest {
     
     @Test
     public void when_modified_and_answered_dontsave_then() {
-        final File file = Mockito.mock(File.class);
-        final ACHDocument achDocument = new ACHDocument();
-        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
         Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.DONT_SAVE);
         controller.loadDocumentFromFile(file);
         assertEquals(achDocument, model.getAchFile());
@@ -87,9 +85,6 @@ public class ACHEditorControllerTest {
     
     @Test
     public void when_modified_and_answered_cancel_then_no_io_called_and_document_is_the_same() {
-        final File file = Mockito.mock(File.class);
-        final ACHDocument achDocument = new ACHDocument();
-        Mockito.when(ioWorld.load(file)).thenReturn(achDocument);
         Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.CANCEL);
         controller.loadDocumentFromFile(file);
         assertEquals(achDocument, model.getAchFile());
@@ -98,6 +93,16 @@ public class ACHEditorControllerTest {
         Mockito.verify(view, Mockito.times(1)).askDoYouWantSaveChanges();
         Mockito.verify(ioWorld, Mockito.never()).save(file, achDocument);
         assertEquals(achDocument, model.getAchFile());
+    }
+    
+    @Test
+    public void when_not_modified_and_new_file_then_file_shoulde_be_new () {
+        Mockito.when(view.askDoYouWantSaveChanges()).thenReturn(DoYouWantToSaveTheChangesDialogOptions.CANCEL);
+        controller.loadDocumentFromFile(file);
+        assertEquals(achDocument, model.getAchFile());
+        controller.onFileNew();
+        Mockito.verify(view, Mockito.never()).askDoYouWantSaveChanges();
+        assertNotEquals(achDocument, model.getAchFile());
     }
 
 }

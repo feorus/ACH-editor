@@ -20,4 +20,11 @@ public enum DoYouWantToSaveTheChangesDialogOptions {
         this.label = label;
     }
 
+    /* (non-Javadoc)
+     * @see java.lang.Enum#toString()
+     */
+    @Override
+    public String toString() {
+        return this.label;
+    }
 }

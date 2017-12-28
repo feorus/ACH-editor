@@ -26,9 +26,9 @@ public class ACHFileControlDialog extends ACHDialog {
 	private ACHRecordFileControl achRecord = null;
 
 	/** Creates new form ACHFileControlDialog */
-	public ACHFileControlDialog(java.awt.Frame parent, boolean modal,
+	public ACHFileControlDialog(java.awt.Frame parent,
 			ACHRecordFileControl achRecord) {
-		super(parent, modal);
+		super(parent, true);
 		initComponents();
 
 		setAchRecord(achRecord);
@@ -304,19 +304,6 @@ public class ACHFileControlDialog extends ACHDialog {
 		retrieveDialogValues();
 		setButtonSelected(SAVE_BUTTON);
 		dispose();
-	}// GEN-LAST:event_jButtonSaveActionPerformed
-
-	/**
-	 * @param args
-	 *            the command line arguments
-	 */
-	public static void main(String args[]) {
-		java.awt.EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				new ACHFileControlDialog(new javax.swing.JFrame(), true,
-						new ACHRecordFileControl()).setVisible(true);
-			}
-		});
 	}
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
