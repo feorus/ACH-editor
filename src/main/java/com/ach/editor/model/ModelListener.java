@@ -13,4 +13,6 @@ public interface ModelListener {
 
     void onSetTitle();
 
+    void onSetSelectedRow();
+
 }

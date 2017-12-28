@@ -10,7 +10,6 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
-import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.IOException;
@@ -21,26 +20,16 @@ import java.util.Vector;
 import javax.swing.DefaultListModel;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPopupMenu;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
-import com.ach.achViewer.ACHAddendaDialog;
-import com.ach.achViewer.ACHBatchControlDialog;
-import com.ach.achViewer.ACHBatchHeaderDialog;
-import com.ach.achViewer.ACHEntryDetailDialog;
-import com.ach.achViewer.ACHFileControlDialog;
-import com.ach.achViewer.ACHFileHeaderDialog;
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHFile;
 import com.ach.domain.ACHRecord;
 import com.ach.domain.ACHRecordAddenda;
-import com.ach.domain.ACHRecordBatchControl;
-import com.ach.domain.ACHRecordBatchHeader;
-import com.ach.domain.ACHRecordEntryDetail;
-import com.ach.domain.ACHRecordFileControl;
 import com.ach.domain.ACHSelection;
-import com.ach.editor.controller.ACHEditorController;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.model.ModelListener;
 
@@ -51,17 +40,14 @@ import com.ach.editor.model.ModelListener;
 public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private static final long serialVersionUID = 0;
-
-	//private ACHFile achFile = null;
-
 	
 	private ACHEditorModel model;
 
 	// Retrieved after initializing components. Used to add an '*' to the title
 	// when an ACH file has been edited.
-	String title = "";
+	private String title = "";
 
-	public Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
+	private Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
 
 	public Point mouseClick = null;
 
@@ -221,126 +207,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         		.getElementAt(i);
     }
 
-	public void editAchRecord(int selectRow) {
-		char recordType = getRow(selectRow).getRecordTypeCode();
-		Integer[] position = positions.get(selectRow);
-		if (recordType == ACHRecord.FILE_HEADER_TYPE) {
-			editAchFileHeader(selectRow);
-		} else if (recordType == ACHRecord.FILE_CONTROL_TYPE) {
-			editAchFileControl(selectRow);
-		} else if (position.length == 1) {
-			if (recordType == ACHRecord.BATCH_HEADER_TYPE) {
-				editAchBatchHeader(position[0], selectRow);
-			} else {
-				editAchBatchControl(position[0], selectRow);
-			}
-		} else if (position.length == 2) {
-			editAchEntryDetail(position[0], position[1], selectRow);
-		} else {
-			editAchAddenda(position[0], position[1], position[2], selectRow);
-		}
-	}
-
-	private void editAchFileHeader(int selectRow) {
-	       final ACHFile achFile = model.getAchFile();
-
-		ACHFileHeaderDialog dialog = new ACHFileHeaderDialog(
-				new javax.swing.JFrame(), true, achFile.getFileHeader());
-		dialog.setVisible(true);
-		if (dialog.getButtonSelected() == ACHFileHeaderDialog.SAVE_BUTTON) {
-			achFile.setFileHeader(dialog.getAchRecord());
-			putRow(selectRow, dialog.getAchRecord());
-			model.setAchFileDirty(true);
-			loadAchInformation();
-		}
-	}
-
-	private void editAchFileControl(int idx) {
-	    final ACHFile achFile = model.getAchFile();
-
-		ACHFileControlDialog dialog = new ACHFileControlDialog(
-				new javax.swing.JFrame(), true, achFile.getFileControl());
-		dialog.setVisible(true);
-		if (dialog.getButtonSelected() == ACHFileControlDialog.SAVE_BUTTON) {
-			final ACHRecordFileControl achRecord = dialog.getAchRecord();
-            achFile.setFileControl(achRecord);
-			putRow(idx, achRecord);
-			model.setAchFileDirty(true);
-			loadAchInformation();
-		}
-	}
-
-
-	private void editAchBatchHeader(int position, int selectRow) {
-	       final ACHFile achFile = model.getAchFile();
-
-		final ACHRecordBatchHeader batchHeader = achFile.getBatches().get(
-        		position).getBatchHeader();
-        ACHBatchHeaderDialog dialog = new ACHBatchHeaderDialog(
-				new javax.swing.JFrame(), true, batchHeader);
-		dialog.setVisible(true);
-		if (dialog.getButtonSelected() == ACHBatchHeaderDialog.SAVE_BUTTON) {
-			achFile.getBatches().get(position).setBatchHeader(
-					dialog.getAchRecord());
-			putRow(selectRow, dialog.getAchRecord());
-			model.setAchFileDirty(true);
-		}
-
-	}
-
-	
-	private void editAchBatchControl(int position, int selectRow) {
-	    final ACHFile achFile = model.getAchFile();
-		ACHBatchControlDialog dialog = new ACHBatchControlDialog(
-				new javax.swing.JFrame(), true, achFile.getBatches().get(
-						position).getBatchControl());
-		dialog.setVisible(true);
-		if (dialog.getButtonSelected() == ACHBatchControlDialog.SAVE_BUTTON) {
-			achFile.getBatches().get(position).setBatchControl(
-					dialog.getAchRecord());
-			putRow(selectRow, dialog.getAchRecord());
-			model.setAchFileDirty(true);
-		}
-	}
-
-    private void putRow(int selectRow, final ACHRecord achRecord) {
+    public void putRow(int selectRow, final ACHRecord achRecord) {
 	    ((DefaultListModel) jListAchDataAchRecords.getModel()).setElementAt(achRecord, selectRow);
 	}
-
-	private void editAchEntryDetail(int batchPosition, int entryPosition,
-			int selectRow) {
-	    final ACHFile achFile = model.getAchFile();
-		ACHEntryDetailDialog dialog = new ACHEntryDetailDialog(
-				new javax.swing.JFrame(), true, achFile.getBatches().get(
-						batchPosition).getEntryRecs().get(entryPosition)
-						.getEntryDetail());
-		dialog.setVisible(true);
-		if (dialog.getButtonSelected() == ACHEntryDetailDialog.SAVE_BUTTON) {
-			achFile.getBatches().get(batchPosition).getEntryRecs().get(
-					entryPosition).setEntryDetail(dialog.getAchRecord());
-			putRow(selectRow, dialog.getAchRecord());
-			model.setAchFileDirty(true);
-		}
-	}
-
-	private void editAchAddenda(int batchPosition, int entryPosition,
-			int addendaPosition, int selectRow) {
-	    final ACHFile achFile = model.getAchFile();
-		ACHAddendaDialog dialog = new ACHAddendaDialog(
-				new javax.swing.JFrame(), true, achFile.getBatches().get(
-						batchPosition).getEntryRecs().get(entryPosition)
-						.getAddendaRecs().get(addendaPosition));
-		dialog.setVisible(true);
-		if (dialog.getButtonSelected() == ACHAddendaDialog.SAVE_BUTTON) {
-			achFile.getBatches().get(batchPosition).getEntryRecs().get(
-					entryPosition).getAddendaRecs().set(addendaPosition,
-					dialog.getAchRecord());
-			putRow(selectRow, dialog.getAchRecord());
-			model.setAchFileDirty(true);
-		}
-	}
-
-	
 
 	/**
 	 * This method is called from within the constructor to initialize the form.
@@ -1013,7 +882,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private javax.swing.JLabel jLabelAchInfoTotalDebitText;
 
-	public javax.swing.JList jListAchDataAchRecords;
+	private javax.swing.JList jListAchDataAchRecords;
 
 	private javax.swing.JMenuBar jMenuBar;
 
@@ -1116,7 +985,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         jLabelAchInfoFileName.setText(model.getTitle());
     }
     
-    public void selectRow(final int index) {
+    @Override
+    public void onSetSelectedRow() {
+        int index = model.getSelectedRow();
         jListAchDataAchRecords.setSelectedIndex(index);
         jListAchDataAchRecords.ensureIndexIsVisible(index);
     }
@@ -1305,46 +1176,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         });
     }
 
-    public void onDeleteAchBatch(ACHEditorController achEditorController) {
-        final ACHFile achFile = model.getAchFile();
-        int[] selected = jListAchDataAchRecords.getSelectedIndices();
-        if (selected.length < 1) {
-            JOptionPane.showMessageDialog(this,
-                    "No items selected ... cannot delete",
-                    "Cannot perform request", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
-        for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords.getModel()
-                    .getElementAt(selected[i]);
-            if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
-                final String message = "Cannot delete file header/control rows "
-                        + "in selection list";
-                final String title = "Cannot perform requested function";
-                showError(message, title);
-                return;
-            }
-        }
-        // Remove them backwards to positions don't shift on us
-        for (int i = selected.length - 1; i >= 0; i--) {
-            Integer[] position = positions.get(selected[i]);
-            if (position.length != 1) {
-                // find batch headers -- skipp entry and addenda
-            } else {
-                ACHRecord achRecord = (ACHRecord) jListAchDataAchRecords
-                        .getModel().getElementAt(selected[i]);
-                // only delete items that match the headers
-                if (achRecord.isBatchHeaderType()) {
-                    achFile.getBatches().remove(position[0].intValue());
-                }
-            }
-        }
-        model.setAchFileDirty(true);
-        clearJListAchDataAchRecords();
-        loadAchDataRecords();
-        jListAchDataAchRecords.setSelectedIndex(selected[0]);
-        jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
-    }
+    
 
     
     public int[] getSelectedRows() {
@@ -1400,6 +1232,17 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
      */
     public int clickedIndex() {
         return jListAchDataAchRecords.locationToIndex(mouseClick);
+    }
+    
+    public Integer[] getPositions(final int index) {
+        return positions.get(index);
+    }
+
+    /**
+     * @param dialog
+     */
+    public void showDialog(JPopupMenu dialog) {
+        dialog.show(jListAchDataAchRecords, mouseClick.x, mouseClick.y);
     }
 
 }

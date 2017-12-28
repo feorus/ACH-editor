@@ -13,6 +13,17 @@ import com.ach.domain.ACHFile;
  *
  */
 public class ACHEditorModel {
+    public int getSelectedRow() {
+        return selectedRow;
+    }
+
+    public void setSelectedRow(int selectedRow) {
+        this.selectedRow = selectedRow;
+        for (ModelListener subscriber: subscribers) {
+            subscriber.onSetSelectedRow();
+        }
+    }
+
     public ACHFile getAchFile() {
         return achFile;
     }
@@ -28,6 +39,8 @@ public class ACHEditorModel {
     private String title;
 
     private ACHFile achFile;
+    
+    private int selectedRow;
 
     private List<ModelListener> subscribers;
 
@@ -61,6 +74,7 @@ public class ACHEditorModel {
         return title;
     }
 
+    
     /**
      * 
      */
