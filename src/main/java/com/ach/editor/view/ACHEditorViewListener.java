@@ -3,7 +3,7 @@
  */
 package com.ach.editor.view;
 
-import java.awt.event.ActionEvent;
+import java.awt.event.MouseEvent;
 
 /**
  * @author ilyakharlamov
@@ -61,4 +61,6 @@ public interface ACHEditorViewListener {
     void onItemPopupBatchEditBatch();
 
     void onDeleteAchBatch();
+
+    void onListClick(MouseEvent evt);
 }

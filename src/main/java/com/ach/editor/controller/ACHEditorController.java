@@ -4,6 +4,7 @@
 package com.ach.editor.controller;
 
 import java.awt.Cursor;
+import java.awt.event.MouseEvent;
 import java.io.File;
 import java.util.Vector;
 
@@ -148,14 +149,15 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void addAchEntryDetail() {
         final ACHFile achFile = model.getAchFile();
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot add entry detail");
             return;
         }
-        ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected[0]);
+        final int index = selected[0];
+        ACHRecord achRecord = view.getRow(index);
         if (achRecord.isEntryDetailType() || achRecord.isAddendaType() || achRecord.isBatchHeaderType()) {
-            Integer[] position = view.positions.get(selected[0]);
+            Integer[] position = view.positions.get(index);
             ACHRecordEntryDetail entryRecord = new ACHRecordEntryDetail();
             ACHEntry achEntry = new ACHEntry();
             achEntry.setEntryDetail(entryRecord);
@@ -173,8 +175,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             model.setAchFileDirty(true);
             view.clearJListAchDataAchRecords();
             view.loadAchDataRecords();
-            view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
-            view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+            view.selectRow(index);
         } else {
             view.showError("Cannot perform requested function", "Cannot add entry detail after this row");
             return;
@@ -213,12 +214,14 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void addAchBatch() {
         final ACHFile achFile = model.getAchFile();
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot add entry detail");
             return;
         }
-        ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected[0]);
+        
+        final int selectedIdx = selected[0];
+        ACHRecord achRecord = view.getRow(selectedIdx);
         if (achRecord.isFileHeaderType() || achRecord.isBatchHeaderType() || achRecord.isBatchControlType()) {
 
             // Build the ACHBatch type
@@ -230,7 +233,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             achBatch.getEntryRecs().get(0).setEntryDetail(new ACHRecordEntryDetail());
 
             // Add to achFile
-            Integer[] position = view.positions.get(selected[0]);
+            Integer[] position = view.positions.get(selectedIdx);
             if (position.length == 0) {
                 // Adding after File Header
                 achFile.getBatches().add(0, achBatch);
@@ -243,8 +246,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             // update display
             view.clearJListAchDataAchRecords();
             view.loadAchDataRecords();
-            view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
-            view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+            view.selectRow(selectedIdx);
         } else {
             view.showError( "Cannot perform requested function", "Cannot add entry detail after this row");
             return;
@@ -254,12 +256,12 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void addAchAddenda() {
         final ACHFile achFile = model.getAchFile();
-        int selected = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        int selected = view.clickedIndex();
         if (selected < 0) {
             view.showError("Cannot perform request", "No items selected ... cannot add addenda");
             return;
         }
-        ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected);
+        ACHRecord achRecord = view.getRow(selected);
         if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
             Integer[] position = view.positions.get(selected);
             if (position.length < 2) {
@@ -297,8 +299,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             model.setAchFileDirty(true);
             view.clearJListAchDataAchRecords();
             view.loadAchDataRecords();
-            view.jListAchDataAchRecords.setSelectedIndex(selected);
-            view.jListAchDataAchRecords.ensureIndexIsVisible(selected);
+            view.selectRow(selected);
         } else {
             view.showError("Cannot perform requested function", "Cannot add addenda after this row");
             return;
@@ -367,31 +368,31 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupAddendaDelete() {
-        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        int itemAtMouse = view.clickedIndex();
         deleteAchRecord(itemAtMouse);
     }
 
     @Override
     public void onItemPopupMultipleCopy() {
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         view.copy(selected);
     }
 
     @Override
     public void onItemPopupAddendaCopy() {
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         view.copy(selected);
     }
 
     @Override
     public void onItemPopupEntryEditEntry() {
-        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        int itemAtMouse = view.clickedIndex();
         view.editAchRecord(itemAtMouse);
     }
 
     @Override
     public void onItemMultipleDelete() {
-        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        int itemAtMouse = view.clickedIndex();
         deleteAchRecord(itemAtMouse);
     }
 
@@ -399,7 +400,7 @@ public class ACHEditorController implements ACHEditorViewListener {
      * @param itemAtMouse
      */
     private void deleteAchRecord(int selectRow) {
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         if (selected.length > 1) {
             int addendaCount = 0;
             int entryCount = 0;
@@ -408,7 +409,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             int fileHeaderCount = 0;
             int fileControlCount = 0;
             for (int i = 0; i < selected.length; i++) {
-                ACHRecord achRecord = ((ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected[i]));
+                ACHRecord achRecord = view.getRow(selected[i]);
                 if (achRecord.isAddendaType()) {
                     addendaCount++;
                 } else if (achRecord.isEntryDetailType()) {
@@ -449,26 +450,26 @@ public class ACHEditorController implements ACHEditorViewListener {
             } else if (addendaCount > 0) {
                 int selection = view.askDeleteCancel("Deleting multiple Addenda records", "This will delete multiple Addenda records. Continue with delete??");
                 if (selection == 0) {
-                    view.deleteAchAddenda();
+                    deleteAchAddenda();
                 } else {
                     return;
                 }
             }
         } else {
-            ACHRecord achRecord = ((ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selectRow));
+            ACHRecord achRecord = view.getRow(selectRow);
             if (achRecord.isBatchHeaderType() || achRecord.isBatchControlType()) {
                 onDeleteAchBatch();
             } else if (achRecord.isEntryDetailType()) {
                 onDeleteAchEntryDetail();
             } else if (achRecord.isAddendaType()) {
-                view.deleteAchAddenda();
+                deleteAchAddenda();
             }
         }
     }
 
     @Override
     public void onItemPopupFileEdit() {
-        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        int itemAtMouse = view.clickedIndex();
         view.editAchRecord(itemAtMouse);
     }
 
@@ -489,6 +490,68 @@ public class ACHEditorController implements ACHEditorViewListener {
             final String msg = StringUtils.join(messages,"\n");
             view.showMessage(msg);
         }
+    }
+    
+    public void deleteAchAddenda() {
+        final ACHFile achFile = model.getAchFile();
+        int[] selected = view.getSelectedRows();
+        if (selected.length < 1) {
+            view.showError("Cannot perform request", "No items selected ... cannot delete entry detail");
+            return;
+        }
+        for (int i = 0; i < selected.length; i++) {
+            ACHRecord achRecord = view.getRow(selected[i]);
+            if (achRecord.isAddendaType()) {
+            } else {
+                view.showError("Cannot perform requested function", "Cannot delete addenda records -- non-entry/addenda rows "
+                        + "in selection list");
+                return;
+            }
+        }
+        // Remove them backwards to positions don't shift on us
+        Integer[] position = new Integer[0];
+        for (int i = selected.length - 1; i >= 0; i--) {
+            position = view.positions.get(selected[i]);
+            if (position.length != 3) {
+                // problem -- this can only occur if there is a mismatch
+                // between positions and jListAchDataAchRecords
+                view.showError("Cannot perform requested function", "Cannot delete addenda -- row is not an addenda row");
+                return;
+            } else {
+                achFile.getBatches().get(position[0]).getEntryRecs().get(
+                        position[1]).getAddendaRecs().remove(
+                        position[2].intValue());
+            }
+        }
+        // position has the first addenda that was deleted ... we need it to
+        // know where the
+        // entry is
+        if (position.length > 0) {
+
+            // Make sure entry record has the addenda indicator set if there are
+            // addenda recs left
+            achFile.getBatches().get(position[0]).getEntryRecs().get(
+                    position[1]).getEntryDetail().setAddendaRecordInd(
+                    achFile.getBatches().get(position[0]).getEntryRecs().get(
+                            position[1]).getAddendaRecs().size() > 0 ? "1"
+                            : "0");
+            // Resequence all addenda records -- this won't do anything
+            // if all addenda records were deleted
+            Vector<ACHRecordAddenda> achAddendas = achFile.getBatches().get(
+                    position[0]).getEntryRecs().get(position[1])
+                    .getAddendaRecs();
+            for (int i = 0; i < achAddendas.size(); i++) {
+                achAddendas.get(i).setAddendaSeqNbr(String.valueOf(i + 1));
+            }
+            achFile.getBatches().get(position[0]).getEntryRecs().get(
+                    position[1]).setAddendaRecs(achAddendas);
+        }
+
+        model.setAchFileDirty(true);
+        view.clearJListAchDataAchRecords();
+        view.loadAchDataRecords();
+        final int index = selected[0];
+        view.selectRow(index);
     }
 
     @Override
@@ -514,13 +577,13 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void onDeleteAchEntryDetail() {
         final ACHFile achFile = model.getAchFile();
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete entry detail");
             return;
         }
         for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected[i]);
+            ACHRecord achRecord = view.getRow(selected[i]);
             if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
             } else {
                 view.showError("Cannot perform requested function", "Cannot delete entry detail -- non-entry/addenda rows in selection list");
@@ -542,8 +605,7 @@ public class ACHEditorController implements ACHEditorViewListener {
         model.setAchFileDirty(true);
         view.clearJListAchDataAchRecords();
         view.loadAchDataRecords();
-        view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
-        view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+        view.selectRow(selected[0]);
     }
 
     @Override
@@ -564,13 +626,13 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupBatchCopy() {
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         view.copy(selected);
     }
 
     @Override
     public void onItemPopupEntryCopy() {
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         view.copy(selected);
     }
 
@@ -584,20 +646,20 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupBatchEditBatch() {
-        int itemAtMouse = view.jListAchDataAchRecords.locationToIndex(view.mouseClick);
+        int itemAtMouse = view.clickedIndex();
         view.editAchRecord(itemAtMouse);
     }
 
     @Override
     public void onDeleteAchBatch() {
         final ACHFile achFile = model.getAchFile();
-        int[] selected = view.jListAchDataAchRecords.getSelectedIndices();
+        int[] selected = view.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete");
             return;
         }
         for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected[i]);
+            ACHRecord achRecord = view.getRow(selected[i]);
             if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
                 view.showError("Cannot perform requested function",
                         "Cannot delete file header/control rows in selection list");
@@ -610,7 +672,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             if (position.length != 1) {
                 // find batch headers -- skipp entry and addenda
             } else {
-                ACHRecord achRecord = (ACHRecord) view.jListAchDataAchRecords.getModel().getElementAt(selected[i]);
+                ACHRecord achRecord = view.getRow(selected[i]);
                 // only delete items that match the headers
                 if (achRecord.isBatchHeaderType()) {
                     achFile.getBatches().remove(position[0].intValue());
@@ -620,7 +682,69 @@ public class ACHEditorController implements ACHEditorViewListener {
         model.setAchFileDirty(true);
         view.clearJListAchDataAchRecords();
         view.loadAchDataRecords();
-        view.jListAchDataAchRecords.setSelectedIndex(selected[0]);
-        view.jListAchDataAchRecords.ensureIndexIsVisible(selected[0]);
+        view.selectRow(selected[0]);
+    }
+
+    /* (non-Javadoc)
+     * @see com.ach.editor.view.ACHEditorViewListener#onListClick()
+     */
+    @Override
+    public void onListClick(MouseEvent evt) {// GEN-FIRST:event_jListAchDataAchRecordsMouseClicked
+        int clickCount = evt.getClickCount();
+        int button = evt.getButton();
+        view.mouseClick = evt.getPoint();
+        int itemAtMouse = view.clickedIndex();
+
+        int[] selected = view.getSelectedRows();
+        boolean found = false;
+        for (int i = 0; i < selected.length && (!found); i++) {
+            if (itemAtMouse == selected[i]) {
+                found = true;
+            }
+        }
+        if (!found) {
+            view.jListAchDataAchRecords.setSelectedIndex(itemAtMouse);
+            selected = view.jListAchDataAchRecords.getSelectedIndices();
+        }
+
+        if (selected.length < 1) {
+            return;
+        }
+        if (clickCount == 2 && button == MouseEvent.BUTTON1) {
+            view.editAchRecord(selected[0]);
+            return;
+        }
+
+        if (clickCount == 1 && button == MouseEvent.BUTTON3) {
+            processRightClick(evt, selected);
+            return;
+        }
+
+    }
+    
+    public void processRightClick(MouseEvent evt, int[] selected) {
+        int itemAtMouse = view.clickedIndex();
+        ACHRecord achRecord = view.getRow(itemAtMouse);
+        if (selected.length == 1) {
+            if (achRecord.isEntryDetailType()) {
+                view.jPopupMenuEntry.show(view.jListAchDataAchRecords, view.mouseClick.x,
+                        view.mouseClick.y);
+            } else if (achRecord.isAddendaType()) {
+                view.jPopupMenuAddenda.show(view.jListAchDataAchRecords, view.mouseClick.x,
+                        view.mouseClick.y);
+            } else if (achRecord.isBatchControlType()
+                    || achRecord.isBatchHeaderType()) {
+                view.jPopupMenuBatch.show(view.jListAchDataAchRecords, view.mouseClick.x,
+                        view.mouseClick.y);
+            } else if (achRecord.isFileControlType()
+                    || achRecord.isFileHeaderType()) {
+                view.jPopupMenuFile.show(view.jListAchDataAchRecords, view.mouseClick.x,
+                        view.mouseClick.y);
+            }
+        } else {
+            view.jPopupMenuMultipleSelection.show(view.jListAchDataAchRecords,
+                    view.mouseClick.x, view.mouseClick.y);
+        }
+
     }
 }

@@ -33,8 +33,6 @@ public class ACHFileHeaderDialog extends ACHDialog {
 		super(parent, modal);
 		this.achRecord = achRecord;
 		initComponents();
-
-
 		getRootPane().setDefaultButton(jButtonSave); // Sets the Save
 		// button to default
 		setLocationRelativeTo(null); // Centers the window on the screen
