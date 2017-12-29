@@ -32,6 +32,7 @@ import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
 import com.ach.editor.view.ACHEditorViewListener;
 import com.ach.editor.view.DoYouWantToSaveTheChangesDialogOptions;
+import com.ach.editor.view.IOWorld;
 
 /**
  * @author ilyakharlamov
@@ -99,8 +100,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
             // Update display with new data
             model.setAchFileDirty(true);
-            view.clearJListAchDataAchRecords();
-            view.loadAchDataRecords();
+            model.setAchDocument(achFile);
             model.setSelectedRow(selected);
         } else {
             view.showError("Cannot perform requested function", "Cannot add addenda after this row");
@@ -141,8 +141,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             model.setAchFileDirty(true);
 
             // update display
-            view.clearJListAchDataAchRecords();
-            view.loadAchDataRecords();
+            model.setAchDocument(achFile);
             model.setSelectedRow(selectedIdx);
 
         } else {
@@ -246,8 +245,7 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
 
         model.setAchFileDirty(true);
-        view.clearJListAchDataAchRecords();
-        view.loadAchDataRecords();
+        model.setAchDocument(achFile);
         final int index = selected[0];
         model.setSelectedRow(index);
     }

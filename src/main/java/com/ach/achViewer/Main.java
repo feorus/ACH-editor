@@ -2,9 +2,9 @@ package com.ach.achViewer;
 
 import com.ach.domain.ACHDocument;
 import com.ach.editor.controller.ACHEditorController;
-import com.ach.editor.controller.IOWorld;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
+import com.ach.editor.view.IOWorld;
 
 import java.io.BufferedReader;
 import java.io.File;

@@ -11,7 +11,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 
 import com.ach.domain.ACHDocument;
-import com.ach.editor.controller.IOWorld;
+import com.ach.editor.view.IOWorld;
 import com.ach.parser.ACHViewerFileParser;
 import com.ach.parser.AchParserException;
 import com.ach.parser.IOUtils;

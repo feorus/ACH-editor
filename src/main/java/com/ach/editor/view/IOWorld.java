@@ -1,7 +1,7 @@
 /**
  * 
  */
-package com.ach.editor.controller;
+package com.ach.editor.view;
 
 import java.io.File;
 

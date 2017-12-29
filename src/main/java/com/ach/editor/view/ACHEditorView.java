@@ -43,7 +43,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     private static final long serialVersionUID = 0;
 	
-	// Variables declaration - do not modify//GEN-BEGIN:variables
 	private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
 
 	private javax.swing.JLabel jLabel1;
@@ -194,7 +193,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		
 		this.model = achappmodel;
 		this.model.addSubscriber(this);
 	}
