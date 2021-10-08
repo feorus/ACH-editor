@@ -65,4 +65,6 @@ public interface ACHEditorViewListener {
     void onListClick(int index, int clickCount, int button);
 
     void onIsFedFile();
+
+    void onSearch(String text);
 }

@@ -6,9 +6,7 @@
 
 package com.ach.editor.view;
 
-import java.awt.Cursor;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.*;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
 import java.awt.event.WindowEvent;
@@ -19,18 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPopupMenu;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
+import javax.swing.*;
 
-import com.ach.domain.ACHBatch;
-import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHDocument;
 import com.ach.domain.ACHRecord;
-import com.ach.domain.ACHRecordAddenda;
 import com.ach.domain.ACHSelection;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.model.ModelListener;
@@ -141,6 +131,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private javax.swing.JMenuItem jMenuItemToolsRecalculate;
 
+	private javax.swing.JMenuItem jMenuItemToolsSearch;
+
 	private javax.swing.JMenuItem jMenuItemToolsReverse;
 
 	private javax.swing.JMenuItem jMenuItemToolsValidate;
@@ -163,11 +155,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 	private javax.swing.JSeparator jSeparatorMenuFile;
 
-	private ACHEditorModel model;
+	private final ACHEditorModel model;
 
 	private Point mouseClick = null;
 
-	private Vector<Integer[]> positions = new Vector<Integer[]>(10, 10);
+	private List<RecordAndPositions> positions = new ArrayList<>();
 
 	/** Creates new form ACHViewer */
 	public ACHEditorView(ACHEditorModel achappmodel) {
@@ -185,6 +177,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 	    initComponents();
 
 		jMenuItemToolsRecalculate.setEnabled(false);
+		jMenuItemToolsSearch.setEnabled(false);
 		jMenuItemToolsValidate.setEnabled(false);
 
 		setLocationRelativeTo(null); // Centers the window on the screen
@@ -287,7 +280,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 	}
 
 	public Integer[] getPositions(final int index) {
-        return positions.get(index);
+        return positions.get(index).getIntegers();
     }
 
     public ACHRecord getRow(int i) {
@@ -377,6 +370,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		jMenuItemFileExit = new javax.swing.JMenuItem();
 		jMenuTools = new javax.swing.JMenu();
 		jMenuItemToolsValidate = new javax.swing.JMenuItem();
+		jMenuItemToolsSearch = new javax.swing.JMenuItem();
 		jMenuItemToolsRecalculate = new javax.swing.JMenuItem();
 		jMenuItemToolsReverse = new javax.swing.JMenuItem();
 
@@ -823,24 +817,25 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
 		jMenuTools.setText("Tools");
 		jMenuTools.setToolTipText("");
+
+		jMenuItemToolsSearch.setText("Search");
+		jMenuItemToolsSearch
+				.setToolTipText("Search file for string");
+		jMenuTools.add(jMenuItemToolsSearch);
+
 		jMenuItemToolsValidate.setText("Validate");
 		jMenuItemToolsValidate
 				.setToolTipText("Check the validity of the ACH file");
-
 		jMenuTools.add(jMenuItemToolsValidate);
 
 		jMenuItemToolsRecalculate.setText("Recalculate");
 		jMenuItemToolsRecalculate
 				.setToolTipText("Recalculate the file and batch control totals");
-		ACHEditorView view = this;
-
-
 		jMenuTools.add(jMenuItemToolsRecalculate);
 
 		jMenuItemToolsReverse.setText("Reverse");
 		jMenuItemToolsReverse
 				.setToolTipText("Reverse this ACH file and recalculate totals");
-
 		jMenuTools.add(jMenuItemToolsReverse);
 
 		jMenuBar.add(jMenuTools);
@@ -928,43 +923,17 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 		pack();
 	}// </editor-fold>//GEN-END:initComponents
 
-    
-
-    
     public void loadAchDataRecords() {
-	    final ACHDocument achFile = model.getAchFile();
-	    List<ACHRecord> records = new ArrayList<>();
-		positions = new Vector<Integer[]>(10, 10);
-		records.add(achFile.getFileHeader());
-		positions.add(new Integer[0]);
-		Vector<ACHBatch> achBatches = achFile.getBatches();
-		for (int i = 0; i < achBatches.size(); i++) {
-			records.add(achBatches.get(i).getBatchHeader());
-			positions.add(new Integer[] { i });
-			Vector<ACHEntry> achEntries = achBatches.get(i).getEntryRecs();
-			for (int j = 0; j < achEntries.size(); j++) {
-				records.add(achEntries.get(j)
-                        .getEntryDetail());
-				positions.add(new Integer[] { i, j });
-				Vector<ACHRecordAddenda> achAddendas = achEntries.get(j)
-						.getAddendaRecs();
-				for (int k = 0; k < achAddendas.size(); k++) {
-					records.add(achAddendas.get(k));
-					positions.add(new Integer[] { i, j, k });
-				}
-			}
-			records.add(achBatches.get(i).getBatchControl());
-			positions.add(new Integer[] { i });
+		this.positions = model.getAchRecords();
+		for (RecordAndPositions item: positions) {
+		    addJListAchDataAchRecordsItem(item.getAchRecord());
 		}
-		records.add(achFile.getFileControl());
-		for (ACHRecord rec: records) {
-		    addJListAchDataAchRecordsItem(rec);
-		}
-		positions.add(new Integer[0]);
 		jMenuItemToolsRecalculate.setEnabled(true);
+		jMenuItemToolsSearch.setEnabled(true);
 		jMenuItemToolsValidate.setEnabled(true);
 	}
-    private void loadAchInformation() {
+
+	private void loadAchInformation() {
 	    final ACHDocument achFile = model.getAchFile();
 		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
 				.getFileCreationDate()
@@ -1174,6 +1143,12 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
                 viewListener.onItemToolsRecalculate();
             }
         });
+        jMenuItemToolsSearch.addActionListener(evt -> {
+        	String text = JOptionPane.showInputDialog("search for");
+        	if (text!=null) {
+        		viewListener.onSearch(text);
+			}
+		});
         jMenuItemToolsReverse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewListener.onItemToolsReverse();

@@ -5,11 +5,13 @@ package com.ach.editor.controller;
 
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
 
+import com.ach.editor.view.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -29,10 +31,6 @@ import com.ach.domain.ACHRecordBatchHeader;
 import com.ach.domain.ACHRecordEntryDetail;
 import com.ach.domain.ACHRecordFileControl;
 import com.ach.editor.model.ACHEditorModel;
-import com.ach.editor.view.ACHEditorView;
-import com.ach.editor.view.ACHEditorViewListener;
-import com.ach.editor.view.DoYouWantToSaveTheChangesDialogOptions;
-import com.ach.editor.view.IOWorld;
 
 /**
  * @author ilyakharlamov
@@ -650,6 +648,18 @@ public class ACHEditorController implements ACHEditorViewListener {
         achDocument.setFedFile(!achDocument.isFedFile());
         model.setAchFileDirty(true);
         model.setAchDocument(achDocument);
+    }
+
+    @Override
+    public void onSearch(String text) {
+        System.out.format("onSearch:%s\n", text);
+        List<RecordAndPositions> recs = model.getAchRecords();
+        for (int i = 0; i < recs.size(); i++) {
+            RecordAndPositions rec = recs.get(i);
+            if(rec.getAchRecord().toString().contains(text)) {
+                model.setSelectedRow(i);
+            }
+        }
     }
 
     @Override
