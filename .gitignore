@@ -1,7 +1,9 @@
 out
 .ideabuild
+.DS_Store
 ACHViewer.iml
 build
+.idea
 .gradle
 *.iml
 .classpath

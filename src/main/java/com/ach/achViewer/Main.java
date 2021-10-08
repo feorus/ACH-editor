@@ -5,6 +5,7 @@ import com.ach.editor.controller.ACHEditorController;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
 import com.ach.editor.view.IOWorld;
+import org.slf4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,6 +21,7 @@ import java.util.Vector;
  * @author frank
  */
 public class Main {
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ACHEditorController.class);
 
     public static void main(String args[]) {
 
@@ -51,10 +53,10 @@ public class Main {
         Vector<String> messages = achFile.validate();
 
         if (messages.isEmpty()) {
-            System.out.println("ACH File Validated");
+            LOG.info("ACH File Validated");
             System.exit(0);
         } else {
-            System.out.println("ACH File Validation Failed");
+            LOG.info("ACH File Validation Failed");
             for (String message : messages) {
                 System.err.println("Error: " + message);
             }

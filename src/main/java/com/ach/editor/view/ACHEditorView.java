@@ -22,180 +22,183 @@ import javax.swing.*;
 import com.ach.domain.ACHDocument;
 import com.ach.domain.ACHRecord;
 import com.ach.domain.ACHSelection;
+import com.ach.editor.controller.ACHEditorController;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.model.ModelListener;
+import org.slf4j.Logger;
 
 /**
  * 
  * @author John
  */
 public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ACHEditorController.class);
 
     private static final long serialVersionUID = 0;
-	
-	private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
 
-	private javax.swing.JLabel jLabel1;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuFedFile;
 
-	private javax.swing.JLabel jLabel2;
+    private javax.swing.JLabel jLabel1;
 
-	private javax.swing.JLabel jLabelAchInfoBatchCount;
+    private javax.swing.JLabel jLabel2;
+
+    private javax.swing.JLabel jLabelAchInfoBatchCount;
 
     private javax.swing.JLabel jLabelAchInfoBatchCountText;
 
-	private javax.swing.JLabel jLabelAchInfoEntryCount;
+    private javax.swing.JLabel jLabelAchInfoEntryCount;
 
-	private javax.swing.JLabel jLabelAchInfoEntryCountText;
+    private javax.swing.JLabel jLabelAchInfoEntryCountText;
 
-	private javax.swing.JLabel jLabelAchInfoFileCreation;
+    private javax.swing.JLabel jLabelAchInfoFileCreation;
 
-	private javax.swing.JLabel jLabelAchInfoFileCreationText;
+    private javax.swing.JLabel jLabelAchInfoFileCreationText;
 
-	private javax.swing.JLabel jLabelAchInfoFileName;
+    private javax.swing.JLabel jLabelAchInfoFileName;
 
-	private javax.swing.JLabel jLabelAchInfoFileNameText;
+    private javax.swing.JLabel jLabelAchInfoFileNameText;
 
-	private javax.swing.JLabel jLabelAchInfoImmDest;
+    private javax.swing.JLabel jLabelAchInfoImmDest;
 
     private javax.swing.JLabel jLabelAchInfoImmDestText;
 
     private javax.swing.JLabel jLabelAchInfoImmOrigin;
 
-	private javax.swing.JLabel jLabelAchInfoImmOriginText;
+    private javax.swing.JLabel jLabelAchInfoImmOriginText;
 
-	private javax.swing.JLabel jLabelAchInfoTotalCredit;
+    private javax.swing.JLabel jLabelAchInfoTotalCredit;
 
-	private javax.swing.JLabel jLabelAchInfoTotalCreditText;
+    private javax.swing.JLabel jLabelAchInfoTotalCreditText;
 
-	private javax.swing.JLabel jLabelAchInfoTotalDebit;
+    private javax.swing.JLabel jLabelAchInfoTotalDebit;
 
-	private javax.swing.JLabel jLabelAchInfoTotalDebitText;
+    private javax.swing.JLabel jLabelAchInfoTotalDebitText;
 
-	private javax.swing.JList jListAchDataAchRecords;
+    private javax.swing.JList jListAchDataAchRecords;
 
-	private javax.swing.JMenuBar jMenuBar;
+    private javax.swing.JMenuBar jMenuBar;
 
-	private javax.swing.JMenu jMenuFile;
+    private javax.swing.JMenu jMenuFile;
 
-	private javax.swing.JMenuItem jMenuItemFileExit;
+    private javax.swing.JMenuItem jMenuItemFileExit;
 
-	private javax.swing.JMenuItem jMenuItemFileNew;
+    private javax.swing.JMenuItem jMenuItemFileNew;
 
-	private javax.swing.JMenuItem jMenuItemFileOpen;
+    private javax.swing.JMenuItem jMenuItemFileOpen;
 
-	private javax.swing.JMenuItem jMenuItemFileSave;
+    private javax.swing.JMenuItem jMenuItemFileSave;
 
-	private javax.swing.JMenuItem jMenuItemFileSaveAs;
+    private javax.swing.JMenuItem jMenuItemFileSaveAs;
 
-	private javax.swing.JMenuItem jMenuItemMulitpleDelete;
+    private javax.swing.JMenuItem jMenuItemMulitpleDelete;
 
-	private javax.swing.JMenuItem jMenuItemPopupAddendaCopy;
+    private javax.swing.JMenuItem jMenuItemPopupAddendaCopy;
 
-	private javax.swing.JMenuItem jMenuItemPopupAddendaDelete;
+    private javax.swing.JMenuItem jMenuItemPopupAddendaDelete;
 
-	private javax.swing.JMenuItem jMenuItemPopupAddendaPaste;
+    private javax.swing.JMenuItem jMenuItemPopupAddendaPaste;
 
-	private javax.swing.JMenuItem jMenuItemPopupBatchAdd;
+    private javax.swing.JMenuItem jMenuItemPopupBatchAdd;
 
-	private javax.swing.JMenuItem jMenuItemPopupBatchAddEntry;
+    private javax.swing.JMenuItem jMenuItemPopupBatchAddEntry;
 
-	private javax.swing.JMenuItem jMenuItemPopupBatchCopy;
+    private javax.swing.JMenuItem jMenuItemPopupBatchCopy;
 
-	private javax.swing.JMenuItem jMenuItemPopupBatchDeleteBatch;
+    private javax.swing.JMenuItem jMenuItemPopupBatchDeleteBatch;
 
-	private javax.swing.JMenuItem jMenuItemPopupBatchEditBatch;
+    private javax.swing.JMenuItem jMenuItemPopupBatchEditBatch;
 
-	private javax.swing.JMenuItem jMenuItemPopupBatchPaste;
+    private javax.swing.JMenuItem jMenuItemPopupBatchPaste;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryAdd;
+    private javax.swing.JMenuItem jMenuItemPopupEntryAdd;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryAddAddenda;
+    private javax.swing.JMenuItem jMenuItemPopupEntryAddAddenda;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryAddendaAdd;
+    private javax.swing.JMenuItem jMenuItemPopupEntryAddendaAdd;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryCopy;
+    private javax.swing.JMenuItem jMenuItemPopupEntryCopy;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryDelete;
+    private javax.swing.JMenuItem jMenuItemPopupEntryDelete;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryEditEntry;
+    private javax.swing.JMenuItem jMenuItemPopupEntryEditEntry;
 
-	private javax.swing.JMenuItem jMenuItemPopupEntryPaste;
+    private javax.swing.JMenuItem jMenuItemPopupEntryPaste;
 
-	private javax.swing.JMenuItem jMenuItemPopupFileAddBatch;
+    private javax.swing.JMenuItem jMenuItemPopupFileAddBatch;
 
-	private javax.swing.JMenuItem jMenuItemPopupFileEdit;
+    private javax.swing.JMenuItem jMenuItemPopupFileEdit;
 
-	private javax.swing.JMenuItem jMenuItemPopupMultipleCopy;
+    private javax.swing.JMenuItem jMenuItemPopupMultipleCopy;
 
-	private javax.swing.JMenuItem jMenuItemPopupPasteMultiple;
+    private javax.swing.JMenuItem jMenuItemPopupPasteMultiple;
 
-	private javax.swing.JMenuItem jMenuItemToolsRecalculate;
+    private javax.swing.JMenuItem jMenuItemToolsRecalculate;
 
-	private javax.swing.JMenuItem jMenuItemToolsSearch;
+    private javax.swing.JMenuItem jMenuItemToolsSearch;
 
-	private javax.swing.JMenuItem jMenuItemToolsReverse;
+    private javax.swing.JMenuItem jMenuItemToolsReverse;
 
-	private javax.swing.JMenuItem jMenuItemToolsValidate;
+    private javax.swing.JMenuItem jMenuItemToolsValidate;
 
-	private javax.swing.JMenu jMenuTools;
+    private javax.swing.JMenu jMenuTools;
 
-	private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel1;
 
-	public javax.swing.JPopupMenu jPopupMenuAddenda;
+    public javax.swing.JPopupMenu jPopupMenuAddenda;
 
-	public javax.swing.JPopupMenu jPopupMenuBatch;
+    public javax.swing.JPopupMenu jPopupMenuBatch;
 
-	public javax.swing.JPopupMenu jPopupMenuEntry;
+    public javax.swing.JPopupMenu jPopupMenuEntry;
 
-	public javax.swing.JPopupMenu jPopupMenuFile;
+    public javax.swing.JPopupMenu jPopupMenuFile;
 
-	public javax.swing.JPopupMenu jPopupMenuMultipleSelection;
+    public javax.swing.JPopupMenu jPopupMenuMultipleSelection;
 
-	private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane1;
 
-	private javax.swing.JSeparator jSeparatorMenuFile;
+    private javax.swing.JSeparator jSeparatorMenuFile;
 
-	private final ACHEditorModel model;
+    private final ACHEditorModel model;
 
-	private Point mouseClick = null;
+    private Point mouseClick = null;
 
-	private List<RecordAndPositions> positions = new ArrayList<>();
+    private List<RecordAndPositions> positions = new ArrayList<>();
 
-	/** Creates new form ACHViewer */
-	public ACHEditorView(ACHEditorModel achappmodel) {
+    /** Creates new form ACHViewer */
+    public ACHEditorView(ACHEditorModel achappmodel) {
 
-		try {
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-			// Don't throw errors if the native look and feel can't be found,
-			// just go with what we have
-		} catch (UnsupportedLookAndFeelException e) {
-		} catch (ClassNotFoundException e) {
-		} catch (InstantiationException e) {
-		} catch (IllegalAccessException e) {
-		}
+        try {
+            UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+            // Don't throw errors if the native look and feel can't be found,
+            // just go with what we have
+        } catch (UnsupportedLookAndFeelException e) {
+        } catch (ClassNotFoundException e) {
+        } catch (InstantiationException e) {
+        } catch (IllegalAccessException e) {
+        }
 
-	    initComponents();
+        initComponents();
 
-		jMenuItemToolsRecalculate.setEnabled(false);
-		jMenuItemToolsSearch.setEnabled(false);
-		jMenuItemToolsValidate.setEnabled(false);
+        jMenuItemToolsRecalculate.setEnabled(false);
+        jMenuItemToolsSearch.setEnabled(false);
+        jMenuItemToolsValidate.setEnabled(false);
 
-		setLocationRelativeTo(null); // Centers the window on the screen
+        setLocationRelativeTo(null); // Centers the window on the screen
 
-		clearAchInfo();
+        clearAchInfo();
 
-		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-		this.model = achappmodel;
-		this.model.addSubscriber(this);
-	}
+        this.model = achappmodel;
+        this.model.addSubscriber(this);
+    }
 
-	private synchronized void addJListAchDataAchRecordsItem(ACHRecord achRecord) {
-		((DefaultListModel) jListAchDataAchRecords.getModel())
-				.addElement(achRecord);
-	}
+    private synchronized void addJListAchDataAchRecordsItem(ACHRecord achRecord) {
+        ((DefaultListModel) jListAchDataAchRecords.getModel())
+                .addElement(achRecord);
+    }
 
-	public int askDeleteCancel(final String title, final String message) {
+    public int askDeleteCancel(final String title, final String message) {
         Object[] options = { "Delete", DoYouWantToSaveTheChangesDialogOptions.CANCEL };
         int selection = JOptionPane.showOptionDialog(this,
                 message,
@@ -204,15 +207,15 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         return selection;
     }
 
-	public DoYouWantToSaveTheChangesDialogOptions askDoYouWantSaveChanges() {
-	    DoYouWantToSaveTheChangesDialogOptions[] options = { DoYouWantToSaveTheChangesDialogOptions.DONT_SAVE, DoYouWantToSaveTheChangesDialogOptions.CANCEL, DoYouWantToSaveTheChangesDialogOptions.SAVE };
+    public DoYouWantToSaveTheChangesDialogOptions askDoYouWantSaveChanges() {
+        DoYouWantToSaveTheChangesDialogOptions[] options = { DoYouWantToSaveTheChangesDialogOptions.DONT_SAVE, DoYouWantToSaveTheChangesDialogOptions.CANCEL, DoYouWantToSaveTheChangesDialogOptions.SAVE };
         int selection = JOptionPane.showOptionDialog(this, "ACH File has been changed. What would you like to do.",
                 "ACH File has changed", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
                 options[2]);
         return options[selection];
     }
 
-	public int askYesNo(final String message, final String title) {
+    public int askYesNo(final String message, final String title) {
         Object[] options = { "Yes", "No" };
         int answer = JOptionPane.showOptionDialog(this, message,
                 title, JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options,
@@ -220,72 +223,72 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         return answer;
     }
 
-	private void clearAchInfo() {
-		jLabelAchInfoFileName.setText("");
-		jLabelAchInfoFileCreation.setText("");
-		jLabelAchInfoImmDest.setText("");
-		jLabelAchInfoImmOrigin.setText("");
-		jLabelAchInfoBatchCount.setText("0");
-		jLabelAchInfoEntryCount.setText("0");
-		jLabelAchInfoTotalDebit.setText("0");
-		jLabelAchInfoTotalCredit.setText("0");
-		jListAchDataAchRecords.setModel(new DefaultListModel());
-	}
+    private void clearAchInfo() {
+        jLabelAchInfoFileName.setText("");
+        jLabelAchInfoFileCreation.setText("");
+        jLabelAchInfoImmDest.setText("");
+        jLabelAchInfoImmOrigin.setText("");
+        jLabelAchInfoBatchCount.setText("0");
+        jLabelAchInfoEntryCount.setText("0");
+        jLabelAchInfoTotalDebit.setText("0");
+        jLabelAchInfoTotalCredit.setText("0");
+        jListAchDataAchRecords.setModel(new DefaultListModel());
+    }
 
-	public synchronized void clearJListAchDataAchRecords() {
-		((DefaultListModel) jListAchDataAchRecords.getModel())
-				.removeAllElements();
-		jMenuItemToolsRecalculate.setEnabled(false);
-		jMenuItemToolsValidate.setEnabled(false);
-	}
+    public synchronized void clearJListAchDataAchRecords() {
+        ((DefaultListModel) jListAchDataAchRecords.getModel())
+                .removeAllElements();
+        jMenuItemToolsRecalculate.setEnabled(false);
+        jMenuItemToolsValidate.setEnabled(false);
+    }
 
-	/**
+    /**
      * @return
      */
     public int clickedIndex() {
         return jListAchDataAchRecords.locationToIndex(mouseClick);
     }
 
-	// This method writes the current selection to the system clipboard
-	public void copy(int[] selected) {
-		Vector<ACHRecord> achRecords = new Vector<ACHRecord>(selected.length,
-				10);
-		for (int i = 0; i < selected.length; i++) {
-			achRecords.add(getRow(i));
-		}
-		ACHSelection clipboardSelection = new ACHSelection(achRecords);
-		Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
-				clipboardSelection, null);
-	}
+    // This method writes the current selection to the system clipboard
+    public void copy(int[] selected) {
+        Vector<ACHRecord> achRecords = new Vector<ACHRecord>(selected.length,
+                10);
+        for (int i = 0; i < selected.length; i++) {
+            achRecords.add(getRow(i));
+        }
+        ACHSelection clipboardSelection = new ACHSelection(achRecords);
+        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
+                clipboardSelection, null);
+    }
 
-	// If a ACHSelection type is on the system clipboard, this method returns
-	// it;
-	// otherwise it returns null.
-	@SuppressWarnings("unchecked")
+    // If a ACHSelection type is on the system clipboard, this method returns
+    // it;
+    // otherwise it returns null.
+    @SuppressWarnings("unchecked")
     public Vector<ACHRecord> getClipboard() {
-		Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard()
-				.getContents(null);
+        Transferable t = Toolkit.getDefaultToolkit().getSystemClipboard()
+                .getContents(null);
 
-		try {
-			if (t != null
-					&& t.isDataFlavorSupported(ACHSelection.achRecordFlavor)) {
-				Vector<ACHRecord> text = (Vector<ACHRecord>) (t
-						.getTransferData(ACHSelection.achRecordFlavor));
-				return text;
-			}
-		} catch (UnsupportedFlavorException e) {
-		} catch (IOException e) {
-		}
-		return null;
-	}
+        try {
+            if (t != null
+                    && t.isDataFlavorSupported(ACHSelection.achRecordFlavor)) {
+                Vector<ACHRecord> text = (Vector<ACHRecord>) (t
+                        .getTransferData(ACHSelection.achRecordFlavor));
+                return text;
+            }
+        } catch (UnsupportedFlavorException e) {
+        } catch (IOException e) {
+        }
+        return null;
+    }
 
-	public Integer[] getPositions(final int index) {
+    public Integer[] getPositions(final int index) {
         return positions.get(index).getIntegers();
     }
 
     public ACHRecord getRow(int i) {
         return (ACHRecord) jListAchDataAchRecords.getModel()
-        		.getElementAt(i);
+                .getElementAt(i);
     }
 
     public int[] getSelectedRows() {
@@ -293,668 +296,668 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     }
     
     /**
-	 * This method is called from within the constructor to initialize the form.
-	 * WARNING: Do NOT modify this code. The content of this method is always
-	 * regenerated by the Form Editor.
-	 */
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// <editor-fold defaultstate="collapsed" desc=" Generated Code
-	// ">//GEN-BEGIN:initComponents
-	private void initComponents() {
-		jPopupMenuEntry = new javax.swing.JPopupMenu();
-		jMenuItemPopupEntryAdd = new javax.swing.JMenuItem();
-		jMenuItemPopupEntryAddAddenda = new javax.swing.JMenuItem();
-		jMenuItemPopupEntryDelete = new javax.swing.JMenuItem();
-		jMenuItemPopupEntryEditEntry = new javax.swing.JMenuItem();
-		jMenuItemPopupEntryCopy = new javax.swing.JMenuItem();
-		jMenuItemPopupEntryPaste = new javax.swing.JMenuItem();
-		jPopupMenuBatch = new javax.swing.JPopupMenu();
-		jMenuItemPopupBatchAdd = new javax.swing.JMenuItem();
-		jMenuItemPopupBatchAddEntry = new javax.swing.JMenuItem();
-		jMenuItemPopupBatchDeleteBatch = new javax.swing.JMenuItem();
-		jMenuItemPopupBatchEditBatch = new javax.swing.JMenuItem();
-		jMenuItemPopupBatchCopy = new javax.swing.JMenuItem();
-		jMenuItemPopupBatchPaste = new javax.swing.JMenuItem();
-		jPopupMenuAddenda = new javax.swing.JPopupMenu();
-		jMenuItemPopupEntryAddendaAdd = new javax.swing.JMenuItem();
-		jMenuItemPopupAddendaDelete = new javax.swing.JMenuItem();
-		jMenuItemPopupAddendaCopy = new javax.swing.JMenuItem();
-		jMenuItemPopupAddendaPaste = new javax.swing.JMenuItem();
-		jPopupMenuFile = new javax.swing.JPopupMenu();
-		jMenuItemPopupFileAddBatch = new javax.swing.JMenuItem();
-		jMenuItemPopupFileEdit = new javax.swing.JMenuItem();
-		jPopupMenuMultipleSelection = new javax.swing.JPopupMenu();
-		jMenuItemMulitpleDelete = new javax.swing.JMenuItem();
-		jMenuItemPopupMultipleCopy = new javax.swing.JMenuItem();
-		jMenuItemPopupPasteMultiple = new javax.swing.JMenuItem();
-		jPanel1 = new javax.swing.JPanel();
-		jLabelAchInfoFileNameText = new javax.swing.JLabel();
-		jLabelAchInfoImmDestText = new javax.swing.JLabel();
-		jLabelAchInfoImmOriginText = new javax.swing.JLabel();
-		jLabelAchInfoFileName = new javax.swing.JLabel();
-		jLabelAchInfoImmDest = new javax.swing.JLabel();
-		jLabelAchInfoImmOrigin = new javax.swing.JLabel();
-		jLabelAchInfoFileCreation = new javax.swing.JLabel();
-		jLabelAchInfoFileCreationText = new javax.swing.JLabel();
-		jLabelAchInfoBatchCountText = new javax.swing.JLabel();
-		jLabelAchInfoBatchCount = new javax.swing.JLabel();
-		jLabelAchInfoEntryCountText = new javax.swing.JLabel();
-		jLabelAchInfoEntryCount = new javax.swing.JLabel();
-		jLabelAchInfoTotalDebitText = new javax.swing.JLabel();
-		jLabelAchInfoTotalCreditText = new javax.swing.JLabel();
-		jLabelAchInfoTotalDebit = new javax.swing.JLabel();
-		jLabelAchInfoTotalCredit = new javax.swing.JLabel();
-		jScrollPane1 = new javax.swing.JScrollPane();
-		jListAchDataAchRecords = new javax.swing.JList();
-		jLabel1 = new javax.swing.JLabel();
-		jLabel2 = new javax.swing.JLabel();
-		jMenuBar = new javax.swing.JMenuBar();
-		jMenuFile = new javax.swing.JMenu();
-		jMenuItemFileNew = new javax.swing.JMenuItem();
-		jMenuItemFileOpen = new javax.swing.JMenuItem();
-		jCheckBoxMenuFedFile = new javax.swing.JCheckBoxMenuItem();
-		jMenuItemFileSave = new javax.swing.JMenuItem();
-		jMenuItemFileSaveAs = new javax.swing.JMenuItem();
-		jSeparatorMenuFile = new javax.swing.JSeparator();
-		jMenuItemFileExit = new javax.swing.JMenuItem();
-		jMenuTools = new javax.swing.JMenu();
-		jMenuItemToolsValidate = new javax.swing.JMenuItem();
-		jMenuItemToolsSearch = new javax.swing.JMenuItem();
-		jMenuItemToolsRecalculate = new javax.swing.JMenuItem();
-		jMenuItemToolsReverse = new javax.swing.JMenuItem();
+     * This method is called from within the constructor to initialize the form.
+     * WARNING: Do NOT modify this code. The content of this method is always
+     * regenerated by the Form Editor.
+     */
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // <editor-fold defaultstate="collapsed" desc=" Generated Code
+    // ">//GEN-BEGIN:initComponents
+    private void initComponents() {
+        jPopupMenuEntry = new javax.swing.JPopupMenu();
+        jMenuItemPopupEntryAdd = new javax.swing.JMenuItem();
+        jMenuItemPopupEntryAddAddenda = new javax.swing.JMenuItem();
+        jMenuItemPopupEntryDelete = new javax.swing.JMenuItem();
+        jMenuItemPopupEntryEditEntry = new javax.swing.JMenuItem();
+        jMenuItemPopupEntryCopy = new javax.swing.JMenuItem();
+        jMenuItemPopupEntryPaste = new javax.swing.JMenuItem();
+        jPopupMenuBatch = new javax.swing.JPopupMenu();
+        jMenuItemPopupBatchAdd = new javax.swing.JMenuItem();
+        jMenuItemPopupBatchAddEntry = new javax.swing.JMenuItem();
+        jMenuItemPopupBatchDeleteBatch = new javax.swing.JMenuItem();
+        jMenuItemPopupBatchEditBatch = new javax.swing.JMenuItem();
+        jMenuItemPopupBatchCopy = new javax.swing.JMenuItem();
+        jMenuItemPopupBatchPaste = new javax.swing.JMenuItem();
+        jPopupMenuAddenda = new javax.swing.JPopupMenu();
+        jMenuItemPopupEntryAddendaAdd = new javax.swing.JMenuItem();
+        jMenuItemPopupAddendaDelete = new javax.swing.JMenuItem();
+        jMenuItemPopupAddendaCopy = new javax.swing.JMenuItem();
+        jMenuItemPopupAddendaPaste = new javax.swing.JMenuItem();
+        jPopupMenuFile = new javax.swing.JPopupMenu();
+        jMenuItemPopupFileAddBatch = new javax.swing.JMenuItem();
+        jMenuItemPopupFileEdit = new javax.swing.JMenuItem();
+        jPopupMenuMultipleSelection = new javax.swing.JPopupMenu();
+        jMenuItemMulitpleDelete = new javax.swing.JMenuItem();
+        jMenuItemPopupMultipleCopy = new javax.swing.JMenuItem();
+        jMenuItemPopupPasteMultiple = new javax.swing.JMenuItem();
+        jPanel1 = new javax.swing.JPanel();
+        jLabelAchInfoFileNameText = new javax.swing.JLabel();
+        jLabelAchInfoImmDestText = new javax.swing.JLabel();
+        jLabelAchInfoImmOriginText = new javax.swing.JLabel();
+        jLabelAchInfoFileName = new javax.swing.JLabel();
+        jLabelAchInfoImmDest = new javax.swing.JLabel();
+        jLabelAchInfoImmOrigin = new javax.swing.JLabel();
+        jLabelAchInfoFileCreation = new javax.swing.JLabel();
+        jLabelAchInfoFileCreationText = new javax.swing.JLabel();
+        jLabelAchInfoBatchCountText = new javax.swing.JLabel();
+        jLabelAchInfoBatchCount = new javax.swing.JLabel();
+        jLabelAchInfoEntryCountText = new javax.swing.JLabel();
+        jLabelAchInfoEntryCount = new javax.swing.JLabel();
+        jLabelAchInfoTotalDebitText = new javax.swing.JLabel();
+        jLabelAchInfoTotalCreditText = new javax.swing.JLabel();
+        jLabelAchInfoTotalDebit = new javax.swing.JLabel();
+        jLabelAchInfoTotalCredit = new javax.swing.JLabel();
+        jScrollPane1 = new javax.swing.JScrollPane();
+        jListAchDataAchRecords = new javax.swing.JList();
+        jLabel1 = new javax.swing.JLabel();
+        jLabel2 = new javax.swing.JLabel();
+        jMenuBar = new javax.swing.JMenuBar();
+        jMenuFile = new javax.swing.JMenu();
+        jMenuItemFileNew = new javax.swing.JMenuItem();
+        jMenuItemFileOpen = new javax.swing.JMenuItem();
+        jCheckBoxMenuFedFile = new javax.swing.JCheckBoxMenuItem();
+        jMenuItemFileSave = new javax.swing.JMenuItem();
+        jMenuItemFileSaveAs = new javax.swing.JMenuItem();
+        jSeparatorMenuFile = new javax.swing.JSeparator();
+        jMenuItemFileExit = new javax.swing.JMenuItem();
+        jMenuTools = new javax.swing.JMenu();
+        jMenuItemToolsValidate = new javax.swing.JMenuItem();
+        jMenuItemToolsSearch = new javax.swing.JMenuItem();
+        jMenuItemToolsRecalculate = new javax.swing.JMenuItem();
+        jMenuItemToolsReverse = new javax.swing.JMenuItem();
 
-		jMenuItemPopupEntryAdd.setText("Add Entry Record");
+        jMenuItemPopupEntryAdd.setText("Add Entry Record");
 
 
-		jPopupMenuEntry.add(jMenuItemPopupEntryAdd);
+        jPopupMenuEntry.add(jMenuItemPopupEntryAdd);
 
-		jMenuItemPopupEntryAddAddenda.setText("Add Addenda");
+        jMenuItemPopupEntryAddAddenda.setText("Add Addenda");
 
 
-		jPopupMenuEntry.add(jMenuItemPopupEntryAddAddenda);
+        jPopupMenuEntry.add(jMenuItemPopupEntryAddAddenda);
 
-		jMenuItemPopupEntryDelete.setText("Delete Entry");
+        jMenuItemPopupEntryDelete.setText("Delete Entry");
 
-		jPopupMenuEntry.add(jMenuItemPopupEntryDelete);
+        jPopupMenuEntry.add(jMenuItemPopupEntryDelete);
 
-		jMenuItemPopupEntryEditEntry.setText("Edit Entry");
+        jMenuItemPopupEntryEditEntry.setText("Edit Entry");
 
 
-		jPopupMenuEntry.add(jMenuItemPopupEntryEditEntry);
+        jPopupMenuEntry.add(jMenuItemPopupEntryEditEntry);
 
-		jMenuItemPopupEntryCopy.setText("Copy");
+        jMenuItemPopupEntryCopy.setText("Copy");
 
 
-		jPopupMenuEntry.add(jMenuItemPopupEntryCopy);
+        jPopupMenuEntry.add(jMenuItemPopupEntryCopy);
 
-		jMenuItemPopupEntryPaste.setText("Paste");
+        jMenuItemPopupEntryPaste.setText("Paste");
 
 
-		jPopupMenuEntry.add(jMenuItemPopupEntryPaste);
+        jPopupMenuEntry.add(jMenuItemPopupEntryPaste);
 
-		jMenuItemPopupBatchAdd.setText("Add new batch");
-		
+        jMenuItemPopupBatchAdd.setText("Add new batch");
 
-		jPopupMenuBatch.add(jMenuItemPopupBatchAdd);
 
-		jMenuItemPopupBatchAddEntry.setText("Add new entry");
+        jPopupMenuBatch.add(jMenuItemPopupBatchAdd);
 
+        jMenuItemPopupBatchAddEntry.setText("Add new entry");
 
-		jPopupMenuBatch.add(jMenuItemPopupBatchAddEntry);
 
-		jMenuItemPopupBatchDeleteBatch.setText("Delete Batch");
+        jPopupMenuBatch.add(jMenuItemPopupBatchAddEntry);
 
-		jPopupMenuBatch.add(jMenuItemPopupBatchDeleteBatch);
+        jMenuItemPopupBatchDeleteBatch.setText("Delete Batch");
 
-		jMenuItemPopupBatchEditBatch.setText("Edit Batch");
+        jPopupMenuBatch.add(jMenuItemPopupBatchDeleteBatch);
 
+        jMenuItemPopupBatchEditBatch.setText("Edit Batch");
 
-		jPopupMenuBatch.add(jMenuItemPopupBatchEditBatch);
 
-		jMenuItemPopupBatchCopy.setText("Copy");
+        jPopupMenuBatch.add(jMenuItemPopupBatchEditBatch);
 
+        jMenuItemPopupBatchCopy.setText("Copy");
 
-		jPopupMenuBatch.add(jMenuItemPopupBatchCopy);
 
-		jMenuItemPopupBatchPaste.setText("Paste");
+        jPopupMenuBatch.add(jMenuItemPopupBatchCopy);
 
-		jPopupMenuBatch.add(jMenuItemPopupBatchPaste);
+        jMenuItemPopupBatchPaste.setText("Paste");
 
-		jMenuItemPopupEntryAddendaAdd.setText("Add Addenda");
+        jPopupMenuBatch.add(jMenuItemPopupBatchPaste);
 
+        jMenuItemPopupEntryAddendaAdd.setText("Add Addenda");
 
-		jPopupMenuAddenda.add(jMenuItemPopupEntryAddendaAdd);
 
-		jMenuItemPopupAddendaDelete.setText("Delete Addenda");
+        jPopupMenuAddenda.add(jMenuItemPopupEntryAddendaAdd);
 
-		jPopupMenuAddenda.add(jMenuItemPopupAddendaDelete);
+        jMenuItemPopupAddendaDelete.setText("Delete Addenda");
 
-		jMenuItemPopupAddendaCopy.setText("Copy");
+        jPopupMenuAddenda.add(jMenuItemPopupAddendaDelete);
 
-		jPopupMenuAddenda.add(jMenuItemPopupAddendaCopy);
+        jMenuItemPopupAddendaCopy.setText("Copy");
 
-		jMenuItemPopupAddendaPaste.setText("Paste");
+        jPopupMenuAddenda.add(jMenuItemPopupAddendaCopy);
 
-		jPopupMenuAddenda.add(jMenuItemPopupAddendaPaste);
+        jMenuItemPopupAddendaPaste.setText("Paste");
 
-		jMenuItemPopupFileAddBatch.setText("Add new batch");
+        jPopupMenuAddenda.add(jMenuItemPopupAddendaPaste);
 
-		jPopupMenuFile.add(jMenuItemPopupFileAddBatch);
+        jMenuItemPopupFileAddBatch.setText("Add new batch");
 
-		jMenuItemPopupFileEdit.setText("Edit File");
+        jPopupMenuFile.add(jMenuItemPopupFileAddBatch);
 
-		jPopupMenuFile.add(jMenuItemPopupFileEdit);
+        jMenuItemPopupFileEdit.setText("Edit File");
 
-		jMenuItemMulitpleDelete.setText("Delete");
+        jPopupMenuFile.add(jMenuItemPopupFileEdit);
 
-		jPopupMenuMultipleSelection.add(jMenuItemMulitpleDelete);
+        jMenuItemMulitpleDelete.setText("Delete");
 
-		jMenuItemPopupMultipleCopy.setText("Copy");
+        jPopupMenuMultipleSelection.add(jMenuItemMulitpleDelete);
 
-		jPopupMenuMultipleSelection.add(jMenuItemPopupMultipleCopy);
+        jMenuItemPopupMultipleCopy.setText("Copy");
 
-		jMenuItemPopupPasteMultiple.setText("Paste");
+        jPopupMenuMultipleSelection.add(jMenuItemPopupMultipleCopy);
 
+        jMenuItemPopupPasteMultiple.setText("Paste");
 
-		jPopupMenuMultipleSelection.add(jMenuItemPopupPasteMultiple);
 
-		setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
-		setTitle("ACH Editor");
-		setName("ACHMainFrame");
-		jPanel1.setBorder(javax.swing.BorderFactory
-				.createTitledBorder("ACH Information"));
-		jLabelAchInfoFileNameText.setText("File Name:");
+        jPopupMenuMultipleSelection.add(jMenuItemPopupPasteMultiple);
 
-		jLabelAchInfoImmDestText.setText("Destination:");
+        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setTitle("ACH Editor");
+        setName("ACHMainFrame");
+        jPanel1.setBorder(javax.swing.BorderFactory
+                .createTitledBorder("ACH Information"));
+        jLabelAchInfoFileNameText.setText("File Name:");
 
-		jLabelAchInfoImmOriginText.setText("Origin:");
+        jLabelAchInfoImmDestText.setText("Destination:");
 
-		jLabelAchInfoFileName.setText("File Name");
+        jLabelAchInfoImmOriginText.setText("Origin:");
 
-		jLabelAchInfoImmDest
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		jLabelAchInfoImmDest.setText("1234567890");
+        jLabelAchInfoFileName.setText("File Name");
 
-		jLabelAchInfoImmOrigin
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		jLabelAchInfoImmOrigin.setText("1234567890");
+        jLabelAchInfoImmDest
+                .setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelAchInfoImmDest.setText("1234567890");
 
-		jLabelAchInfoFileCreation.setText("File Creation");
+        jLabelAchInfoImmOrigin
+                .setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelAchInfoImmOrigin.setText("1234567890");
 
-		jLabelAchInfoFileCreationText.setText("File Creation:");
+        jLabelAchInfoFileCreation.setText("File Creation");
 
-		jLabelAchInfoBatchCountText.setText("Batch Count:");
+        jLabelAchInfoFileCreationText.setText("File Creation:");
 
-		jLabelAchInfoBatchCount
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		jLabelAchInfoBatchCount.setText("12,345");
+        jLabelAchInfoBatchCountText.setText("Batch Count:");
 
-		jLabelAchInfoEntryCountText.setText("Entry Count:");
+        jLabelAchInfoBatchCount
+                .setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelAchInfoBatchCount.setText("12,345");
 
-		jLabelAchInfoEntryCount
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		jLabelAchInfoEntryCount.setText("12,345");
+        jLabelAchInfoEntryCountText.setText("Entry Count:");
 
-		jLabelAchInfoTotalDebitText.setText("Total Debit:");
+        jLabelAchInfoEntryCount
+                .setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelAchInfoEntryCount.setText("12,345");
 
-		jLabelAchInfoTotalCreditText.setText("Total Credit:");
+        jLabelAchInfoTotalDebitText.setText("Total Debit:");
 
-		jLabelAchInfoTotalDebit
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		jLabelAchInfoTotalDebit.setText("123,456,789.00");
+        jLabelAchInfoTotalCreditText.setText("Total Credit:");
 
-		jLabelAchInfoTotalCredit
-				.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-		jLabelAchInfoTotalCredit.setText("123,456,789.00");
-		jLabelAchInfoTotalCredit.setToolTipText(String.valueOf(jLabelAchInfoTotalCredit.getWidth()));
+        jLabelAchInfoTotalDebit
+                .setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelAchInfoTotalDebit.setText("123,456,789.00");
 
-		javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(
-				jPanel1);
-		jPanel1.setLayout(jPanel1Layout);
-		jPanel1Layout
-				.setHorizontalGroup(jPanel1Layout
-						.createParallelGroup(
-								javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(
-								jPanel1Layout
-										.createSequentialGroup()
-										.addContainerGap()
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.LEADING)
-														.addGroup(
-																jPanel1Layout
-																		.createSequentialGroup()
-																		.addGroup(
-																				jPanel1Layout
-																						.createParallelGroup(
-																								javax.swing.GroupLayout.Alignment.TRAILING,
-																								false)
-																						.addComponent(
-																								jLabelAchInfoBatchCountText,
-																								javax.swing.GroupLayout.Alignment.LEADING,
-																								javax.swing.GroupLayout.DEFAULT_SIZE,
-																								javax.swing.GroupLayout.DEFAULT_SIZE,
-																								Short.MAX_VALUE)
-																						.addComponent(
-																								jLabelAchInfoFileCreationText,
-																								javax.swing.GroupLayout.Alignment.LEADING,
-																								javax.swing.GroupLayout.DEFAULT_SIZE,
-																								javax.swing.GroupLayout.DEFAULT_SIZE,
-																								Short.MAX_VALUE)
-																						.addComponent(
-																								jLabelAchInfoFileNameText,
-																								javax.swing.GroupLayout.Alignment.LEADING,
-																								javax.swing.GroupLayout.DEFAULT_SIZE,
-																								90,
-																								Short.MAX_VALUE))
-																		.addPreferredGap(
-																				javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-																		.addGroup(
-																				jPanel1Layout
-																						.createParallelGroup(
-																								javax.swing.GroupLayout.Alignment.LEADING)
-																						.addComponent(
-																								jLabelAchInfoFileName,
-																								javax.swing.GroupLayout.PREFERRED_SIZE,
-																								549,
-																								javax.swing.GroupLayout.PREFERRED_SIZE)
-																						.addComponent(
-																								jLabelAchInfoFileCreation,
-																								javax.swing.GroupLayout.PREFERRED_SIZE,
-																								157,
-																								javax.swing.GroupLayout.PREFERRED_SIZE)
-																						.addGroup(
-																								jPanel1Layout
-																										.createSequentialGroup()
-																										.addComponent(
-																												jLabelAchInfoBatchCount,
-																												javax.swing.GroupLayout.PREFERRED_SIZE,
-																												114,
-																												javax.swing.GroupLayout.PREFERRED_SIZE)
-																										.addGap(
-																												40,
-																												40,
-																												40)
-																										.addGroup(
-																												jPanel1Layout
-																														.createParallelGroup(
-																																javax.swing.GroupLayout.Alignment.TRAILING,
-																																false)
-																														.addComponent(
-																																jLabelAchInfoTotalDebitText,
-																																javax.swing.GroupLayout.Alignment.LEADING,
-																																javax.swing.GroupLayout.DEFAULT_SIZE,
-																																javax.swing.GroupLayout.DEFAULT_SIZE,
-																																Short.MAX_VALUE)
-																														.addComponent(
-																																jLabelAchInfoEntryCountText,
-																																javax.swing.GroupLayout.Alignment.LEADING,
-																																javax.swing.GroupLayout.DEFAULT_SIZE,
-																																78,
-																																Short.MAX_VALUE))
-																										.addPreferredGap(
-																												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-																										.addGroup(
-																												jPanel1Layout
-																														.createParallelGroup(
-																																javax.swing.GroupLayout.Alignment.LEADING)
-																														.addComponent(
-																																jLabelAchInfoTotalDebit,
-																																javax.swing.GroupLayout.PREFERRED_SIZE,
-																																javax.swing.GroupLayout.PREFERRED_SIZE,
-																																javax.swing.GroupLayout.PREFERRED_SIZE)
-																														.addComponent(
-																																jLabelAchInfoEntryCount,
-																																javax.swing.GroupLayout.PREFERRED_SIZE,
-																																javax.swing.GroupLayout.PREFERRED_SIZE,
-																																javax.swing.GroupLayout.PREFERRED_SIZE))))
-																		.addContainerGap())
-														.addGroup(
-																jPanel1Layout
-																		.createSequentialGroup()
-																		.addComponent(
-																				jLabelAchInfoTotalCreditText,
-																				javax.swing.GroupLayout.DEFAULT_SIZE,
-																				90,
-																				Short.MAX_VALUE)
-																		.addPreferredGap(
-																				javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-																		.addComponent(
-																				jLabelAchInfoTotalCredit,
-																				javax.swing.GroupLayout.PREFERRED_SIZE,
-																				javax.swing.GroupLayout.PREFERRED_SIZE,
-																				javax.swing.GroupLayout.PREFERRED_SIZE)
-																		.addGap(
-																				464,
-																				464,
-																				464))
-														.addGroup(
-																javax.swing.GroupLayout.Alignment.TRAILING,
-																jPanel1Layout
-																		.createSequentialGroup()
-																		.addGroup(
-																				jPanel1Layout
-																						.createParallelGroup(
-																								javax.swing.GroupLayout.Alignment.TRAILING)
-																						.addGroup(
-																								javax.swing.GroupLayout.Alignment.LEADING,
-																								jPanel1Layout
-																										.createSequentialGroup()
-																										.addComponent(
-																												jLabelAchInfoImmDestText,
-																												javax.swing.GroupLayout.DEFAULT_SIZE,
-																												90,
-																												Short.MAX_VALUE)
-																										.addPreferredGap(
-																												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-																										.addComponent(
-																												jLabelAchInfoImmDest,
-																												javax.swing.GroupLayout.PREFERRED_SIZE,
-																												343,
-																												javax.swing.GroupLayout.PREFERRED_SIZE))
-																						.addGroup(
-																								jPanel1Layout
-																										.createSequentialGroup()
-																										.addComponent(
-																												jLabelAchInfoImmOriginText,
-																												javax.swing.GroupLayout.DEFAULT_SIZE,
-																												90,
-																												Short.MAX_VALUE)
-																										.addPreferredGap(
-																												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-																										.addComponent(
-																												jLabelAchInfoImmOrigin,
-																												javax.swing.GroupLayout.PREFERRED_SIZE,
-																												343,
-																												javax.swing.GroupLayout.PREFERRED_SIZE)))
-																		.addGap(
-																				216,
-																				216,
-																				216)))));
-		jPanel1Layout
-				.setVerticalGroup(jPanel1Layout
-						.createParallelGroup(
-								javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(
-								jPanel1Layout
-										.createSequentialGroup()
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.BASELINE)
-														.addComponent(
-																jLabelAchInfoFileNameText)
-														.addComponent(
-																jLabelAchInfoFileName))
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.BASELINE)
-														.addComponent(
-																jLabelAchInfoFileCreationText,
-																javax.swing.GroupLayout.PREFERRED_SIZE,
-																13,
-																javax.swing.GroupLayout.PREFERRED_SIZE)
-														.addComponent(
-																jLabelAchInfoFileCreation))
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.BASELINE)
-														.addComponent(
-																jLabelAchInfoBatchCountText)
-														.addComponent(
-																jLabelAchInfoBatchCount)
-														.addComponent(
-																jLabelAchInfoEntryCountText)
-														.addComponent(
-																jLabelAchInfoEntryCount))
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.BASELINE)
-														.addComponent(
-																jLabelAchInfoTotalCreditText)
-														.addComponent(
-																jLabelAchInfoTotalCredit)
-														.addComponent(
-																jLabelAchInfoTotalDebitText)
-														.addComponent(
-																jLabelAchInfoTotalDebit))
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.BASELINE)
-														.addComponent(
-																jLabelAchInfoImmDestText)
-														.addComponent(
-																jLabelAchInfoImmDest))
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addGroup(
-												jPanel1Layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.BASELINE)
-														.addComponent(
-																jLabelAchInfoImmOriginText)
-														.addComponent(
-																jLabelAchInfoImmOrigin))
-										.addContainerGap(
-												javax.swing.GroupLayout.DEFAULT_SIZE,
-												Short.MAX_VALUE)));
-
-		jScrollPane1.setBorder(javax.swing.BorderFactory
-				.createTitledBorder("ACH Data"));
-		jListAchDataAchRecords.setFont(new java.awt.Font("Courier New", 0, 12));
-
-
-		jScrollPane1.setViewportView(jListAchDataAchRecords);
-
-		jLabel1.setFont(new java.awt.Font("Courier New", 0, 12));
-		jLabel1
-				.setText("         1         2         3         4         5         6         7         8         9 ");
-
-		jLabel2.setFont(new java.awt.Font("Courier New", 0, 12));
-		jLabel2
-				.setText("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234");
-
-		jMenuFile.setText("File");
-		jMenuItemFileNew.setText("New");
-		jMenuItemFileNew.setToolTipText("Create new ACH data");
-	
-
-		jMenuFile.add(jMenuItemFileNew);
-
-		jMenuItemFileOpen.setText("Open...");
-		jMenuItemFileOpen.setToolTipText("Open new file");
-
-		jMenuFile.add(jMenuItemFileOpen);
-
-		jCheckBoxMenuFedFile.setText("Output as Fed File");
-		jMenuFile.add(jCheckBoxMenuFedFile);
-
-		jMenuItemFileSave.setText("Save");
-		jMenuItemFileSave
-				.setToolTipText("Saves existing data overwriting current file");
-
-		jMenuFile.add(jMenuItemFileSave);
-
-		jMenuItemFileSaveAs.setText("Save As...");
-		jMenuItemFileSaveAs.setToolTipText("Save into new file");
-
-		jMenuFile.add(jMenuItemFileSaveAs);
-
-		jMenuFile.add(jSeparatorMenuFile);
-
-		jMenuItemFileExit.setText("Exit");
-		jMenuItemFileExit.setToolTipText("Exit program");
-		
-
-		jMenuFile.add(jMenuItemFileExit);
-
-		jMenuBar.add(jMenuFile);
-
-		jMenuTools.setText("Tools");
-		jMenuTools.setToolTipText("");
-
-		jMenuItemToolsSearch.setText("Search");
-		jMenuItemToolsSearch
-				.setToolTipText("Search file for string");
-		jMenuTools.add(jMenuItemToolsSearch);
-
-		jMenuItemToolsValidate.setText("Validate");
-		jMenuItemToolsValidate
-				.setToolTipText("Check the validity of the ACH file");
-		jMenuTools.add(jMenuItemToolsValidate);
-
-		jMenuItemToolsRecalculate.setText("Recalculate");
-		jMenuItemToolsRecalculate
-				.setToolTipText("Recalculate the file and batch control totals");
-		jMenuTools.add(jMenuItemToolsRecalculate);
-
-		jMenuItemToolsReverse.setText("Reverse");
-		jMenuItemToolsReverse
-				.setToolTipText("Reverse this ACH file and recalculate totals");
-		jMenuTools.add(jMenuItemToolsReverse);
-
-		jMenuBar.add(jMenuTools);
-
-		setJMenuBar(jMenuBar);
-
-		javax.swing.GroupLayout layout = new javax.swing.GroupLayout(
-				getContentPane());
-		getContentPane().setLayout(layout);
-		layout
-				.setHorizontalGroup(layout
-						.createParallelGroup(
-								javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(
-								layout
-										.createSequentialGroup()
-										.addContainerGap()
-										.addGroup(
-												layout
-														.createParallelGroup(
-																javax.swing.GroupLayout.Alignment.LEADING)
-														.addComponent(
-																jScrollPane1,
-																javax.swing.GroupLayout.DEFAULT_SIZE,
-																696,
-																Short.MAX_VALUE)
-														.addGroup(
-																layout
-																		.createSequentialGroup()
-																		.addComponent(
-																				jLabel1,
-																				javax.swing.GroupLayout.DEFAULT_SIZE,
-																				686,
-																				Short.MAX_VALUE)
-																		.addContainerGap())
-														.addGroup(
-																layout
-																		.createSequentialGroup()
-																		.addComponent(
-																				jLabel2,
-																				javax.swing.GroupLayout.PREFERRED_SIZE,
-																				667,
-																				javax.swing.GroupLayout.PREFERRED_SIZE)
-																		.addGap(
-																				29,
-																				29,
-																				29))
-														.addGroup(
-																layout
-																		.createSequentialGroup()
-																		.addComponent(
-																				jPanel1,
-																				javax.swing.GroupLayout.PREFERRED_SIZE,
-																				javax.swing.GroupLayout.DEFAULT_SIZE,
-																				javax.swing.GroupLayout.PREFERRED_SIZE)
-																		.addContainerGap()))));
-		layout
-				.setVerticalGroup(layout
-						.createParallelGroup(
-								javax.swing.GroupLayout.Alignment.LEADING)
-						.addGroup(
-								layout
-										.createSequentialGroup()
-										.addComponent(
-												jPanel1,
-												javax.swing.GroupLayout.PREFERRED_SIZE,
-												javax.swing.GroupLayout.DEFAULT_SIZE,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(
-												jLabel1,
-												javax.swing.GroupLayout.PREFERRED_SIZE,
-												14,
-												javax.swing.GroupLayout.PREFERRED_SIZE)
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(jLabel2)
-										.addPreferredGap(
-												javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-										.addComponent(
-												jScrollPane1,
-												javax.swing.GroupLayout.DEFAULT_SIZE,
-												348, Short.MAX_VALUE)));
-		pack();
-	}// </editor-fold>//GEN-END:initComponents
+        jLabelAchInfoTotalCredit
+                .setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
+        jLabelAchInfoTotalCredit.setText("123,456,789.00");
+        jLabelAchInfoTotalCredit.setToolTipText(String.valueOf(jLabelAchInfoTotalCredit.getWidth()));
+
+        javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(
+                jPanel1);
+        jPanel1.setLayout(jPanel1Layout);
+        jPanel1Layout
+                .setHorizontalGroup(jPanel1Layout
+                        .createParallelGroup(
+                                javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(
+                                jPanel1Layout
+                                        .createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addGroup(
+                                                                jPanel1Layout
+                                                                        .createSequentialGroup()
+                                                                        .addGroup(
+                                                                                jPanel1Layout
+                                                                                        .createParallelGroup(
+                                                                                                javax.swing.GroupLayout.Alignment.TRAILING,
+                                                                                                false)
+                                                                                        .addComponent(
+                                                                                                jLabelAchInfoBatchCountText,
+                                                                                                javax.swing.GroupLayout.Alignment.LEADING,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE)
+                                                                                        .addComponent(
+                                                                                                jLabelAchInfoFileCreationText,
+                                                                                                javax.swing.GroupLayout.Alignment.LEADING,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                Short.MAX_VALUE)
+                                                                                        .addComponent(
+                                                                                                jLabelAchInfoFileNameText,
+                                                                                                javax.swing.GroupLayout.Alignment.LEADING,
+                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                90,
+                                                                                                Short.MAX_VALUE))
+                                                                        .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                        .addGroup(
+                                                                                jPanel1Layout
+                                                                                        .createParallelGroup(
+                                                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                        .addComponent(
+                                                                                                jLabelAchInfoFileName,
+                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                549,
+                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                        .addComponent(
+                                                                                                jLabelAchInfoFileCreation,
+                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                157,
+                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                        .addGroup(
+                                                                                                jPanel1Layout
+                                                                                                        .createSequentialGroup()
+                                                                                                        .addComponent(
+                                                                                                                jLabelAchInfoBatchCount,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                114,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                        .addGap(
+                                                                                                                40,
+                                                                                                                40,
+                                                                                                                40)
+                                                                                                        .addGroup(
+                                                                                                                jPanel1Layout
+                                                                                                                        .createParallelGroup(
+                                                                                                                                javax.swing.GroupLayout.Alignment.TRAILING,
+                                                                                                                                false)
+                                                                                                                        .addComponent(
+                                                                                                                                jLabelAchInfoTotalDebitText,
+                                                                                                                                javax.swing.GroupLayout.Alignment.LEADING,
+                                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                                Short.MAX_VALUE)
+                                                                                                                        .addComponent(
+                                                                                                                                jLabelAchInfoEntryCountText,
+                                                                                                                                javax.swing.GroupLayout.Alignment.LEADING,
+                                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                                78,
+                                                                                                                                Short.MAX_VALUE))
+                                                                                                        .addPreferredGap(
+                                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                                        .addGroup(
+                                                                                                                jPanel1Layout
+                                                                                                                        .createParallelGroup(
+                                                                                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                                                                                        .addComponent(
+                                                                                                                                jLabelAchInfoTotalDebit,
+                                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                                                                        .addComponent(
+                                                                                                                                jLabelAchInfoEntryCount,
+                                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE))))
+                                                                        .addContainerGap())
+                                                        .addGroup(
+                                                                jPanel1Layout
+                                                                        .createSequentialGroup()
+                                                                        .addComponent(
+                                                                                jLabelAchInfoTotalCreditText,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                90,
+                                                                                Short.MAX_VALUE)
+                                                                        .addPreferredGap(
+                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                        .addComponent(
+                                                                                jLabelAchInfoTotalCredit,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                        .addGap(
+                                                                                464,
+                                                                                464,
+                                                                                464))
+                                                        .addGroup(
+                                                                javax.swing.GroupLayout.Alignment.TRAILING,
+                                                                jPanel1Layout
+                                                                        .createSequentialGroup()
+                                                                        .addGroup(
+                                                                                jPanel1Layout
+                                                                                        .createParallelGroup(
+                                                                                                javax.swing.GroupLayout.Alignment.TRAILING)
+                                                                                        .addGroup(
+                                                                                                javax.swing.GroupLayout.Alignment.LEADING,
+                                                                                                jPanel1Layout
+                                                                                                        .createSequentialGroup()
+                                                                                                        .addComponent(
+                                                                                                                jLabelAchInfoImmDestText,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                90,
+                                                                                                                Short.MAX_VALUE)
+                                                                                                        .addPreferredGap(
+                                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                                        .addComponent(
+                                                                                                                jLabelAchInfoImmDest,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                343,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE))
+                                                                                        .addGroup(
+                                                                                                jPanel1Layout
+                                                                                                        .createSequentialGroup()
+                                                                                                        .addComponent(
+                                                                                                                jLabelAchInfoImmOriginText,
+                                                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                                                90,
+                                                                                                                Short.MAX_VALUE)
+                                                                                                        .addPreferredGap(
+                                                                                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                                                                                        .addComponent(
+                                                                                                                jLabelAchInfoImmOrigin,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                                                343,
+                                                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)))
+                                                                        .addGap(
+                                                                                216,
+                                                                                216,
+                                                                                216)))));
+        jPanel1Layout
+                .setVerticalGroup(jPanel1Layout
+                        .createParallelGroup(
+                                javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(
+                                jPanel1Layout
+                                        .createSequentialGroup()
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(
+                                                                jLabelAchInfoFileNameText)
+                                                        .addComponent(
+                                                                jLabelAchInfoFileName))
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(
+                                                                jLabelAchInfoFileCreationText,
+                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                13,
+                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                        .addComponent(
+                                                                jLabelAchInfoFileCreation))
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(
+                                                                jLabelAchInfoBatchCountText)
+                                                        .addComponent(
+                                                                jLabelAchInfoBatchCount)
+                                                        .addComponent(
+                                                                jLabelAchInfoEntryCountText)
+                                                        .addComponent(
+                                                                jLabelAchInfoEntryCount))
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(
+                                                                jLabelAchInfoTotalCreditText)
+                                                        .addComponent(
+                                                                jLabelAchInfoTotalCredit)
+                                                        .addComponent(
+                                                                jLabelAchInfoTotalDebitText)
+                                                        .addComponent(
+                                                                jLabelAchInfoTotalDebit))
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(
+                                                                jLabelAchInfoImmDestText)
+                                                        .addComponent(
+                                                                jLabelAchInfoImmDest))
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addGroup(
+                                                jPanel1Layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.BASELINE)
+                                                        .addComponent(
+                                                                jLabelAchInfoImmOriginText)
+                                                        .addComponent(
+                                                                jLabelAchInfoImmOrigin))
+                                        .addContainerGap(
+                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                Short.MAX_VALUE)));
+
+        jScrollPane1.setBorder(javax.swing.BorderFactory
+                .createTitledBorder("ACH Data"));
+        jListAchDataAchRecords.setFont(new java.awt.Font("Courier New", 0, 12));
+
+
+        jScrollPane1.setViewportView(jListAchDataAchRecords);
+
+        jLabel1.setFont(new java.awt.Font("Courier New", 0, 12));
+        jLabel1
+                .setText("         1         2         3         4         5         6         7         8         9 ");
+
+        jLabel2.setFont(new java.awt.Font("Courier New", 0, 12));
+        jLabel2
+                .setText("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234");
+
+        jMenuFile.setText("File");
+        jMenuItemFileNew.setText("New");
+        jMenuItemFileNew.setToolTipText("Create new ACH data");
+
+
+        jMenuFile.add(jMenuItemFileNew);
+
+        jMenuItemFileOpen.setText("Open...");
+        jMenuItemFileOpen.setToolTipText("Open new file");
+
+        jMenuFile.add(jMenuItemFileOpen);
+
+        jCheckBoxMenuFedFile.setText("Output as Fed File");
+        jMenuFile.add(jCheckBoxMenuFedFile);
+
+        jMenuItemFileSave.setText("Save");
+        jMenuItemFileSave
+                .setToolTipText("Saves existing data overwriting current file");
+
+        jMenuFile.add(jMenuItemFileSave);
+
+        jMenuItemFileSaveAs.setText("Save As...");
+        jMenuItemFileSaveAs.setToolTipText("Save into new file");
+
+        jMenuFile.add(jMenuItemFileSaveAs);
+
+        jMenuFile.add(jSeparatorMenuFile);
+
+        jMenuItemFileExit.setText("Exit");
+        jMenuItemFileExit.setToolTipText("Exit program");
+
+
+        jMenuFile.add(jMenuItemFileExit);
+
+        jMenuBar.add(jMenuFile);
+
+        jMenuTools.setText("Tools");
+        jMenuTools.setToolTipText("");
+
+        jMenuItemToolsSearch.setText("Search");
+        jMenuItemToolsSearch
+                .setToolTipText("Search file for string");
+        jMenuTools.add(jMenuItemToolsSearch);
+
+        jMenuItemToolsValidate.setText("Validate");
+        jMenuItemToolsValidate
+                .setToolTipText("Check the validity of the ACH file");
+        jMenuTools.add(jMenuItemToolsValidate);
+
+        jMenuItemToolsRecalculate.setText("Recalculate");
+        jMenuItemToolsRecalculate
+                .setToolTipText("Recalculate the file and batch control totals");
+        jMenuTools.add(jMenuItemToolsRecalculate);
+
+        jMenuItemToolsReverse.setText("Reverse");
+        jMenuItemToolsReverse
+                .setToolTipText("Reverse this ACH file and recalculate totals");
+        jMenuTools.add(jMenuItemToolsReverse);
+
+        jMenuBar.add(jMenuTools);
+
+        setJMenuBar(jMenuBar);
+
+        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(
+                getContentPane());
+        getContentPane().setLayout(layout);
+        layout
+                .setHorizontalGroup(layout
+                        .createParallelGroup(
+                                javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(
+                                layout
+                                        .createSequentialGroup()
+                                        .addContainerGap()
+                                        .addGroup(
+                                                layout
+                                                        .createParallelGroup(
+                                                                javax.swing.GroupLayout.Alignment.LEADING)
+                                                        .addComponent(
+                                                                jScrollPane1,
+                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                696,
+                                                                Short.MAX_VALUE)
+                                                        .addGroup(
+                                                                layout
+                                                                        .createSequentialGroup()
+                                                                        .addComponent(
+                                                                                jLabel1,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                686,
+                                                                                Short.MAX_VALUE)
+                                                                        .addContainerGap())
+                                                        .addGroup(
+                                                                layout
+                                                                        .createSequentialGroup()
+                                                                        .addComponent(
+                                                                                jLabel2,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                667,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                        .addGap(
+                                                                                29,
+                                                                                29,
+                                                                                29))
+                                                        .addGroup(
+                                                                layout
+                                                                        .createSequentialGroup()
+                                                                        .addComponent(
+                                                                                jPanel1,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                                                        .addContainerGap()))));
+        layout
+                .setVerticalGroup(layout
+                        .createParallelGroup(
+                                javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(
+                                layout
+                                        .createSequentialGroup()
+                                        .addComponent(
+                                                jPanel1,
+                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(
+                                                jLabel1,
+                                                javax.swing.GroupLayout.PREFERRED_SIZE,
+                                                14,
+                                                javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(jLabel2)
+                                        .addPreferredGap(
+                                                javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                                        .addComponent(
+                                                jScrollPane1,
+                                                javax.swing.GroupLayout.DEFAULT_SIZE,
+                                                348, Short.MAX_VALUE)));
+        pack();
+    }// </editor-fold>//GEN-END:initComponents
 
     public void loadAchDataRecords() {
-		this.positions = model.getAchRecords();
-		for (RecordAndPositions item: positions) {
-		    addJListAchDataAchRecordsItem(item.getAchRecord());
-		}
-		jMenuItemToolsRecalculate.setEnabled(true);
-		jMenuItemToolsSearch.setEnabled(true);
-		jMenuItemToolsValidate.setEnabled(true);
-	}
+        this.positions = model.getAchRecords();
+        for (RecordAndPositions item: positions) {
+            addJListAchDataAchRecordsItem(item.getAchRecord());
+        }
+        jMenuItemToolsRecalculate.setEnabled(true);
+        jMenuItemToolsSearch.setEnabled(true);
+        jMenuItemToolsValidate.setEnabled(true);
+    }
 
-	private void loadAchInformation() {
-	    final ACHDocument achFile = model.getAchFile();
-		jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
-				.getFileCreationDate()
-				+ " " + achFile.getFileHeader().getFileCreationTime());
-		jLabelAchInfoBatchCount.setText(achFile.getFileControl()
-				.getBatchCount());
-		jLabelAchInfoEntryCount.setText(achFile.getFileControl()
-				.getEntryAddendaCount());
-		jLabelAchInfoTotalDebit.setText(achFile.getFileControl()
-				.getTotDebitDollarAmt());
-		jLabelAchInfoTotalCredit.setText(achFile.getFileControl()
-				.getTotCreditDollarAmt());
-		jLabelAchInfoImmDest.setText(achFile.getFileHeader()
-				.getImmediateDestination()
-				+ " " + achFile.getFileHeader().getImmediateDestinationName());
-		jLabelAchInfoImmOrigin.setText(achFile.getFileHeader()
-				.getImmediateOrigin()
-				+ " " + achFile.getFileHeader().getImmediateOriginName());
-		jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
+    private void loadAchInformation() {
+        final ACHDocument achFile = model.getAchFile();
+        jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
+                .getFileCreationDate()
+                + " " + achFile.getFileHeader().getFileCreationTime());
+        jLabelAchInfoBatchCount.setText(achFile.getFileControl()
+                .getBatchCount());
+        jLabelAchInfoEntryCount.setText(achFile.getFileControl()
+                .getEntryAddendaCount());
+        jLabelAchInfoTotalDebit.setText(achFile.getFileControl()
+                .getTotDebitDollarAmt());
+        jLabelAchInfoTotalCredit.setText(achFile.getFileControl()
+                .getTotCreditDollarAmt());
+        jLabelAchInfoImmDest.setText(achFile.getFileHeader()
+                .getImmediateDestination()
+                + " " + achFile.getFileHeader().getImmediateDestinationName());
+        jLabelAchInfoImmOrigin.setText(achFile.getFileHeader()
+                .getImmediateOrigin()
+                + " " + achFile.getFileHeader().getImmediateOriginName());
+        jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
 
-	}
+    }
 
     /* (non-Javadoc)
      * @see com.ach.editor.model.ModelListener#onSetAchFile()
@@ -986,14 +989,15 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     @Override
     public void onSetSelectedRow() {
+        LOG.debug("onSetSelectedRow");
         int index = model.getSelectedRow();
         jListAchDataAchRecords.setSelectedIndex(index);
         jListAchDataAchRecords.ensureIndexIsVisible(index);
     }
 
     public void putRow(int selectRow, final ACHRecord achRecord) {
-	    ((DefaultListModel) jListAchDataAchRecords.getModel()).setElementAt(achRecord, selectRow);
-	}
+        ((DefaultListModel) jListAchDataAchRecords.getModel()).setElementAt(achRecord, selectRow);
+    }
     
     public void registerListener(ACHEditorViewListener viewListener) {
         jMenuItemFileOpen.addActionListener(new java.awt.event.ActionListener() {
@@ -1144,11 +1148,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             }
         });
         jMenuItemToolsSearch.addActionListener(evt -> {
-        	String text = JOptionPane.showInputDialog("search for");
-        	if (text!=null) {
-        		viewListener.onSearch(text);
-			}
-		});
+            String text = JOptionPane.showInputDialog("search for");
+            if (text!=null) {
+                viewListener.onSearch(text);
+            }
+        });
         jMenuItemToolsReverse.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 viewListener.onItemToolsReverse();
@@ -1170,9 +1174,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         });
         addWindowListener(new WindowListener() {
             public void windowActivated(WindowEvent evt) {
+                loadAchDataRecords();
             }
 
             public void windowClosed(WindowEvent evt) {
+                LOG.debug("window closed");
             }
 
             public void windowClosing(WindowEvent evt) {
@@ -1180,15 +1186,19 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             }
 
             public void windowDeactivated(WindowEvent evt) {
+                LOG.debug("window deactivated");
             }
 
             public void windowDeiconified(WindowEvent evt) {
+                LOG.debug("window deiconified");
             }
 
             public void windowIconified(WindowEvent evt) {
+                LOG.debug("window iconified");
             }
 
             public void windowOpened(WindowEvent evt) {
+                LOG.debug("window opened");
             }
         });
     }

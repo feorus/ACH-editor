@@ -44,8 +44,8 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     /**
      * @param model
-     * @param ioWorld 
-     * @param viewer
+     * @param view
+     * @param ioWorld
      */
     public ACHEditorController(ACHEditorModel model, ACHEditorView view, IOWorld ioWorld) {
         this.model = model;
@@ -249,7 +249,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     /**
-     * @param itemAtMouse
+     * @param selectRow
      */
     private void deleteAchRecord(int selectRow) {
         int[] selected = view.getSelectedRows();
@@ -652,12 +652,15 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onSearch(String text) {
-        System.out.format("onSearch:%s\n", text);
         List<RecordAndPositions> recs = model.getAchRecords();
-        for (int i = 0; i < recs.size(); i++) {
+        int startFrom = model.getSelectedRow();
+        LOG.debug("startFrom:{}\n", startFrom);
+        for (int i = startFrom; i < recs.size(); i++) {
             RecordAndPositions rec = recs.get(i);
+            LOG.debug("rec:{}\n", rec.getAchRecord().toString());
             if(rec.getAchRecord().toString().contains(text)) {
                 model.setSelectedRow(i);
+                return;
             }
         }
     }
@@ -781,6 +784,8 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onListClick(int itemAtMouse, int clickCount, int button) {// GEN-FIRST:event_jListAchDataAchRecordsMouseClicked
+        LOG.debug("onListClick:{}, {}, {}", itemAtMouse, clickCount, button);
+        model.setSelectedRow(itemAtMouse);
         int[] selected = view.getSelectedRows();
         boolean found = false;
         for (int i = 0; i < selected.length && (!found); i++) {

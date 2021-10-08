@@ -4,18 +4,15 @@
 package com.ach.editor.model;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Vector;
+import java.util.*;
 
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHRecordAddenda;
 import com.ach.editor.view.RecordAndPositions;
 import org.slf4j.Logger;
-
 import com.ach.domain.ACHDocument;
-
+import com.google.common.collect.ImmutableList;
 /**
  * @author ilyakharlamov
  *
@@ -33,14 +30,19 @@ public class ACHEditorModel {
 
     private List<ModelListener> subscribers;
 
+    private Optional<String> currentSearchText;
+
     public ACHEditorModel() {
         super();
         this.subscribers = new ArrayList<>();
     }
 
-    public List<RecordAndPositions> getAchRecords() {
-        List<RecordAndPositions> items = new ArrayList<>();
-
+    public ImmutableList<RecordAndPositions> getAchRecords() {
+        if (achFile == null) {
+            LOG.info("no ach records");
+            return ImmutableList.of();
+        }
+        ImmutableList.Builder<RecordAndPositions> items = ImmutableList.<RecordAndPositions>builder();
         items.add(new RecordAndPositions(achFile.getFileHeader(), new Integer[0]));
 
         Vector<ACHBatch> achBatches = achFile.getBatches();
@@ -58,7 +60,7 @@ public class ACHEditorModel {
             items.add(new RecordAndPositions(achBatches.get(i).getBatchControl(),new Integer[] { i }));
         }
         items.add(new RecordAndPositions(achFile.getFileControl(),new Integer[0]));
-        return items;
+        return items.build();
     }
 
     public void addSubscriber(ModelListener subscriber) {

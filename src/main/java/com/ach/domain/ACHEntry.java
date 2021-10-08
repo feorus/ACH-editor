@@ -5,7 +5,7 @@ import java.util.Vector;
 public class ACHEntry {
 	ACHRecordEntryDetail entryDetail = null;
 
-	Vector<ACHRecordAddenda> addendaRecs = new Vector<ACHRecordAddenda>(10, 10);
+	Vector<ACHRecordAddenda> addendaRecs;
 
 	public ACHEntry() {
 		setEntryDetail(new ACHRecordEntryDetail());
