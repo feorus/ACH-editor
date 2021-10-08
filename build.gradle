@@ -1,7 +1,9 @@
+plugins {
+    id "java"
+    id "maven-publish"
+}
 group 'com.ach.achViewer'
 version '0.0.0' //the release will be renamed before deploy, see .travis.yml/before_deploy
-
-apply plugin: 'java'
 
 repositories {
     mavenCentral()
