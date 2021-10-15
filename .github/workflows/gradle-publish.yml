@@ -31,7 +31,7 @@ jobs:
     - name: list what we have
       run: find .
     - name: make sure zip is in dist
-      run: ls build/distributions/*.zip
+      run: ls build/libs/*.jar
     - name: Upload built jar
       uses: actions/upload-artifact@v2
       with:
