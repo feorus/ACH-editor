@@ -28,10 +28,29 @@ jobs:
     - name: Build with Gradle
       run: gradle build
 
-    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
-    - name: Publish to GitHub Packages
-      run: gradle publish
+    - name: list what we have
+      run: find .
+    - name: make sure zip is in dist
+      run: ls build/distributions/*.zip
+    - name: Upload built jar
+      uses: actions/upload-artifact@v2
+      with:
+        name: jar
+        path: build/libs/acheditor-*.jar
+
+  release:
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'release' }}
+    needs: build
+
+    steps:
+    - name: Download built jar
+      uses: actions/download-artifact@v2
+      with:
+        name: jar
+    - name: Upload extension to release
+      uses: skx/github-action-publish-binaries@master
       env:
-        USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        args: '*.jar'
