@@ -26,8 +26,7 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Gradle
-      run: gradle build
-
+      run: gradle shadowJar
     - name: list what we have
       run: find .
     - name: make sure zip is in dist
@@ -35,13 +34,13 @@ jobs:
     - name: Get the version
       id: get_version
       run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\//}
-    - name: Rename to release
-      run: mv build/libs/acheditor-0.0.0.jar build/libs/acheditor-${{ steps.get_version.outputs.VERSION }}.jar
+    - name: Rename to release fat jar
+      run: mv build/libs/acheditor-0.0.0-all.jar build/libs/acheditor-${{ steps.get_version.outputs.VERSION }}-all.jar
     - name: Upload built jar
       uses: actions/upload-artifact@v2
       with:
         name: jar
-        path: build/libs/acheditor-*.jar
+        path: build/libs/acheditor-*-all.jar
 
   release:
     runs-on: ubuntu-latest

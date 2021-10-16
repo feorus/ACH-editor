@@ -1,6 +1,7 @@
 plugins {
     id "java"
     id "maven-publish"
+    id 'com.github.johnrengelman.shadow' version '7.0.0'
 }
 group 'com.ach.achViewer'
 version '0.0.0' //the release will be renamed before deploy, see .travis.yml/before_deploy
@@ -23,3 +24,10 @@ jar {
         attributes 'Main-Class': 'com.ach.achViewer.Main'
     }
 }
+
+shadowJar {
+    manifest {
+        attributes 'Main-Class': 'com.ach.achViewer.Main'
+    }
+}
+
