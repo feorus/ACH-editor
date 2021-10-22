@@ -180,7 +180,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         initComponents();
 
         jListAchRecords.setModel(new AchRecordsModel(this.model));
-//        jListAchRecords.setSelectionModel(new AchRecordsSelectionModel(this.model));
+        jListAchRecords.setSelectionModel(new AchRecordsSelectionModel(this.model));
 
         jMenuItemToolsRecalculate.setEnabled(false);
         jMenuItemToolsSearch.setEnabled(false);
@@ -974,11 +974,11 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     @Override
     public void onSetSelectedRow() {
-        //int index = model.getSelectedRows();
-        LOG.debug("view listener at onSetSelectedRow (does nothing)");
-        //jListAchDataAchRecords.setSelectedIndex(index);
-        //jListAchDataAchRecords.ensureIndexIsVisible(index);
-        //jListAchDataAchRecords.setSelectionBackground(Color.ORANGE);
+        LOG.debug("view listener at onSetSelectedRow");
+        for (int i: model.getSelectedRows()) {
+            jListAchRecords.setSelectedIndex(i);
+            jListAchRecords.ensureIndexIsVisible(i);
+        }
     }
 
     public void putRow(int selectRow, final ACHRecord achRecord) {
