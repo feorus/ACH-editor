@@ -5,7 +5,6 @@ package com.ach.editor.controller;
 
 import java.awt.event.MouseEvent;
 import java.io.File;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -14,7 +13,6 @@ import javax.swing.JPopupMenu;
 
 import com.ach.achViewer.IOWorld;
 import com.ach.editor.view.*;
-import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -59,7 +57,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void addAchAddenda() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         if (model.getSelectedRows().length == 0) {
             view.showError("Cannot perform request", "No items selected ... cannot add addenda");
             return;
@@ -110,7 +108,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void addAchBatch() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot add entry detail");
@@ -150,7 +148,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void addAchEntryDetail() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot add entry detail");
@@ -190,7 +188,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     public void deleteAchAddenda() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete entry detail");
@@ -319,79 +317,76 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     public void editAchAddenda(int batchPosition, int entryPosition, int addendaPosition, int selectRow) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         ACHAddendaDialog dialog = new ACHAddendaDialog(new javax.swing.JFrame(), true, achFile.getBatches()
                 .get(batchPosition).getEntryRecs().get(entryPosition).getAddendaRecs().get(addendaPosition));
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHAddendaDialog.SAVE_BUTTON) {
             achFile.getBatches().get(batchPosition).getEntryRecs().get(entryPosition).getAddendaRecs()
                     .set(addendaPosition, dialog.getAchRecord());
-            view.putRow(selectRow, dialog.getAchRecord());
+            model.setAddenda(batchPosition, entryPosition, addendaPosition, dialog.getAchRecord());
             model.setAchFileDirty(true);
         }
     }
 
     public void editAchBatchControl(int position, int selectRow) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         ACHBatchControlDialog dialog = new ACHBatchControlDialog(new javax.swing.JFrame(), true,
                 achFile.getBatches().get(position).getBatchControl());
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHBatchControlDialog.SAVE_BUTTON) {
             achFile.getBatches().get(position).setBatchControl(dialog.getAchRecord());
-            view.putRow(selectRow, dialog.getAchRecord());
+            model.setBatchControl(position, dialog.getAchRecord());
             model.setAchFileDirty(true);
         }
     }
 
     public void editAchBatchHeader(int position, int selectRow) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
 
         final ACHRecordBatchHeader batchHeader = achFile.getBatches().get(position).getBatchHeader();
         ACHBatchHeaderDialog dialog = new ACHBatchHeaderDialog(new javax.swing.JFrame(), true, batchHeader);
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHBatchHeaderDialog.SAVE_BUTTON) {
             achFile.getBatches().get(position).setBatchHeader(dialog.getAchRecord());
-            view.putRow(selectRow, dialog.getAchRecord());
+            model.setBatchHeader(position, dialog.getAchRecord());
             model.setAchFileDirty(true);
         }
 
     }
 
     public void editAchEntryDetail(int batchPosition, int entryPosition, int selectRow) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         ACHEntryDetailDialog dialog = new ACHEntryDetailDialog(new javax.swing.JFrame(), true,
                 achFile.getBatches().get(batchPosition).getEntryRecs().get(entryPosition).getEntryDetail());
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHEntryDetailDialog.SAVE_BUTTON) {
             achFile.getBatches().get(batchPosition).getEntryRecs().get(entryPosition)
                     .setEntryDetail(dialog.getAchRecord());
-            view.putRow(selectRow, dialog.getAchRecord());
+            model.setEntryDetail(batchPosition, entryPosition, dialog.getAchRecord());
             model.setAchFileDirty(true);
         }
     }
 
     public void editAchFileControl(int idx) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
 
         ACHFileControlDialog dialog = new ACHFileControlDialog(view, achFile.getFileControl());
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHFileControlDialog.SAVE_BUTTON) {
             final ACHRecordFileControl achRecord = dialog.getAchRecord();
-            achFile.setFileControl(achRecord);
-            view.putRow(idx, achRecord);
+            model.setFileControl(achRecord);
             model.setAchFileDirty(true);
-            model.setAchDocument(achFile);
         }
     }
 
     public void editAchFileHeader(int selectRow) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         ACHFileHeaderDialog dialog = new ACHFileHeaderDialog(new javax.swing.JFrame(), true, achFile.getFileHeader());
         dialog.setVisible(true);
         if (dialog.getButtonSelected() == ACHFileHeaderDialog.SAVE_BUTTON) {
             achFile.setFileHeader(dialog.getAchRecord());
-            view.putRow(selectRow, dialog.getAchRecord());
-            model.setAchFileDirty(true);
+            model.setFileHeader(dialog.getAchRecord());
         }
         model.setAchDocument(achFile);
     }
@@ -428,7 +423,7 @@ public class ACHEditorController implements ACHEditorViewListener {
         } finally {
             view.setCursorDefault();
         }
-        Vector<String> errorMessages = model.getAchFile().getErrorMessages();
+        Vector<String> errorMessages = model.getAchDocument().getErrorMessages();
         if (errorMessages.size() == 0) {
             view.showMessage("File loaded without error");
         } else {
@@ -441,7 +436,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onDeleteAchBatch() {
-        final ACHDocument achDoc = model.getAchFile();
+        final ACHDocument achDoc = model.getAchDocument();
         int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete");
@@ -473,7 +468,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     public void onDeleteAchBatch(ACHEditorController achEditorController) {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete");
@@ -507,7 +502,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onDeleteAchEntryDetail() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete entry detail");
@@ -639,7 +634,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onIsFedFile() {
-        ACHDocument achDocument = model.getAchFile();
+        ACHDocument achDocument = model.getAchDocument();
         achDocument.setFedFile(!achDocument.isFedFile());
         model.setAchFileDirty(true);
         model.setAchDocument(achDocument);
@@ -743,7 +738,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemToolsRecalculate() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
 
         view.setCursorWait();
         if (!achFile.recalculate()) {
@@ -758,7 +753,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemToolsReverse() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         achFile.reverse();
         view.clearJListAchDataAchRecords();
         model.setAchDocument(achFile);
@@ -768,7 +763,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemToolsValidate() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         view.setCursorWait();
         Vector<String> messages = achFile.validate();
         if (messages.size() > 0) {
@@ -823,7 +818,7 @@ public class ACHEditorController implements ACHEditorViewListener {
      * @return
      */
     private void fileSave() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         ioWorld.save(model.getOutputFile(), achFile);
     }
 

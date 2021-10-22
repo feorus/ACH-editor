@@ -191,8 +191,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         clearAchInfo();
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-
-
     }
 
     public int askDeleteCancel(final String title, final String message) {
@@ -921,7 +919,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     }
 
     private void loadAchInformation() {
-        final ACHDocument achFile = model.getAchFile();
+        final ACHDocument achFile = model.getAchDocument();
         jLabelAchInfoFileCreation.setText(achFile.getFileHeader()
                 .getFileCreationDate()
                 + " " + achFile.getFileHeader().getFileCreationTime());
@@ -948,7 +946,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
      */
     @Override
     public void onSetAchFile() {
-        ACHDocument achFile = model.getAchFile();
+        ACHDocument achFile = model.getAchDocument();
         jListAchRecords.setModel(new AchRecordsModel(model));
         jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
         loadAchInformation();
@@ -981,9 +979,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         }
     }
 
-    public void putRow(int selectRow, final ACHRecord achRecord) {
-    }
-    
     public void registerListener(ACHEditorViewListener viewListener) {
         jMenuItemFileOpen.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

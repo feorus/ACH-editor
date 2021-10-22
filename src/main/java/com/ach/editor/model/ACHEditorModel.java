@@ -6,12 +6,9 @@ package com.ach.editor.model;
 import java.io.File;
 import java.util.*;
 
-import com.ach.domain.ACHBatch;
-import com.ach.domain.ACHEntry;
-import com.ach.domain.ACHRecordAddenda;
+import com.ach.domain.*;
 import com.ach.editor.view.RecordAndPositions;
 import org.slf4j.Logger;
-import com.ach.domain.ACHDocument;
 import com.google.common.collect.ImmutableList;
 /**
  * @author ilyakharlamov
@@ -20,7 +17,7 @@ import com.google.common.collect.ImmutableList;
 public class ACHEditorModel {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ACHEditorModel.class);
 
-    private ACHDocument achFile;
+    private ACHDocument achDocument;
 
     private boolean achFileDirty;
 
@@ -38,14 +35,14 @@ public class ACHEditorModel {
     }
 
     public ImmutableList<RecordAndPositions> getAchRecords() {
-        if (achFile == null) {
+        if (achDocument == null) {
             LOG.info("no ach records");
             return ImmutableList.of();
         }
         ImmutableList.Builder<RecordAndPositions> items = ImmutableList.<RecordAndPositions>builder();
-        items.add(new RecordAndPositions(achFile.getFileHeader(), new Integer[0]));
+        items.add(new RecordAndPositions(achDocument.getFileHeader(), new Integer[0]));
 
-        Vector<ACHBatch> achBatches = achFile.getBatches();
+        Vector<ACHBatch> achBatches = achDocument.getBatches();
         for (int i = 0; i < achBatches.size(); i++) {
             items.add(new RecordAndPositions(achBatches.get(i).getBatchHeader(), new Integer[] { i }));
             Vector<ACHEntry> achEntries = achBatches.get(i).getEntryRecs();
@@ -59,7 +56,7 @@ public class ACHEditorModel {
             }
             items.add(new RecordAndPositions(achBatches.get(i).getBatchControl(),new Integer[] { i }));
         }
-        items.add(new RecordAndPositions(achFile.getFileControl(),new Integer[0]));
+        items.add(new RecordAndPositions(achDocument.getFileControl(),new Integer[0]));
         return items.build();
     }
 
@@ -67,8 +64,8 @@ public class ACHEditorModel {
         this.subscribers.add(subscriber);
     }
 
-    public ACHDocument getAchFile() {
-        return achFile;
+    public ACHDocument getAchDocument() {
+        return achDocument;
     }
 
     public File getOutputFile() {
@@ -79,9 +76,9 @@ public class ACHEditorModel {
         return achFileDirty;
     }
 
-    public void setAchDocument(ACHDocument achFile) {
-        LOG.debug("setAchFile({})", achFile);
-        this.achFile = achFile;
+    public void setAchDocument(ACHDocument achDocument) {
+        LOG.debug("setAchDocument({})", achDocument);
+        this.achDocument = achDocument;
         for (ModelListener s : subscribers) {
             s.onSetAchFile();
         }
@@ -121,5 +118,37 @@ public class ACHEditorModel {
 
     public String getSearchText() {
         return searchText;
+    }
+
+    public void setFileHeader(ACHRecordFileHeader fileHeader) {
+        achDocument.setFileHeader(fileHeader);
+        setAchFileDirty(true);
+    }
+
+    public void setBatchHeader(int batchIndex, ACHRecordBatchHeader achBatchHeader) {
+        achDocument.getBatches().get(batchIndex).setBatchHeader(achBatchHeader);
+        setAchFileDirty(true);
+    }
+
+    public void setEntryDetail(int batchIndex, int entryIndex, ACHRecordEntryDetail entryDetail) {
+        achDocument.getBatches().get(batchIndex).getEntryRecs().get(entryIndex).setEntryDetail(entryDetail);
+        setAchFileDirty(true);
+    }
+
+    public void setAddenda(int batchIndex, int entryIndex, int addendaIndex, ACHRecordAddenda achRecord) {
+        Vector<ACHRecordAddenda> existingAddendas = achDocument.getBatches().get(batchIndex).getEntryRecs().get(entryIndex).getAddendaRecs();
+        existingAddendas.set(addendaIndex, achRecord);
+        achDocument.getBatches().get(batchIndex).getEntryRecs().get(entryIndex).setAddendaRecs(existingAddendas);
+        setAchFileDirty(true);
+    }
+
+    public void setBatchControl(int batchIndex, ACHRecordBatchControl batchControl) {
+        achDocument.getBatches().get(batchIndex).setBatchControl(batchControl);
+        setAchFileDirty(true);
+    }
+
+    public void setFileControl(ACHRecordFileControl fileControl) {
+        achDocument.setFileControl(fileControl);
+        setAchFileDirty(true);
     }
 }
