@@ -22,7 +22,7 @@ import java.util.Vector;
 public class Main {
     private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ACHEditorController.class);
 
-    public static void main(String args[]) {
+    public static void main(String[] args) {
 
         if (args.length > 0 && args[0].equals("--validate")) {
             ACHDocument achFile;
@@ -30,7 +30,7 @@ public class Main {
             try {
                 if (args.length > 1) {
                     final String filename = args[1];
-                    achFile = FileSystemIOWorld.fromInputStream(new FileInputStream(new File(filename)));
+                    achFile = FileSystemIOWorld.fromInputStream(new FileInputStream(filename));
                 } else {
                     achFile = FileSystemIOWorld.fromInputStream(System.in);
                 }
@@ -78,7 +78,7 @@ public class Main {
      * @param args
      *            the command line arguments
      */
-    public static void runWithoutValidation(String args[]) {
+    public static void runWithoutValidation(String[] args) {
     	final ACHEditorModel model = new ACHEditorModel();
         final ACHEditorView view = new ACHEditorView(model);
     	final ACHEditorController controller = new ACHEditorController(model, view, new FileSystemIOWorld());
@@ -93,9 +93,7 @@ public class Main {
     	} catch (Exception ex) {
     		System.err.println(ex.getMessage());
     		ex.printStackTrace();
-    		if (view != null) {
-    			view.dispose();
-    		}
+            view.dispose();
     	}
     }
 

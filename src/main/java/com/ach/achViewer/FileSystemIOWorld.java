@@ -1,6 +1,3 @@
-/**
- * 
- */
 package com.ach.achViewer;
 
 import java.io.File;
