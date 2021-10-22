@@ -4,7 +4,6 @@ import com.ach.domain.ACHDocument;
 import com.ach.editor.controller.ACHEditorController;
 import com.ach.editor.model.ACHEditorModel;
 import com.ach.editor.view.ACHEditorView;
-import com.ach.editor.view.IOWorld;
 import org.slf4j.Logger;
 
 import java.io.BufferedReader;
@@ -31,9 +30,9 @@ public class Main {
             try {
                 if (args.length > 1) {
                     final String filename = args[1];
-                    achFile = FileSystemIOWorld.fromIs(new FileInputStream(new File(filename)));
+                    achFile = FileSystemIOWorld.fromInputStream(new FileInputStream(new File(filename)));
                 } else {
-                    achFile = FileSystemIOWorld.fromIs(System.in);
+                    achFile = FileSystemIOWorld.fromInputStream(System.in);
                 }
             } catch (Exception ex) {
                 System.err.println("Failed to read ACH File");

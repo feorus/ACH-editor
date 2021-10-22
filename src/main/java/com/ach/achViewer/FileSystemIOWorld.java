@@ -43,7 +43,7 @@ public class FileSystemIOWorld implements IOWorld {
         }
     }
 
-    static ACHDocument fromIs(final InputStream is) throws AchParserException {
+    static ACHDocument fromInputStream(final InputStream is) throws AchParserException {
     	try {
     		ArrayList<String> lines = Main.getLines(is);
     		ACHViewerFileParser parser = new ACHViewerFileParser();
@@ -55,7 +55,7 @@ public class FileSystemIOWorld implements IOWorld {
 
     public static ACHDocument parseFile(File file) throws AchParserException {
         try {
-            return FileSystemIOWorld.fromIs(new FileInputStream(file));
+            return FileSystemIOWorld.fromInputStream(new FileInputStream(file));
     	} catch (FileNotFoundException e) {
     		throw new AchParserException(e);
     	}
