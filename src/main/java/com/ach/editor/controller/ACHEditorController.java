@@ -11,16 +11,17 @@ import java.util.Vector;
 import javax.swing.JFileChooser;
 import javax.swing.JPopupMenu;
 
+import com.ach.achViewer.IOWorld;
 import com.ach.editor.view.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
-import com.ach.achViewer.ACHAddendaDialog;
-import com.ach.achViewer.ACHBatchControlDialog;
-import com.ach.achViewer.ACHBatchHeaderDialog;
-import com.ach.achViewer.ACHEntryDetailDialog;
-import com.ach.achViewer.ACHFileControlDialog;
-import com.ach.achViewer.ACHFileHeaderDialog;
+import com.ach.editor.view.dialog.ACHAddendaDialog;
+import com.ach.editor.view.dialog.ACHBatchControlDialog;
+import com.ach.editor.view.dialog.ACHBatchHeaderDialog;
+import com.ach.editor.view.dialog.ACHEntryDetailDialog;
+import com.ach.editor.view.dialog.ACHFileControlDialog;
+import com.ach.editor.view.dialog.ACHFileHeaderDialog;
 import com.ach.domain.ACHBatch;
 import com.ach.domain.ACHEntry;
 import com.ach.domain.ACHDocument;

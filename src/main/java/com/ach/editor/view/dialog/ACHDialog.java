@@ -4,7 +4,7 @@
  * Created on April 16, 2007, 7:45 PM
  */
 
-package com.ach.achViewer;
+package com.ach.editor.view.dialog;
 
 import javax.swing.InputVerifier;
 import javax.swing.JComponent;

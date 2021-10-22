@@ -928,6 +928,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     public void loadAchDataRecords() {
         this.positions = model.getAchRecords();
+        jListAchDataAchRecords.removeAll();
+        clearAchInfo();
         for (RecordAndPositions item: positions) {
             addJListAchDataAchRecordsItem(item.getAchRecord());
         }
