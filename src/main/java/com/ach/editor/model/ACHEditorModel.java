@@ -26,15 +26,16 @@ public class ACHEditorModel {
 
     private File outputFile;
 
-    private int selectedRow;
-
     private List<ModelListener> subscribers;
 
     private Optional<String> currentSearchText;
+    private int[] selectedRows;
 
     public ACHEditorModel() {
         super();
         this.subscribers = new ArrayList<>();
+        currentSearchText = Optional.empty();
+        selectedRows = new int[]{};
     }
 
     public ImmutableList<RecordAndPositions> getAchRecords() {
@@ -75,10 +76,6 @@ public class ACHEditorModel {
         return outputFile;
     }
 
-    public int getSelectedRow() {
-        return selectedRow;
-    }
-
     public boolean isAchFileDirty() {
         return achFileDirty;
     }
@@ -107,12 +104,15 @@ public class ACHEditorModel {
         }
     }
 
-    public void setSelectedRow(int selectedRow) {
-        LOG.debug("setSelectedRow({})", selectedRow);
-        this.selectedRow = selectedRow;
+    public void setSelectedRows(int[] selectedRows) {
+        LOG.debug("setSelectedRows({})", selectedRows);
+        this.selectedRows = selectedRows;
         for (ModelListener s : subscribers) {
             s.onSetSelectedRow();
         }
     }
 
+    public int[] getSelectedRows() {
+        return this.selectedRows;
+    }
 }

@@ -20,7 +20,7 @@ import java.util.Vector;
  * @author frank
  */
 public class Main {
-    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(ACHEditorController.class);
+    private static final Logger LOG = org.slf4j.LoggerFactory.getLogger(Main.class);
 
     public static void main(String[] args) {
 

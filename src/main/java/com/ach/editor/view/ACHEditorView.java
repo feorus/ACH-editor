@@ -6,6 +6,15 @@
 
 package com.ach.editor.view;
 
+import com.ach.domain.ACHDocument;
+import com.ach.domain.ACHRecord;
+import com.ach.domain.ACHSelection;
+import com.ach.editor.controller.ACHEditorController;
+import com.ach.editor.model.ACHEditorModel;
+import com.ach.editor.model.ModelListener;
+import org.slf4j.Logger;
+
+import javax.swing.*;
 import java.awt.*;
 import java.awt.datatransfer.Transferable;
 import java.awt.datatransfer.UnsupportedFlavorException;
@@ -16,16 +25,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
-
-import javax.swing.*;
-
-import com.ach.domain.ACHDocument;
-import com.ach.domain.ACHRecord;
-import com.ach.domain.ACHSelection;
-import com.ach.editor.controller.ACHEditorController;
-import com.ach.editor.model.ACHEditorModel;
-import com.ach.editor.model.ModelListener;
-import org.slf4j.Logger;
 
 /**
  * 
@@ -74,7 +73,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     private javax.swing.JLabel jLabelAchInfoTotalDebitText;
 
-    private javax.swing.JList jListAchDataAchRecords;
+    private javax.swing.JList jListAchRecords;
 
     private javax.swing.JMenuBar jMenuBar;
 
@@ -166,7 +165,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     /** Creates new form ACHViewer */
     public ACHEditorView(ACHEditorModel achappmodel) {
-
+        this.model = achappmodel;
+        this.model.addSubscriber(this);
         try {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             // Don't throw errors if the native look and feel can't be found,
@@ -179,6 +179,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
         initComponents();
 
+        jListAchRecords.setModel(new AchRecordsModel(this.model));
+//        jListAchRecords.setSelectionModel(new AchRecordsSelectionModel(this.model));
+
         jMenuItemToolsRecalculate.setEnabled(false);
         jMenuItemToolsSearch.setEnabled(false);
         jMenuItemToolsValidate.setEnabled(false);
@@ -189,13 +192,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
         setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        this.model = achappmodel;
-        this.model.addSubscriber(this);
-    }
 
-    private synchronized void addJListAchDataAchRecordsItem(ACHRecord achRecord) {
-        ((DefaultListModel) jListAchDataAchRecords.getModel())
-                .addElement(achRecord);
     }
 
     public int askDeleteCancel(final String title, final String message) {
@@ -232,12 +229,9 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         jLabelAchInfoEntryCount.setText("0");
         jLabelAchInfoTotalDebit.setText("0");
         jLabelAchInfoTotalCredit.setText("0");
-        jListAchDataAchRecords.setModel(new DefaultListModel());
     }
 
     public synchronized void clearJListAchDataAchRecords() {
-        ((DefaultListModel) jListAchDataAchRecords.getModel())
-                .removeAllElements();
         jMenuItemToolsRecalculate.setEnabled(false);
         jMenuItemToolsValidate.setEnabled(false);
     }
@@ -246,7 +240,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
      * @return
      */
     public int clickedIndex() {
-        return jListAchDataAchRecords.locationToIndex(mouseClick);
+        return jListAchRecords.locationToIndex(mouseClick);
+        //return jListAchDataAchRecords.locationToIndex(mouseClick);
     }
 
     // This method writes the current selection to the system clipboard
@@ -254,7 +249,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         Vector<ACHRecord> achRecords = new Vector<ACHRecord>(selected.length,
                 10);
         for (int i = 0; i < selected.length; i++) {
-            achRecords.add(getRow(i));
+            achRecords.add(model.getAchRecords().get(i).getAchRecord());
         }
         ACHSelection clipboardSelection = new ACHSelection(achRecords);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(
@@ -286,15 +281,6 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         return positions.get(index).getIntegers();
     }
 
-    public ACHRecord getRow(int i) {
-        return (ACHRecord) jListAchDataAchRecords.getModel()
-                .getElementAt(i);
-    }
-
-    public int[] getSelectedRows() {
-        return jListAchDataAchRecords.getSelectedIndices();
-    }
-    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -359,7 +345,8 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
         jLabelAchInfoTotalDebit = new javax.swing.JLabel();
         jLabelAchInfoTotalCredit = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jListAchDataAchRecords = new javax.swing.JList();
+        jListAchRecords =
+                new javax.swing.JList();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jMenuBar = new javax.swing.JMenuBar();
@@ -767,12 +754,10 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
                                                 javax.swing.GroupLayout.DEFAULT_SIZE,
                                                 Short.MAX_VALUE)));
 
-        jScrollPane1.setBorder(javax.swing.BorderFactory
-                .createTitledBorder("ACH Data"));
-        jListAchDataAchRecords.setFont(new java.awt.Font("Courier New", 0, 12));
+        jScrollPane1.setBorder(javax.swing.BorderFactory.createTitledBorder("ACH Data 2"));
+        jListAchRecords.setFont(new java.awt.Font("Courier New", 0, 12));
 
-
-        jScrollPane1.setViewportView(jListAchDataAchRecords);
+        jScrollPane1.setViewportView(jListAchRecords);
 
         jLabel1.setFont(new java.awt.Font("Courier New", 0, 12));
         jLabel1
@@ -922,17 +907,14 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
                                         .addComponent(
                                                 jScrollPane1,
                                                 javax.swing.GroupLayout.DEFAULT_SIZE,
-                                                348, Short.MAX_VALUE)));
+                                                348, Short.MAX_VALUE)
+                                        ));
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
     public void loadAchDataRecords() {
         this.positions = model.getAchRecords();
-        jListAchDataAchRecords.removeAll();
         clearAchInfo();
-        for (RecordAndPositions item: positions) {
-            addJListAchDataAchRecordsItem(item.getAchRecord());
-        }
         jMenuItemToolsRecalculate.setEnabled(true);
         jMenuItemToolsSearch.setEnabled(true);
         jMenuItemToolsValidate.setEnabled(true);
@@ -967,6 +949,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
     @Override
     public void onSetAchFile() {
         ACHDocument achFile = model.getAchFile();
+        jListAchRecords.setModel(new AchRecordsModel(model));
         jCheckBoxMenuFedFile.setSelected(achFile.isFedFile());
         loadAchInformation();
         clearJListAchDataAchRecords();
@@ -991,14 +974,14 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
 
     @Override
     public void onSetSelectedRow() {
-        LOG.debug("onSetSelectedRow");
-        int index = model.getSelectedRow();
-        jListAchDataAchRecords.setSelectedIndex(index);
-        jListAchDataAchRecords.ensureIndexIsVisible(index);
+        //int index = model.getSelectedRows();
+        LOG.debug("view listener at onSetSelectedRow (does nothing)");
+        //jListAchDataAchRecords.setSelectedIndex(index);
+        //jListAchDataAchRecords.ensureIndexIsVisible(index);
+        //jListAchDataAchRecords.setSelectionBackground(Color.ORANGE);
     }
 
     public void putRow(int selectRow, final ACHRecord achRecord) {
-        ((DefaultListModel) jListAchDataAchRecords.getModel()).setElementAt(achRecord, selectRow);
     }
     
     public void registerListener(ACHEditorViewListener viewListener) {
@@ -1161,7 +1144,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             }
         });
         ACHEditorView that = this;
-        jListAchDataAchRecords.addMouseListener(new java.awt.event.MouseAdapter() {
+        jListAchRecords.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 int clickCount = evt.getClickCount();
                 int button = evt.getButton();
@@ -1224,7 +1207,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
      * @param dialog
      */
     public void showDialog(JPopupMenu dialog) {
-        dialog.show(jListAchDataAchRecords, mouseClick.x, mouseClick.y);
+        dialog.show(jListAchRecords, mouseClick.x, mouseClick.y);
     }
     /**
      * @param title

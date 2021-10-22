@@ -5,6 +5,7 @@ package com.ach.editor.controller;
 
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
 
@@ -13,6 +14,7 @@ import javax.swing.JPopupMenu;
 
 import com.ach.achViewer.IOWorld;
 import com.ach.editor.view.*;
+import com.google.common.collect.ImmutableList;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 
@@ -58,12 +60,12 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void addAchAddenda() {
         final ACHDocument achFile = model.getAchFile();
-        int selected = view.clickedIndex();
-        if (selected < 0) {
+        if (model.getSelectedRows().length == 0) {
             view.showError("Cannot perform request", "No items selected ... cannot add addenda");
             return;
         }
-        ACHRecord achRecord = view.getRow(selected);
+        int selected = model.getSelectedRows()[0];
+        ACHRecord achRecord = model.getAchRecords().get(selected).getAchRecord();
         if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
             Integer[] position = view.getPositions(selected);
             if (position.length < 2) {
@@ -100,7 +102,6 @@ public class ACHEditorController implements ACHEditorViewListener {
             // Update display with new data
             model.setAchFileDirty(true);
             model.setAchDocument(achFile);
-            model.setSelectedRow(selected);
         } else {
             view.showError("Cannot perform requested function", "Cannot add addenda after this row");
             return;
@@ -110,14 +111,14 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void addAchBatch() {
         final ACHDocument achFile = model.getAchFile();
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot add entry detail");
             return;
         }
 
         final int selectedIdx = selected[0];
-        ACHRecord achRecord = view.getRow(selectedIdx);
+        ACHRecord achRecord = model.getAchRecords().get(selectedIdx).getAchRecord();
         if (achRecord.isFileHeaderType() || achRecord.isBatchHeaderType() || achRecord.isBatchControlType()) {
 
             // Build the ACHBatch type
@@ -141,8 +142,6 @@ public class ACHEditorController implements ACHEditorViewListener {
 
             // update display
             model.setAchDocument(achFile);
-            model.setSelectedRow(selectedIdx);
-
         } else {
             view.showError("Cannot perform requested function", "Cannot add entry detail after this row");
             return;
@@ -152,13 +151,13 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void addAchEntryDetail() {
         final ACHDocument achFile = model.getAchFile();
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot add entry detail");
             return;
         }
         final int index = selected[0];
-        ACHRecord achRecord = view.getRow(index);
+        ACHRecord achRecord = model.getAchRecords().get(index).getAchRecord();
         if (achRecord.isEntryDetailType() || achRecord.isAddendaType() || achRecord.isBatchHeaderType()) {
             Integer[] position = view.getPositions(index);
             ACHRecordEntryDetail entryRecord = new ACHRecordEntryDetail();
@@ -178,7 +177,6 @@ public class ACHEditorController implements ACHEditorViewListener {
             model.setAchFileDirty(true);
             view.clearJListAchDataAchRecords();
             view.loadAchDataRecords();
-            model.setSelectedRow(index);
         } else {
             view.showError("Cannot perform requested function", "Cannot add entry detail after this row");
             return;
@@ -187,19 +185,19 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     private ACHRecord clickedRecord() {
         int itemAtMouse = view.clickedIndex();
-        ACHRecord achRecord = view.getRow(itemAtMouse);
+        ACHRecord achRecord = model.getAchRecords().get(itemAtMouse).getAchRecord();
         return achRecord;
     }
 
     public void deleteAchAddenda() {
         final ACHDocument achFile = model.getAchFile();
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete entry detail");
             return;
         }
         for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = view.getRow(selected[i]);
+            ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
             if (achRecord.isAddendaType()) {
             } else {
                 view.showError("Cannot perform requested function",
@@ -246,14 +244,13 @@ public class ACHEditorController implements ACHEditorViewListener {
         model.setAchFileDirty(true);
         model.setAchDocument(achFile);
         final int index = selected[0];
-        model.setSelectedRow(index);
     }
 
     /**
      * @param selectRow
      */
     private void deleteAchRecord(int selectRow) {
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length > 1) {
             int addendaCount = 0;
             int entryCount = 0;
@@ -262,7 +259,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             int fileHeaderCount = 0;
             int fileControlCount = 0;
             for (int i = 0; i < selected.length; i++) {
-                ACHRecord achRecord = view.getRow(selected[i]);
+                ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
                 if (achRecord.isAddendaType()) {
                     addendaCount++;
                 } else if (achRecord.isEntryDetailType()) {
@@ -310,7 +307,7 @@ public class ACHEditorController implements ACHEditorViewListener {
                 }
             }
         } else {
-            ACHRecord achRecord = view.getRow(selectRow);
+            ACHRecord achRecord = model.getAchRecords().get(selectRow).getAchRecord();
             if (achRecord.isBatchHeaderType() || achRecord.isBatchControlType()) {
                 onDeleteAchBatch();
             } else if (achRecord.isEntryDetailType()) {
@@ -400,7 +397,7 @@ public class ACHEditorController implements ACHEditorViewListener {
     }
 
     public void editAchRecord(int selectRow) {
-        char recordType = view.getRow(selectRow).getRecordTypeCode();
+        char recordType = model.getAchRecords().get(selectRow).getAchRecord().getRecordTypeCode();
         Integer[] position = view.getPositions(selectRow);
         if (recordType == ACHRecord.FILE_HEADER_TYPE) {
             editAchFileHeader(selectRow);
@@ -445,13 +442,13 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void onDeleteAchBatch() {
         final ACHDocument achDoc = model.getAchFile();
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete");
             return;
         }
         for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = view.getRow(selected[i]);
+            ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
             if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
                 view.showError("Cannot perform requested function",
                         "Cannot delete file header/control rows in selection list");
@@ -464,7 +461,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             if (position.length != 1) {
                 // find batch headers -- skipp entry and addenda
             } else {
-                ACHRecord achRecord = view.getRow(selected[i]);
+                ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
                 // only delete items that match the headers
                 if (achRecord.isBatchHeaderType()) {
                     achDoc.getBatches().remove(position[0].intValue());
@@ -473,18 +470,17 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
         model.setAchDocument(achDoc);
         model.setAchFileDirty(true);
-        model.setSelectedRow(selected[0]);
     }
 
     public void onDeleteAchBatch(ACHEditorController achEditorController) {
         final ACHDocument achFile = model.getAchFile();
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete");
             return;
         }
         for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = view.getRow(selected[i]);
+            ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
             if (achRecord.isFileHeaderType() || achRecord.isFileControlType()) {
                 final String message = "Cannot delete file header/control rows " + "in selection list";
                 final String title = "Cannot perform requested function";
@@ -498,7 +494,7 @@ public class ACHEditorController implements ACHEditorViewListener {
             if (position.length != 1) {
                 // find batch headers -- skipp entry and addenda
             } else {
-                ACHRecord achRecord = view.getRow(selected[i]);
+                ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
                 // only delete items that match the headers
                 if (achRecord.isBatchHeaderType()) {
                     achFile.getBatches().remove(position[0].intValue());
@@ -507,19 +503,18 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
         model.setAchFileDirty(true);
         model.setAchDocument(achFile);
-        model.setSelectedRow(selected[0]);
     }
 
     @Override
     public void onDeleteAchEntryDetail() {
         final ACHDocument achFile = model.getAchFile();
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         if (selected.length < 1) {
             view.showError("Cannot perform request", "No items selected ... cannot delete entry detail");
             return;
         }
         for (int i = 0; i < selected.length; i++) {
-            ACHRecord achRecord = view.getRow(selected[i]);
+            ACHRecord achRecord = model.getAchRecords().get(selected[i]).getAchRecord();
             if (achRecord.isEntryDetailType() || achRecord.isAddendaType()) {
             } else {
                 view.showError("Cannot perform requested function",
@@ -542,7 +537,6 @@ public class ACHEditorController implements ACHEditorViewListener {
         }
         model.setAchFileDirty(true);
         model.setAchDocument(achFile);
-        model.setSelectedRow(selected[0]);
     }
 
     @Override
@@ -654,13 +648,13 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void onSearch(String text) {
         List<RecordAndPositions> recs = model.getAchRecords();
-        int startFrom = model.getSelectedRow();
-        LOG.debug("startFrom:{}\n", startFrom);
+        int startFrom = model.getSelectedRows().length == 0 ? 0 : model.getSelectedRows()[0];
+        LOG.debug("searching startFrom:{}\n", startFrom);
         for (int i = startFrom; i < recs.size(); i++) {
             RecordAndPositions rec = recs.get(i);
-            LOG.debug("rec:{}\n", rec.getAchRecord().toString());
+            LOG.debug("searching rec:{}\n", rec.getAchRecord().toString());
             if(rec.getAchRecord().toString().contains(text)) {
-                model.setSelectedRow(i);
+                model.setSelectedRows(new int[]{i});
                 return;
             }
         }
@@ -674,7 +668,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupAddendaCopy() {
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         view.copy(selected);
     }
 
@@ -692,7 +686,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupBatchCopy() {
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         view.copy(selected);
     }
 
@@ -710,7 +704,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupEntryCopy() {
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         view.copy(selected);
     }
 
@@ -734,7 +728,7 @@ public class ACHEditorController implements ACHEditorViewListener {
 
     @Override
     public void onItemPopupMultipleCopy() {
-        int[] selected = view.getSelectedRows();
+        int[] selected = model.getSelectedRows();
         view.copy(selected);
     }
 
@@ -786,19 +780,8 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void onListClick(int itemAtMouse, int clickCount, int button) {// GEN-FIRST:event_jListAchDataAchRecordsMouseClicked
         LOG.debug("onListClick:{}, {}, {}", itemAtMouse, clickCount, button);
-        model.setSelectedRow(itemAtMouse);
-        int[] selected = view.getSelectedRows();
-        boolean found = false;
-        for (int i = 0; i < selected.length && (!found); i++) {
-            if (itemAtMouse == selected[i]) {
-                found = true;
-            }
-        }
-        if (!found) {
-            model.setSelectedRow(itemAtMouse);
-            selected = view.getSelectedRows();
-        }
-
+        int[] selected = new int[]{itemAtMouse};
+        model.setSelectedRows(selected);
         if (selected.length < 1) {
             return;
         }
@@ -841,5 +824,14 @@ public class ACHEditorController implements ACHEditorViewListener {
     private void fileSave() {
         final ACHDocument achFile = model.getAchFile();
         ioWorld.save(model.getOutputFile(), achFile);
+    }
+
+    public void onKeyDown() {
+        int[] selectedRows = model.getSelectedRows();
+        if (selectedRows.length == 0) {
+            model.setSelectedRows(new int[]{0});
+        } else {
+            model.setSelectedRows(new int[]{selectedRows[0]+1});
+        }
     }
 }
