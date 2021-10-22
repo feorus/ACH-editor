@@ -1133,7 +1133,7 @@ public class ACHEditorView extends javax.swing.JFrame implements ModelListener {
             }
         });
         jMenuItemToolsSearch.addActionListener(evt -> {
-            String text = JOptionPane.showInputDialog("search for");
+            String text = JOptionPane.showInputDialog("search for", model.getSearchText());
             if (text!=null) {
                 viewListener.onSearch(text);
             }

@@ -28,13 +28,12 @@ public class ACHEditorModel {
 
     private List<ModelListener> subscribers;
 
-    private Optional<String> currentSearchText;
     private int[] selectedRows;
+    private String searchText = "";
 
     public ACHEditorModel() {
         super();
         this.subscribers = new ArrayList<>();
-        currentSearchText = Optional.empty();
         selectedRows = new int[]{};
     }
 
@@ -114,5 +113,13 @@ public class ACHEditorModel {
 
     public int[] getSelectedRows() {
         return this.selectedRows;
+    }
+
+    public void setSearchText(String text) {
+        this.searchText = text;
+    }
+
+    public String getSearchText() {
+        return searchText;
     }
 }

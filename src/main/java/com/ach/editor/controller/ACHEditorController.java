@@ -648,8 +648,9 @@ public class ACHEditorController implements ACHEditorViewListener {
     @Override
     public void onSearch(String text) {
         List<RecordAndPositions> recs = model.getAchRecords();
-        int startFrom = model.getSelectedRows().length == 0 ? 0 : model.getSelectedRows()[0];
+        int startFrom = model.getSelectedRows().length == 0 ? 0 : model.getSelectedRows()[0]+1;
         LOG.debug("searching startFrom:{}\n", startFrom);
+        model.setSearchText(text);
         for (int i = startFrom; i < recs.size(); i++) {
             RecordAndPositions rec = recs.get(i);
             LOG.debug("searching rec:{}\n", rec.getAchRecord().toString());
