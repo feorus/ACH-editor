@@ -611,11 +611,12 @@ public class ACHEditorController implements ACHEditorViewListener {
         JFileChooser chooser = new JFileChooser(getStartFromFile());
         chooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
         chooser.setApproveButtonText("Save As");
-
+        LOG.debug("save As");
         int returnVal = chooser.showSaveDialog(view.getContentPane());
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             String fileName = chooser.getSelectedFile().getAbsolutePath();
-            if (new File(fileName).exists()) {
+            File file = new File(fileName);
+            if (file.exists()) {
                 final String message = "File " + fileName + " already exists. Overwrite??";
                 final String title = "File already exists";
                 int answer = view.askYesNo(message, title);
@@ -623,6 +624,7 @@ public class ACHEditorController implements ACHEditorViewListener {
                     return;
                 }
             }
+            model.setOutputFile(file);
             onFileSave();
         }
     }
